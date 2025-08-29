@@ -1,3 +1,47 @@
 .header-container {
-    background-color: #f84c2f;
+    position: absolute;
+    width: 100%;
+    height: 70px;
+    z-index: 1000;
+    .header-item {
+        cursor: pointer;
+        display: inline-block;
+        position: relative;
+        color: black;
+        font-size: 20px;
+        text-align: center;
+        font-weight: 400;
+        transition: all 0.3s ease;
+        &::after {
+            content: "";
+            position: absolute;
+            left: 0px;
+            bottom: 0px;
+            width: 0%;
+            height: 0.1px;
+            background-color: var(--baseFive);
+            transition: all 0.3s ease;
+        }
+        &:hover {
+            color: var(--baseFive);
+
+            &::after {
+                width: 100%;
+            }
+        }
+    }
+    .header-item-active {
+        color: var(--baseFive);
+        &::after {
+            width: 100%;
+        }
+    }
+    .cart-icon, .user-icon {
+        stroke: black;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        &:hover {
+            stroke: var(--baseFive);
+        }
+    }
 }

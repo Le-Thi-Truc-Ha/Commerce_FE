@@ -19,6 +19,9 @@ const NotFound = () => {
                     </button>
                 </div>
             </div>
+            <div className="img-bg">
+                <img src="https://res.cloudinary.com/dibigdhgr/image/upload/v1756132945/bg-not-found_f6wo3y.png" />
+            </div>
         </div>
     )
 }

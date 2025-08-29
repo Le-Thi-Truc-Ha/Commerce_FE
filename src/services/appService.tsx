@@ -1,14 +1,20 @@
-import axios from "axios";
-import type { BackendResponse } from "../interfaces/appInterface";
+import axios from "../configs/axios";
+import type { BackendResponse, GoogleUser } from "../interfaces/appInterface";
 
-const loginApi = (username: string, password: string): Promise<BackendResponse> => {
+const googleLoginApi = (userInformation: GoogleUser): Promise<BackendResponse> => {
+    return axios.post("/google-login", {
+        userInformation
+    })
+}
+
+const normalLoginApi = (username: string, password: string): Promise<BackendResponse> => {
     return axios.post("/login", {
         username, password
     });
 };
 
-const reloadPageApi = (): Promise<BackendResponse> => {
-    return axios.get("/reload-page");
+const reloadPageApi = (googleLogin: boolean): Promise<BackendResponse> => {
+    return axios.get(`/reload-page?googleLogin=${googleLogin}`);
 }
 
 const logoutApi = (): Promise<BackendResponse> => {
@@ -16,5 +22,5 @@ const logoutApi = (): Promise<BackendResponse> => {
 }
 
 export default {
-    loginApi, reloadPageApi, logoutApi
+    googleLoginApi, normalLoginApi, reloadPageApi, logoutApi
 }

@@ -7,6 +7,7 @@ export interface UserType {
     isAuthenticated: boolean;
     roleId: number;
     accountId: number;
+    googleLogin: boolean;
 }
 
 interface UserContextType {
@@ -17,7 +18,7 @@ interface UserContextType {
 }
 
 export const UserContext = createContext<UserContextType>({
-    user: {isAuthenticated: false, roleId: -1, accountId: -1},
+    user: {isAuthenticated: false, roleId: -1, accountId: -1, googleLogin: false},
     loginContext: () => {},
     logoutContext: () => {},
     isLoading: false
@@ -28,7 +29,7 @@ interface UserProviderProps {
 }
 
 export const UserProvider = ({children}: UserProviderProps): JSX.Element => {
-    const userDefault: UserType = {isAuthenticated: false, roleId: -1, accountId: -1};
+    const userDefault: UserType = {isAuthenticated: false, roleId: -1, accountId: -1, googleLogin: false};
     const [user, setUser] = useState<UserType>(userDefault);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const navigate = useNavigate();
@@ -40,12 +41,13 @@ export const UserProvider = ({children}: UserProviderProps): JSX.Element => {
     const reloadPage = async (): Promise<void> => {
         setIsLoading(true);
         try {
-            const result: BackendResponse = await appService.reloadPageApi();
+            const result: BackendResponse = await appService.reloadPageApi(user.googleLogin);
             if (result.code == 0) {
                 const userData: UserType = {
                     isAuthenticated: true,
                     accountId: result.data.decoded.id,
-                    roleId: result.data.decoded.roleId
+                    roleId: result.data.decoded.roleId,
+                    googleLogin: result.data.decoded.googleLogin
                 }
                 setUser(userData);
             } else {

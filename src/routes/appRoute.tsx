@@ -1,6 +1,6 @@
 import { useContext, type JSX } from "react";
 import { UserContext } from "../configs/globalVariable";
-import { Outlet, Route, Routes, useLocation } from "react-router-dom";
+import { Outlet, Route, Routes } from "react-router-dom";
 import PublicRoute from "./publicRoute";
 import PrivateRoute from "./privateRoute";
 import NotFound from "../components/Other/NotFound";

@@ -13,3 +13,10 @@ export const messageService: MessageFuncs = {
   success: () => {},
   error: () => {},
 };
+
+export interface GoogleUser {
+  name: string,
+  email: string,
+  idToken: string,
+  uid: string
+}

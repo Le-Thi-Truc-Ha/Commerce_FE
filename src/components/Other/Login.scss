@@ -1,0 +1,29 @@
+.login-container {
+    background-color: var(--baseOne);
+    width: 100%;
+    height: 100vh;
+    .eye-icon {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+    }
+    .forgot-div, .create-span {
+        color: var(--baseFive);
+        position: relative;
+        cursor: pointer;
+        &::after {
+            content: "";
+            position: absolute;
+            width: 0px;
+            height: 0.1px;
+            left: 0px;
+            bottom: 0px;
+            background-color: var(--baseFive);
+            transition: all 0.3s ease;
+        }
+        &:hover::after {
+            width: 100%;
+        }
+    }
+}
