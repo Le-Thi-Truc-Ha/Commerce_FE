@@ -1,5 +1,5 @@
 import { Button, Col, ConfigProvider, Divider, Input, Row } from "antd";
-import { useContext, useState, type JSX } from "react";
+import { use, useContext, useState, type JSX } from "react";
 import "./Login.scss";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -8,34 +8,44 @@ import { auth, provider } from "../../configs/firebase";
 import { messageService, type BackendResponse, type GoogleUser } from "../../interfaces/appInterface";
 import appService from "../../services/appService";
 import { UserContext, type UserType } from "../../configs/globalVariable";
+import Loading from "./Loading";
 
 const Login = (): JSX.Element => {
     const navigate = useNavigate();
     const {loginContext} = useContext(UserContext);
     const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [loginLoading, setLoginLoading] = useState<boolean>(false);
 
     const googleLogin = async () => {
         try {
             const login: UserCredential = await signInWithPopup(auth, provider);
-            const credential = GoogleAuthProvider.credentialFromResult(login);
             const user = login.user;
-            const userInformation: GoogleUser = {name: user.displayName ?? "", email: user.email ?? "", idToken: credential?.idToken ?? "", uid: user.uid}
+            const idToken = await user.getIdToken();
+
+            const userInformation: GoogleUser = {name: user.displayName ?? "", email: user.email ?? "", idToken: idToken, uid: user.uid}
+            
+            setLoginLoading(true)
             const result: BackendResponse = await appService.googleLoginApi(userInformation);
             if (result.code == 0) {
                 messageService.success(result.message);
                 const userData: UserType = {
                     isAuthenticated: true,
-                    accountId: result.data.account.id,
+                    accountId: result.data.id,
                     roleId: 2,
                     googleLogin: true
                 }
                 loginContext(userData);
                 navigate("/");
+                localStorage.setItem("token", result.data.token);
             } else {
                 messageService.error(result.message);
             }
+            console.log(user.uid)
+            console.log(result.data)
         } catch(e) {
             console.log(e);
+        } finally {
+            setLoginLoading(false);
         }
     }
 
@@ -143,6 +153,9 @@ const Login = (): JSX.Element => {
                     </Row>
                 </Col>
             </Row>
+            {loginLoading &&
+                <Loading />
+            }
         </>
     )
 }

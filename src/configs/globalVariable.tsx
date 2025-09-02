@@ -41,13 +41,13 @@ export const UserProvider = ({children}: UserProviderProps): JSX.Element => {
     const reloadPage = async (): Promise<void> => {
         setIsLoading(true);
         try {
-            const result: BackendResponse = await appService.reloadPageApi(user.googleLogin);
+            const result: BackendResponse = await appService.reloadPageApi();
             if (result.code == 0) {
                 const userData: UserType = {
                     isAuthenticated: true,
-                    accountId: result.data.decoded.id,
-                    roleId: result.data.decoded.roleId,
-                    googleLogin: result.data.decoded.googleLogin
+                    accountId: result.data.id,
+                    roleId: result.data.roleId,
+                    googleLogin: result.data.googleLogin
                 }
                 setUser(userData);
             } else {
@@ -66,11 +66,12 @@ export const UserProvider = ({children}: UserProviderProps): JSX.Element => {
     };
 
     const logoutContext = async (): Promise<void> => {
+        navigate("/");
         if (user.isAuthenticated) {
             try {
                 const result: BackendResponse = await appService.logoutApi();
                 if (result.code == 0) {
-                    navigate("/");
+                    localStorage.removeItem("token");
                     setUser(userDefault);
                     messageService.success(result.message);
                 } else {

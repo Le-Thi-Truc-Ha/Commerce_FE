@@ -6,7 +6,7 @@ import { UserContext } from "../../configs/globalVariable";
 import { useNavigate } from "react-router-dom";
 
 const Header = (): JSX.Element => {
-    const {user} = useContext(UserContext);
+    const {user, logoutContext} = useContext(UserContext);
     const navigate = useNavigate();
     const [headerItemSelect, setHeaderItemSelect] = useState<number>(1);
     
@@ -25,7 +25,7 @@ const Header = (): JSX.Element => {
         {
             key: "2",
             label: (
-                <div>Đăng xuất</div>
+                <div onClick={() => {logoutContext()}}>Đăng xuất</div>
             )
         }
     ]
