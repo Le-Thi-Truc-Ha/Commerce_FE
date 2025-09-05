@@ -20,3 +20,14 @@ export interface GoogleUser {
   idToken: string,
   uid: string
 }
+
+export interface InputEmailModalProps {
+  openEmail: boolean,
+  setOpenEmail: (value: boolean) => void
+}
+
+export interface InputOtpModalProps {
+  openOtp: boolean,
+  email: string,
+  setOpenOtp: (value: boolean) => void
+}

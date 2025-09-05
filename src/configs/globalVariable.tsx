@@ -71,9 +71,9 @@ export const UserProvider = ({children}: UserProviderProps): JSX.Element => {
             try {
                 const result: BackendResponse = await appService.logoutApi();
                 if (result.code == 0) {
-                    localStorage.removeItem("token");
                     setUser(userDefault);
                     messageService.success(result.message);
+                    localStorage.removeItem("sessionKey");
                 } else {
                     messageService.error(result.message);
                 }

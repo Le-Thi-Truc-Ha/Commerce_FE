@@ -4,13 +4,13 @@ const instance: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL
 });
 
-instance.defaults.withCredentials = true;
+// instance.defaults.withCredentials = true;
 
 instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        const sessionKey = localStorage.getItem("sessionKey");
+        if (sessionKey) {
+            config.headers.Authorization = `Bearer ${sessionKey}`;
         }
         return config;
     },
@@ -20,25 +20,25 @@ instance.interceptors.request.use(
 );
 
 instance.interceptors.response.use(
-    (response: AxiosResponse): any => {
-        return response.data;
-    },
-    (error: AxiosError): Promise<never> => {
-        const status: number = error.response?.status || 500;
+  (response: AxiosResponse): any => {
+    return response.data;
+  },
+  (error: AxiosError): Promise<never> => {
+    const status: number = error.response?.status || 500;
 
-        console.log("Mã lỗi: ", status);
+    console.log("Mã lỗi: ", status);
 
-        switch (status) {
-        case 400:
-        case 401:
-        case 403:
-        case 404:
-        case 409:
-        case 422:
-        default:
-            return Promise.reject(error);
-        }
+    switch (status) {
+      case 400:
+      case 401:
+      case 403:
+      case 404:
+      case 409:
+      case 422:
+      default:
+        return Promise.reject(error);
     }
+  }
 );
 
 export default instance;

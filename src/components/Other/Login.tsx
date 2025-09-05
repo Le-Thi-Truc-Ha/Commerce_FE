@@ -1,5 +1,5 @@
 import { Button, Col, ConfigProvider, Divider, Input, Row } from "antd";
-import { use, useContext, useState, type JSX } from "react";
+import { use, useContext, useState, type JSX, type KeyboardEvent } from "react";
 import "./Login.scss";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -9,12 +9,18 @@ import { messageService, type BackendResponse, type GoogleUser } from "../../int
 import appService from "../../services/appService";
 import { UserContext, type UserType } from "../../configs/globalVariable";
 import Loading from "./Loading";
+import InputEmailModal from "../Utilities/Other/InputEmailModal";
 
 const Login = (): JSX.Element => {
     const navigate = useNavigate();
     const {loginContext} = useContext(UserContext);
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [loginLoading, setLoginLoading] = useState<boolean>(false);
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [validate, setValidate] = useState<boolean[]>([false, false]);
+
+    const [openEmail, setOpenEmail] = useState<boolean>(false);
 
     const googleLogin = async () => {
         try {
@@ -31,17 +37,15 @@ const Login = (): JSX.Element => {
                 const userData: UserType = {
                     isAuthenticated: true,
                     accountId: result.data.id,
-                    roleId: 2,
-                    googleLogin: true
+                    roleId: result.data.roleId,
+                    googleLogin: result.data.googleLogin
                 }
                 loginContext(userData);
                 navigate("/");
-                localStorage.setItem("token", result.data.token);
+                localStorage.setItem("sessionKey", result.data.sessionKey);
             } else {
                 messageService.error(result.message);
             }
-            console.log(user.uid)
-            console.log(result.data)
         } catch(e) {
             console.log(e);
         } finally {
@@ -49,8 +53,49 @@ const Login = (): JSX.Element => {
         }
     }
 
+    const checkValidate = (): boolean => {
+        const newArray: boolean[] = [...validate];
+        if (email.length == 0) {
+            newArray[0] = true;
+        }
+        if (password.length == 0) {
+            newArray[1] = true;
+        }
+        setValidate(newArray);
+        for (let i = 0; i < newArray.length; i++) {
+            if (newArray[i]) {
+                messageService.error("Bạn phải nhập đầy đủ thông tin đăng nhập");
+                return true;
+            }
+        }
+        return false;
+    }
     const normalLogin = async () => {
-
+        if (!checkValidate()) {
+            setLoginLoading(true);
+            try {
+                const result: BackendResponse = await appService.normalLoginApi(email, password);
+                if (result.code == 0) {
+                    messageService.success(result.message);
+                    const userData: UserType = {
+                        isAuthenticated: true,
+                        accountId: result.data.id,
+                        roleId: result.data.roleId,
+                        googleLogin: result.data.googleLogin
+                    }
+                    loginContext(userData);
+                    navigate("/");
+                    localStorage.setItem("sessionKey", result.data.sessionKey);
+                } else {
+                    messageService.error(result.message);
+            }
+            } catch(e) {
+                console.log(e);
+                messageService.error("Xảy ra lỗi ở server");
+            } finally {
+                setLoginLoading(false);
+            }
+        }
     }
 
     return(
@@ -77,13 +122,21 @@ const Login = (): JSX.Element => {
                                 <Col span={24} style={{paddingTop: "20px"}}>
                                     <Row gutter={[0, 12]}>
                                         <Col span={24}>
-                                            <label htmlFor="username" style={{fontSize: "18px"}}>Nhập email <span className="text-danger">*</span></label>
+                                            <label htmlFor="email" style={{fontSize: "18px"}}>Nhập email <span className="text-danger">*</span></label>
                                         </Col>
                                         <Col span={24}>
                                             <Input 
-                                                id="username"
+                                                id="email"
                                                 className="input-ant"
                                                 type="text"
+                                                status={`${validate[0] ? "error" : ""}`}
+                                                value={email}
+                                                onChange={(event) => {
+                                                    setEmail(event.target.value);
+                                                    setValidate((prev) => {
+                                                        return prev.map((item, index) => (index == 0 ? false : item))
+                                                    })
+                                                }}
                                             />
                                         </Col>
                                     </Row>
@@ -99,6 +152,19 @@ const Login = (): JSX.Element => {
                                                 id="password"
                                                 className="input-ant"
                                                 type={`${showPassword ? "text" : "password"}`}
+                                                status={`${validate[1] ? "error" : ""}`}
+                                                value={password}
+                                                onChange={(event) => {
+                                                    setPassword(event.target.value);
+                                                    setValidate((prev) => {
+                                                        return prev.map((item, index) => (index == 1 ? false : item))
+                                                    })
+                                                }}
+                                                onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
+                                                    if (event.key == "Enter") {
+                                                        normalLogin();
+                                                    }
+                                                }}
                                             />
                                             {
                                                 showPassword ? (
@@ -111,7 +177,7 @@ const Login = (): JSX.Element => {
                                     </Row>
                                 </Col>
                                 <Col span={24} style={{display: "flex", justifyContent: "end", paddingRight: "10px"}}>
-                                    <div className="forgot-div">Quên mật khẩu?</div>
+                                    <div className="forgot-div" onClick={() => {setOpenEmail(true)}}>Quên mật khẩu?</div>
                                 </Col>
                                 <Col span={24} style={{paddingTop: "10px"}}>
                                     <Button
@@ -119,6 +185,7 @@ const Login = (): JSX.Element => {
                                         color="primary"
                                         variant="solid"
                                         style={{width: "100%"}}
+                                        onClick={() => {normalLogin()}}
                                     >
                                         Đăng nhập
                                     </Button>
@@ -151,6 +218,12 @@ const Login = (): JSX.Element => {
                             </Row>
                         </Col>
                     </Row>
+                </Col>
+                <Col>
+                    <InputEmailModal 
+                        openEmail={openEmail}
+                        setOpenEmail={setOpenEmail}
+                    />
                 </Col>
             </Row>
             {loginLoading &&
