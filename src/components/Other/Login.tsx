@@ -22,6 +22,15 @@ const Login = (): JSX.Element => {
 
     const [openEmail, setOpenEmail] = useState<boolean>(false);
 
+    const setSessionKey = (value: string, ttl: number) => {
+        const item = {
+            value: value,
+            expiry: Date.now() + 1000 * 60 * 60 * 24 * ttl
+        };
+
+        localStorage.setItem("sessionKey", JSON.stringify(item));
+    }
+
     const googleLogin = async () => {
         try {
             const login: UserCredential = await signInWithPopup(auth, provider);
@@ -42,7 +51,7 @@ const Login = (): JSX.Element => {
                 }
                 loginContext(userData);
                 navigate("/");
-                localStorage.setItem("sessionKey", result.data.sessionKey);
+                setSessionKey(result.data.sessionKey, 30);
             } else {
                 messageService.error(result.message);
             }
@@ -85,7 +94,7 @@ const Login = (): JSX.Element => {
                     }
                     loginContext(userData);
                     navigate("/");
-                    localStorage.setItem("sessionKey", result.data.sessionKey);
+                    setSessionKey(result.data.sessionKey, 30);
                 } else {
                     messageService.error(result.message);
             }
@@ -168,9 +177,9 @@ const Login = (): JSX.Element => {
                                             />
                                             {
                                                 showPassword ? (
-                                                    <EyeOff size={20} strokeWidth={1} className="eye-icon" onClick={() => {setShowPassword(false)}} />
+                                                    <EyeOff size={24} strokeWidth={1} className="eye-icon" onClick={() => {setShowPassword(false)}} />
                                                 ) : (
-                                                    <Eye size={20} strokeWidth={1} className="eye-icon" onClick={() => {setShowPassword(true)}} />
+                                                    <Eye size={24} strokeWidth={1} className="eye-icon" onClick={() => {setShowPassword(true)}} />
                                                 )
                                             }
                                         </Col>

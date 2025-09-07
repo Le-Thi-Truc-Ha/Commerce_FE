@@ -10,15 +10,20 @@ const InputEmailModal = ({openEmail, setOpenEmail}: InputEmailModalProps): JSX.E
     const [validate, setValidate] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [openOtp, setOpenOtp] = useState<boolean>(false);
+    const [expiryOtp, setExpiryOtp] = useState<number>(0);
 
-    const handleOk = async () => {
+    const handleOk = async (email: string, isLoading: boolean) => {
         if (email.length != 0) {
-            setIsLoading(true);
+            setIsLoading(isLoading);
             try {
                 const result: BackendResponse = await appService.checkEmailApi(email);
-                if (result.code == 0) {
+                if (result.code == 0 || result.code == 2) {
                     handleCancel();
                     setOpenOtp(true);
+                    setExpiryOtp(result.data);
+                    if (result.code == 2) {
+                        messageService.success(result.message);
+                    }
                 } else {
                     messageService.error(result.message);
                 }
@@ -46,7 +51,7 @@ const InputEmailModal = ({openEmail, setOpenEmail}: InputEmailModalProps): JSX.E
                 title={<span style={{fontFamily: "Quicksand", fontSize: "20px"}}>Đặt Lại Mật Khẩu</span>}
                 closable={true}
                 open={openEmail}
-                onOk={() => {handleOk()}}
+                onOk={() => {handleOk(email, true)}}
                 onCancel={() => {handleCancel()}}
                 okText="Gửi mã xác thực"
                 cancelText="Hủy"
@@ -72,6 +77,11 @@ const InputEmailModal = ({openEmail, setOpenEmail}: InputEmailModalProps): JSX.E
                                         setEmail(event.target.value);
                                         setValidate(false);
                                     }}
+                                    onKeyDown={(event) => {
+                                        if (event.key == "Enter") {
+                                            handleOk(email, true);
+                                        }
+                                    }}
                                 />
                             </Col>
                         </Row>
@@ -81,7 +91,10 @@ const InputEmailModal = ({openEmail, setOpenEmail}: InputEmailModalProps): JSX.E
             <InputOtpModal 
                 openOtp={openOtp}
                 email={"n22dccn123@student.ptithcm.edu.vn"}
+                expiryOtp={expiryOtp}
                 setOpenOtp={setOpenOtp}
+                setExpiryOtp={setExpiryOtp}
+                sendOtp={handleOk}
             />
             {
                 isLoading && (

@@ -29,5 +29,14 @@ export interface InputEmailModalProps {
 export interface InputOtpModalProps {
   openOtp: boolean,
   email: string,
-  setOpenOtp: (value: boolean) => void
+  expiryOtp: number,
+  setOpenOtp: (value: boolean) => void,
+  setExpiryOtp: (value: number) => void,
+  sendOtp: (value: string, isLoading: boolean) => void
+}
+
+export interface ResetPasswordModalProps {
+  openReset: boolean,
+  email: string,
+  setOpenReset: (value: boolean) => void
 }

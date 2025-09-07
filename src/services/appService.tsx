@@ -27,6 +27,19 @@ const checkEmailApi = (email: string): Promise<BackendResponse> => {
     });
 }
 
+const checkOtpApi = (email: string, otp: string): Promise<BackendResponse> => {
+    return axios.post("/check-opt", {
+        email, otp
+    })
+}
+
+const resetPasswordApi = (email: string, newPassword: string): Promise<BackendResponse> => {
+    return axios.post("/reset-password", {
+        email, newPassword
+    })
+}
+
 export default {
-    reloadPageApi, googleLoginApi, normalLoginApi, logoutApi, checkEmailApi
+    reloadPageApi, googleLoginApi, normalLoginApi, logoutApi, checkEmailApi,
+    checkOtpApi, resetPasswordApi
 }

@@ -1,14 +1,40 @@
 import { useEffect, useRef, useState, type ChangeEvent, type JSX, type KeyboardEvent } from "react";
-import type { InputOtpModalProps } from "../../../interfaces/appInterface";
+import { messageService, type InputOtpModalProps } from "../../../interfaces/appInterface";
 import { Col, Input, Modal, Row, type InputRef } from "antd";
+import Loading from "../../Other/Loading";
+import appService from "../../../services/appService";
+import ResetPasswordModal from "./ResetPasswordModal";
 
-const InputOtpModal = ({openOtp, email, setOpenOtp}: InputOtpModalProps): JSX.Element => {
+const InputOtpModal = ({openOtp, email, expiryOtp, setOpenOtp, setExpiryOtp, sendOtp}: InputOtpModalProps): JSX.Element => {
     const inputRef = useRef<(InputRef | null)[]>([]);
     const [otp, setOtp] = useState<string[]>(Array(5).fill(""));
+    const [timeLeft, setTimeLeft] = useState<number>(-1);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [openReset, setOpenReset] = useState<boolean>(false);
 
     useEffect(() => {
         inputRef.current[0]?.focus();
     }, [])
+
+    useEffect(() => {
+        if (expiryOtp == 0) {
+            return;
+        }
+
+        const interval = setInterval(() => {
+            const now = Date.now();
+            const diff = expiryOtp - now;
+            setTimeLeft(diff > 0 ? diff : 0) 
+            if (diff > 0) {
+                setTimeLeft(diff);
+            } else {
+                setTimeLeft(0);
+                setExpiryOtp(0);
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [expiryOtp])
 
     const handleChange = (event: ChangeEvent<HTMLInputElement>, index: number) => {
         const value = event.target.value;
@@ -19,7 +45,7 @@ const InputOtpModal = ({openOtp, email, setOpenOtp}: InputOtpModalProps): JSX.El
             if (index < inputRef.current.length - 1) {
                 inputRef.current[index + 1]?.focus();
             } else {
-                console.log(newValue.join(""))
+                setTimeout(() => {handleOk(newValue.join(""))}, 200)
             }
         } else {
             event.target.value= "";
@@ -33,16 +59,52 @@ const InputOtpModal = ({openOtp, email, setOpenOtp}: InputOtpModalProps): JSX.El
             if (index > 0) {
                 inputRef.current[index - 1]?.focus();
             }
+        } else if (event.code.startsWith("Digit") || event.code.startsWith("Numpad")) {
+            const newValue = [...otp];
+            if (newValue[index].length == 0) {
+                newValue[index] = event.key;
+            } else if (newValue[index].length == 1) {
+                if (index < newValue.length - 1) {
+                    newValue[index + 1] = event.key;
+                    inputRef.current[index + 1]?.focus();
+                }
+            }
         }
     }
 
-    const handleOk = async () => {
-        setOpenOtp(false);
+    const formatTimeLeft = (): string => {
+        const totelSecond = Math.max(0, Math.floor(timeLeft / 1000));
+        const minutes = Math.floor(totelSecond / 60);
+        const seconds = totelSecond % 60;
+        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+    }
+
+    const handleOk = async (otp: string) => {
+        setIsLoading(true);
+        try {
+            const result = await appService.checkOtpApi(email, otp);
+            if (result.code == 0) {
+                setOpenReset(true);
+                handleCancel();
+                console.log("yes")
+            } else {
+                messageService.error(result.message);
+            }
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở server");
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     const handleCancel = () => {
         setOpenOtp(false);
+        setExpiryOtp(0);
+        setTimeLeft(-1);
+        setOtp(Array(5).fill(""));
     }
+
     return(
         <>
             <Modal
@@ -53,6 +115,7 @@ const InputOtpModal = ({openOtp, email, setOpenOtp}: InputOtpModalProps): JSX.El
                 centered={true}
                 footer={null}
                 maskClosable={false}
+                loading={timeLeft == -1}
             >
                 <Row className="py-4" align="middle" justify="center">
                     <Col span={24} style={{display: "flex", justifyContent: "center", paddingBottom: "15px"}}>
@@ -67,7 +130,6 @@ const InputOtpModal = ({openOtp, email, setOpenOtp}: InputOtpModalProps): JSX.El
                                     tabIndex={index + 10}
                                     inputMode="numeric"
                                     ref={(element) => {inputRef.current[index] = element}}
-                                    maxLength={1}
                                     value={otp[index]}
                                     onChange={(event: ChangeEvent<HTMLInputElement>) => {handleChange(event, index)}}
                                     onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {handleKeyDown(event, index)}}
@@ -75,11 +137,41 @@ const InputOtpModal = ({openOtp, email, setOpenOtp}: InputOtpModalProps): JSX.El
                             ))
                         }
                     </Col>
-                    <Col span={24} style={{display: "flex", justifyContent: "center", paddingTop: "15px"}}>
-                        <div>Không nhận được mã? <span className="text-primary" style={{cursor: "pointer"}}>Gửi lại</span></div>
-                    </Col>
+                    {
+                        expiryOtp > 0 ? (
+                            <Col span={24} style={{display: "flex", justifyContent: "center", paddingTop: "15px"}}>
+                                <div>Mã xác thực hết hạn sau <span className="text-primary" style={{cursor: "default"}}>{formatTimeLeft()}</span></div>
+                            </Col>
+                        ) : (
+                            <Col span={24} style={{display: "flex", justifyContent: "center", paddingTop: "15px"}}>
+                                <div>
+                                    Không nhận được mã? <span 
+                                        className="text-primary" 
+                                        style={{cursor: "pointer"}} 
+                                        onClick={async () => {
+                                            setOtp(Array(5).fill(""));
+                                            setTimeLeft(-1);
+                                            await sendOtp(email, false);
+                                        }}
+                                    >
+                                        Gửi lại
+                                    </span>
+                                </div>
+                            </Col>
+                        )
+                    }
                 </Row>
             </Modal>
+            <ResetPasswordModal 
+                openReset={openReset}
+                email={email}
+                setOpenReset={setOpenReset}
+            />
+            {
+                isLoading && (
+                    <Loading />
+                )
+            }
         </>
     );
 };
