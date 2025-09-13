@@ -11,6 +11,51 @@ import { UserContext, type UserType } from "../../configs/globalVariable";
 import Loading from "./Loading";
 import InputEmailModal from "../Utilities/Other/InputEmailModal";
 
+export const setSessionKey = (value: string, ttl: number) => {
+    const item = {
+        value: value,
+        expiry: Date.now() + 1000 * 60 * 60 * 24 * ttl
+    };
+
+    localStorage.setItem("sessionKey", JSON.stringify(item));
+}
+
+export const googleLogin = async (
+    setLoginLoading: (value: boolean) => void, 
+    loginContext: (value: UserType) => void,
+    navigate: (value: string) => void,
+    setSessionKey: (value: string, ttl: number) => void
+) => {
+    try {
+        const login: UserCredential = await signInWithPopup(auth, provider);
+        const user = login.user;
+        const idToken = await user.getIdToken();
+
+        const userInformation: GoogleUser = {name: user.displayName ?? "", email: user.email ?? "", idToken: idToken, uid: user.uid}
+        
+        setLoginLoading(true)
+        const result: BackendResponse = await appService.googleLoginApi(userInformation);
+        if (result.code == 0) {
+            messageService.success(result.message);
+            const userData: UserType = {
+                isAuthenticated: true,
+                accountId: result.data.id,
+                roleId: result.data.roleId,
+                googleLogin: result.data.googleLogin
+            }
+            loginContext(userData);
+            navigate("/");
+            setSessionKey(result.data.sessionKey, 30);
+        } else {
+            messageService.error(result.message);
+        }
+    } catch(e) {
+        console.log(e);
+    } finally {
+        setLoginLoading(false);
+    }
+}
+
 const Login = (): JSX.Element => {
     const navigate = useNavigate();
     const {loginContext} = useContext(UserContext);
@@ -21,46 +66,6 @@ const Login = (): JSX.Element => {
     const [validate, setValidate] = useState<boolean[]>([false, false]);
 
     const [openEmail, setOpenEmail] = useState<boolean>(false);
-
-    const setSessionKey = (value: string, ttl: number) => {
-        const item = {
-            value: value,
-            expiry: Date.now() + 1000 * 60 * 60 * 24 * ttl
-        };
-
-        localStorage.setItem("sessionKey", JSON.stringify(item));
-    }
-
-    const googleLogin = async () => {
-        try {
-            const login: UserCredential = await signInWithPopup(auth, provider);
-            const user = login.user;
-            const idToken = await user.getIdToken();
-
-            const userInformation: GoogleUser = {name: user.displayName ?? "", email: user.email ?? "", idToken: idToken, uid: user.uid}
-            
-            setLoginLoading(true)
-            const result: BackendResponse = await appService.googleLoginApi(userInformation);
-            if (result.code == 0) {
-                messageService.success(result.message);
-                const userData: UserType = {
-                    isAuthenticated: true,
-                    accountId: result.data.id,
-                    roleId: result.data.roleId,
-                    googleLogin: result.data.googleLogin
-                }
-                loginContext(userData);
-                navigate("/");
-                setSessionKey(result.data.sessionKey, 30);
-            } else {
-                messageService.error(result.message);
-            }
-        } catch(e) {
-            console.log(e);
-        } finally {
-            setLoginLoading(false);
-        }
-    }
 
     const checkValidate = (): boolean => {
         const newArray: boolean[] = [...validate];
@@ -201,7 +206,7 @@ const Login = (): JSX.Element => {
                                 </Col>
                                 <Col span={24} style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
                                     <span style={{paddingRight: "5px"}}>Bạn chưa có tài khoản?</span>
-                                    <span className="create-span">Tạo tài khoản</span>
+                                    <span className="create-span" onClick={() => {navigate("/create-account")}}>Tạo tài khoản</span>
                                 </Col>
                                 <Col span={24}>
                                     <Divider plain>Hoặc</Divider>
@@ -210,7 +215,7 @@ const Login = (): JSX.Element => {
                                     <Button
                                         size="large"
                                         style={{width: "100%"}}
-                                        onClick={() => {googleLogin()}}
+                                        onClick={() => {googleLogin(setLoginLoading, loginContext, navigate, setSessionKey)}}
                                     >
                                         <svg width="24px" height="24px" viewBox="-3 0 262 262" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid" fill="#000000">
                                             <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>

@@ -4,9 +4,11 @@ import { Col, Input, Modal, Row, type InputRef } from "antd";
 import Loading from "../../Other/Loading";
 import appService from "../../../services/appService";
 import ResetPasswordModal from "./ResetPasswordModal";
+import { useNavigate } from "react-router-dom";
 
-const InputOtpModal = ({openOtp, email, expiryOtp, setOpenOtp, setExpiryOtp, sendOtp}: InputOtpModalProps): JSX.Element => {
+const InputOtpModal = ({openOtp, email, expiryOtp, verifyEmail, accountInformation, setOpenOtp, setExpiryOtp, sendOtp}: InputOtpModalProps): JSX.Element => {
     const inputRef = useRef<(InputRef | null)[]>([]);
+    const navigate = useNavigate();
     const [otp, setOtp] = useState<string[]>(Array(5).fill(""));
     const [timeLeft, setTimeLeft] = useState<number>(-1);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -82,13 +84,24 @@ const InputOtpModal = ({openOtp, email, expiryOtp, setOpenOtp, setExpiryOtp, sen
     const handleOk = async (otp: string) => {
         setIsLoading(true);
         try {
-            const result = await appService.checkOtpApi(email, otp);
-            if (result.code == 0) {
-                setOpenReset(true);
-                handleCancel();
-                console.log("yes")
+            if (!verifyEmail) {
+                const result = await appService.checkOtpApi(email, otp);
+                if (result.code == 0) {
+                    setOpenReset(true);
+                    handleCancel();
+                } else {
+                    messageService.error(result.message);
+                }
             } else {
-                messageService.error(result.message);
+                const {email, name, phone, dob, gender, password} = accountInformation ?? {email: "", name: "", phone: "", dob: null, gender: "", password: ""};
+                const result = await appService.createAccountApi(otp, email, name, phone, dob && dob.toISOString(), gender, password);
+                if (result.code == 0) {
+                    handleCancel();
+                    navigate("/login");
+                    messageService.success(result.message);
+                } else {
+                    messageService.error(result.message);
+                }
             }
         } catch(e) {
             console.log(e);
@@ -108,7 +121,7 @@ const InputOtpModal = ({openOtp, email, expiryOtp, setOpenOtp, setExpiryOtp, sen
     return(
         <>
             <Modal
-                title={<span style={{fontFamily: "Quicksand", fontSize: "20px"}}>Đặt Lại Mật Khẩu</span>}
+                title={<span style={{fontFamily: "Quicksand", fontSize: "20px"}}>{`${verifyEmail ? "Xác thực Email" : "Đặt Lại Mật Khẩu"}`}</span>}
                 closable={true}
                 open={openOtp}
                 onCancel={() => {handleCancel()}}

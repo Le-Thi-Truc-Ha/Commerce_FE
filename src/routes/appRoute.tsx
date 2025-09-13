@@ -10,6 +10,7 @@ import AdminPage from "../components/Admin/adminPage";
 import CustomerPage from "../components/Customer/customerPage";
 import Login from "../components/Other/Login";
 import Header from "../components/Other/Header";
+import CreateAccount from "../components/Other/CreateAccount";
 
 const MainRoute = (): JSX.Element => {
     return(
@@ -42,6 +43,7 @@ const AppRoute = (): JSX.Element => {
                         </PublicRoute>
                     }
                 />
+                <Route path="/create-account" element={<CreateAccount />} />
                 <Route path="*" element={<NotFound />} />
             </Route>
             

@@ -90,8 +90,10 @@ const InputEmailModal = ({openEmail, setOpenEmail}: InputEmailModalProps): JSX.E
             </Modal>
             <InputOtpModal 
                 openOtp={openOtp}
-                email={"n22dccn123@student.ptithcm.edu.vn"}
+                email={email}
                 expiryOtp={expiryOtp}
+                verifyEmail={false}
+                accountInformation={null}
                 setOpenOtp={setOpenOtp}
                 setExpiryOtp={setExpiryOtp}
                 sendOtp={handleOk}

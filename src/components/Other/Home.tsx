@@ -1,15 +1,27 @@
 import type { JSX } from "react";
 import "./Home.scss";
+import { Carousel, Col, Row } from "antd";
 
 const Home = (): JSX.Element => {
+    const urlBanners = [
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1756229129/e583ad3d-3c98-4cc4-b12b-0023fb0c5b58_large_xepag7.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1757520149/electronics-store-facebook-cover-template_htcind.png"
+    ]
     return(
         <>
-            <div className="home-container">
-                <div className="banner-container">
-                    <img className="banner" loading="lazy" src="https://res.cloudinary.com/dibigdhgr/image/upload/v1756229129/e583ad3d-3c98-4cc4-b12b-0023fb0c5b58_large_xepag7.jpg" />
-                    <div className="overlay"></div>
-                </div>
-                <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Optio, est possimus error dolorum voluptatum ea sit? Voluptate rerum nesciunt vitae ipsam, sint est possimus doloremque. Repellat ratione dolor harum quam?
+            <Row className="home-container">
+                <Col span={24}>
+                    <Carousel style={{height: "650px", width: "100%", backgroundColor: "var(--baseOne)", paddingTop: "40px"}}>
+                        {
+                            urlBanners.map((item, index) => (
+                                <div key={index} style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100%"}}>
+                                    <img style={{maxWidth: "60%", height: "auto", objectFit: "contain", borderRadius: "20px", boxShadow: "0 0 20px 2px rgba(0, 0, 0, 0.3)"}} src={item} />
+                                </div>  
+                            ))
+                        }
+                    </Carousel>
+                </Col>
+                <Col span={24}>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Optio, est possimus error dolorum voluptatum ea sit? Voluptate rerum nesciunt vitae ipsam, sint est possimus doloremque. Repellat ratione dolor harum quam?
                 Laborum consectetur tempora commodi quas, necessitatibus quia? Tempore ipsum unde voluptate fuga? Porro nobis earum deleniti, ab unde natus aperiam laborum quo cupiditate excepturi similique in itaque quia blanditiis nisi.
                 Corporis repellat ipsam doloribus voluptatum magnam. Corrupti, quod facilis? Sint, quia? Quos architecto temporibus fuga nisi est magni voluptate necessitatibus incidunt totam. Excepturi et enim assumenda unde eveniet, corporis maxime?
                 Maxime reiciendis in error, enim autem voluptate fuga excepturi. Aspernatur quis quo tempore reprehenderit consequuntur necessitatibus repellendus. Accusamus eligendi laudantium exercitationem at ipsam quibusdam, a illo iusto voluptatem commodi! Excepturi?
@@ -38,8 +50,8 @@ const Home = (): JSX.Element => {
                 Adipisci eveniet sit cumque saepe dicta, eaque perferendis nostrum ut voluptatem obcaecati debitis nisi sint consectetur porro laborum suscipit esse neque. Eveniet quo laudantium unde iure sunt ad totam voluptas?
                 Explicabo voluptas cum incidunt distinctio ipsam illo dolor! Neque maiores fugit perferendis magnam nulla ullam mollitia temporibus nostrum consequatur earum. Cumque tenetur cum temporibus, placeat ipsam ad repellendus dolore modi.
                 Assumenda repudiandae autem dolores minima, sed officiis culpa vero dolor harum voluptatem quis quos. Saepe, animi beatae quasi, pariatur nihil at dolore veritatis earum ipsum facilis nisi nulla. Quidem, inventore?
-                Culpa obcaecati doloremque error, quisquam consectetur eius harum a aliquid recusandae voluptatem maxime? Minima ipsa deserunt illum sit possimus a dolorem quasi provident ullam rem eius, sed impedit at voluptatibus.</div>
-            </div>
+                Culpa obcaecati doloremque error, quisquam consectetur eius harum a aliquid recusandae voluptatem maxime? Minima ipsa deserunt illum sit possimus a dolorem quasi provident ullam rem eius, sed impedit at voluptatibus.</Col>
+            </Row>
         </>
     )
 }

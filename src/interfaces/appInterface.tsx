@@ -1,3 +1,5 @@
+import type { Dayjs } from "dayjs";
+
 export interface BackendResponse {
   message: string,
   data: any,
@@ -26,10 +28,21 @@ export interface InputEmailModalProps {
   setOpenEmail: (value: boolean) => void
 }
 
+export interface AccountInformation {
+  email: string,
+  name: string,
+  phone: string | null,
+  dob: Dayjs | null,
+  gender: string | null,
+  password: string
+}
+
 export interface InputOtpModalProps {
   openOtp: boolean,
   email: string,
   expiryOtp: number,
+  verifyEmail: boolean,
+  accountInformation: AccountInformation | null,
   setOpenOtp: (value: boolean) => void,
   setExpiryOtp: (value: number) => void,
   sendOtp: (value: string, isLoading: boolean) => void

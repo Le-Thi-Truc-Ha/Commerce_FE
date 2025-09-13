@@ -19,7 +19,7 @@ const Header = (): JSX.Element => {
         {
             key: "1",
             label: (
-                <div>Tài khoản của tôi</div>
+                <div>Tài khoản cá nhân</div>
             )
         },
         {
@@ -39,13 +39,13 @@ const Header = (): JSX.Element => {
         {
             key: "2",
             label: (
-                <div>Tạo tài khoản</div>
+                <div onClick={() => {navigate("/create-account")}}>Tạo tài khoản</div>
             )
         }
     ]
     return(
         <>
-            <Row className="header-container container-fluid"align="middle">
+            <Row className="header-container container-fluid" align="middle">
                 <Col span={6}>
                     <Row align="middle" justify="start" onClick={() => {navigate("/")}}>
                         <Col>

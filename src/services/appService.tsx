@@ -1,3 +1,4 @@
+import type { Dayjs } from "dayjs";
 import axios from "../configs/axios";
 import type { BackendResponse, GoogleUser } from "../interfaces/appInterface";
 
@@ -39,7 +40,22 @@ const resetPasswordApi = (email: string, newPassword: string): Promise<BackendRe
     })
 }
 
+const verifyEmailApi = (email: string): Promise<BackendResponse> => {
+    return axios.post("/verify-email", {
+        email
+    });
+}
+
+const createAccountApi = (
+    otp: string, email: string, name: string, phone: string | null, 
+    dob: string | null, gender: string | null, password: string
+): Promise<BackendResponse> => {
+    return axios.post("/create-account", {
+        otp, email, name, phone, dob, gender, password
+    })
+}
+
 export default {
     reloadPageApi, googleLoginApi, normalLoginApi, logoutApi, checkEmailApi,
-    checkOtpApi, resetPasswordApi
+    checkOtpApi, resetPasswordApi, verifyEmailApi, createAccountApi
 }
