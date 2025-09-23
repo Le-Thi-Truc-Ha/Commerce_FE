@@ -11,19 +11,12 @@ import CustomerPage from "../components/Customer/customerPage";
 import Login from "../components/Other/Login";
 import Header from "../components/Other/Header";
 import CreateAccount from "../components/Other/CreateAccount";
+import HeaderAdmin from "../components/Admin/HeaderAdmin";
 
-const MainRoute = (): JSX.Element => {
+const HeaderCustomer = (): JSX.Element => {
     return(
         <>
             <Header />
-            <Outlet />
-        </>
-    )
-}
-
-const AuthRoute = (): JSX.Element => {
-    return(
-        <>
             <Outlet />
         </>
     )
@@ -34,30 +27,30 @@ const AppRoute = (): JSX.Element => {
 
     return(isLoading ? <><Loading /></> :
         <Routes>
-            <Route element={<AuthRoute />}>
-                <Route 
-                    path="/login"
-                    element={
-                        <PublicRoute>
-                            <Login />
-                        </PublicRoute>
-                    }
-                />
-                <Route path="/create-account" element={<CreateAccount />} />
-                <Route path="*" element={<NotFound />} />
-            </Route>
+            <Route 
+                path="/login"
+                element={
+                    <PublicRoute>
+                        <Login />
+                    </PublicRoute>
+                }
+            />
+            <Route path="/create-account" element={<CreateAccount />} />
+            <Route path="*" element={<NotFound />} />
             
-            <Route element={<MainRoute />}>
-                {/* ADMIN */}
-                <Route 
-                    path="/admin/admin-page" 
-                    element={
-                        <PrivateRoute roleId={1}>
-                            <AdminPage />
-                        </PrivateRoute>
-                    } 
-                />
+            {/* ADMIN */}
+            <Route
+                path="/admin"
+                element={
+                    <PrivateRoute roleId={1}>
+                        <HeaderAdmin />
+                    </PrivateRoute>
+                } 
+            >
+                <Route path="admin-page" element={<AdminPage />} />
+            </Route>
 
+            <Route element={<HeaderCustomer />}>
                 {/* CUSTOMER */}
                 <Route 
                     path="/customer/customer-page" 

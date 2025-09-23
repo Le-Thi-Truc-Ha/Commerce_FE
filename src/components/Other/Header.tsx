@@ -18,7 +18,9 @@ const Header = (): JSX.Element => {
     const menuLogin: MenuProps["items"] = [
         {
             key: "1",
-            label: (
+            label: user.roleId == 1 ? (
+                <div onClick={() => {navigate("/admin/admin-page")}}>Trang quản trị</div>
+            ) : (
                 <div>Tài khoản cá nhân</div>
             )
         },
