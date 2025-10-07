@@ -1,7 +1,7 @@
 import { Col, Divider, Dropdown, Row, type MenuProps } from "antd";
 import { useContext, useState, type JSX } from "react";
 import "./HeaderAdmin.scss";
-import { BadgePercent, CircleUserRound, List, Package, ReceiptText, TicketPercent, UsersRound } from "lucide-react";
+import { BadgePercent, CircleUserRound, House, List, Package, ReceiptText, TicketPercent, UsersRound } from "lucide-react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { UserContext } from "../../configs/globalVariable";
 
@@ -34,7 +34,7 @@ const HeaderAdmin = (): JSX.Element => {
                 </Col>
             </Row>
             <Row className="menu-outlet-container" align="top">
-                <Col span={6} style={{display: "flex", justifyContent: "center", alignItems: "center", height: "fit-content"}}>
+                <Col span={5} style={{display: "flex", justifyContent: "center", alignItems: "center", height: "fit-content"}}>
                     <div className="menu-static">
                         <div className="feature-menu">
                             <div 
@@ -43,8 +43,8 @@ const HeaderAdmin = (): JSX.Element => {
                                     setIndexOfItem(1);
                                 }}
                             >
-                                <Package size={22} strokeWidth={1} />
-                                <div className="menu-item-name">Sản phẩm</div>
+                                <House size={22} strokeWidth={1} />
+                                <div className="menu-item-name">Trang chủ</div>
                             </div>
                             <div 
                                 className={`menu-item ${indexOfItem == 2 ? "menu-item-active" : ""}`}
@@ -52,8 +52,8 @@ const HeaderAdmin = (): JSX.Element => {
                                     setIndexOfItem(2);
                                 }}
                             >
-                                <ReceiptText size={22} strokeWidth={1} />
-                                <div className="menu-item-name">Đơn hàng</div>
+                                <Package size={22} strokeWidth={1} />
+                                <div className="menu-item-name">Sản phẩm</div>
                             </div>
                             <div 
                                 className={`menu-item ${indexOfItem == 3 ? "menu-item-active" : ""}`}
@@ -61,8 +61,8 @@ const HeaderAdmin = (): JSX.Element => {
                                     setIndexOfItem(3);
                                 }}
                             >
-                                <UsersRound size={22} strokeWidth={1} />
-                                <div className="menu-item-name">Khách hàng</div>
+                                <ReceiptText size={22} strokeWidth={1} />
+                                <div className="menu-item-name">Đơn hàng</div>
                             </div>
                             <div 
                                 className={`menu-item ${indexOfItem == 4 ? "menu-item-active" : ""}`}
@@ -70,8 +70,8 @@ const HeaderAdmin = (): JSX.Element => {
                                     setIndexOfItem(4);
                                 }}
                             >
-                                <BadgePercent size={22} strokeWidth={1} />
-                                <div className="menu-item-name">Chương trình ưu đãi</div>
+                                <UsersRound size={22} strokeWidth={1} />
+                                <div className="menu-item-name">Khách hàng</div>
                             </div>
                             <div 
                                 className={`menu-item ${indexOfItem == 5 ? "menu-item-active" : ""}`}
@@ -79,13 +79,22 @@ const HeaderAdmin = (): JSX.Element => {
                                     setIndexOfItem(5);
                                 }}
                             >
-                                <TicketPercent size={22} strokeWidth={1} />
-                                <div className="menu-item-name">Mã giảm giá</div>
+                                <BadgePercent size={22} strokeWidth={1} />
+                                <div className="menu-item-name">Chương trình ưu đãi</div>
                             </div>
                             <div 
                                 className={`menu-item ${indexOfItem == 6 ? "menu-item-active" : ""}`}
                                 onClick={() => {
                                     setIndexOfItem(6);
+                                }}
+                            >
+                                <TicketPercent size={22} strokeWidth={1} />
+                                <div className="menu-item-name">Mã giảm giá</div>
+                            </div>
+                            <div 
+                                className={`menu-item ${indexOfItem == 7 ? "menu-item-active" : ""}`}
+                                onClick={() => {
+                                    setIndexOfItem(7);
                                 }}
                             >
                                 <List size={22} strokeWidth={1} />
@@ -109,7 +118,7 @@ const HeaderAdmin = (): JSX.Element => {
                         </div>
                     </div>
                 </Col>
-                <Col span={18} style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+                <Col span={19} style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
                     <div className="outlet page-container">{<Outlet />}</div>
                 </Col>
             </Row>
