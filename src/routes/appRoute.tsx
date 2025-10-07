@@ -6,14 +6,20 @@ import PrivateRoute from "./privateRoute";
 import NotFound from "../components/Other/NotFound";
 import Home from "../components/Other/Home";
 import Loading from "../components/Other/Loading";
-import CustomerPage from "../components/Customer/customerPage";
 import Login from "../components/Other/Login";
 import Header from "../components/Other/Header";
 import CreateAccount from "../components/Other/CreateAccount";
 import HeaderAdmin from "../components/Admin/HeaderAdmin";
 import ProductAdmin from "../components/Admin/ProductAdmin";
+import Profile from "../components/Customer/ProfileComponent/Profile";
+import HeaderCustomer from "../components/Customer/HeaderCustomer";
+import Order from "../components/Customer/Order";
+import Favourite from "../components/Customer/Favourite";
+import History from "../components/Customer/History";
+import AllProduct from "../components/Other/AllProduct";
+import Search from "../components/Other/Search";
 
-const HeaderCustomer = (): JSX.Element => {
+const HeaderOverall = (): JSX.Element => {
     return(
         <>
             <Header />
@@ -50,19 +56,26 @@ const AppRoute = (): JSX.Element => {
                 <Route path="product" element={<ProductAdmin />} />
             </Route>
 
-            <Route element={<HeaderCustomer />}>
-                {/* CUSTOMER */}
-                <Route 
-                    path="/customer/customer-page" 
-                    element={
-                        <PrivateRoute roleId={2}>
-                            <CustomerPage />
-                        </PrivateRoute>
-                    } 
-                />
+            {/* CUSTOMER */}
+            <Route
+                path="/customer"
+                element={
+                    <PrivateRoute roleId={2}>
+                        <HeaderCustomer />
+                    </PrivateRoute>
+                } 
+            >
+                <Route path="order" element={<Order />} />
+                <Route path="favourite" element={<Favourite />} />
+                <Route path="history" element={<History />} />
+                <Route path="profile" element={<Profile />} />
+            </Route>
 
-                {/* PUBLIC */}
+            {/* PUBLIC */}
+            <Route element={<HeaderOverall />}>
                 <Route path="/" element={<Home />} />
+                <Route path="/all-product" element={<AllProduct />} />
+                <Route path="/search" element={<Search />} />
             </Route>
         </Routes>
     );

@@ -1,5 +1,5 @@
 import { Badge, Col, ConfigProvider, Dropdown, Row, type MenuProps } from "antd";
-import { useContext, useState, type JSX } from "react";
+import { useContext, useEffect, useState, type JSX } from "react";
 import "./Header.scss";
 import { ShoppingCart, User } from "lucide-react";
 import { UserContext } from "../../configs/globalVariable";
@@ -9,20 +9,16 @@ const Header = (): JSX.Element => {
     const {user, logoutContext, setPathBeforeLogin} = useContext(UserContext);
     const navigate = useNavigate();
     const location = useLocation();
-    const [headerItemSelect, setHeaderItemSelect] = useState<number>(1);
+    const [headerItemSelect, setHeaderItemSelect] = useState<number>();
     
-    const headerItems: {id: number, label: string}[] = [
-        {id: 1, label: "Trang chủ"},
-        {id: 2, label: "Sản phẩm"},
-        {id: 3, label: "Tìm kiếm"}
-    ]
+    const headerItems: string[] = ["Trang chủ", "Sản phẩm", "Tìm kiếm"]
     const menuLogin: MenuProps["items"] = [
         {
             key: "1",
             label: user.roleId == 1 ? (
                 <div onClick={() => {navigate("/admin/product")}}>Trang quản trị</div>
             ) : (
-                <div>Tài khoản cá nhân</div>
+                <div onClick={() => {navigate("/customer/order")}}>Tài khoản cá nhân</div>
             )
         },
         {
@@ -51,6 +47,27 @@ const Header = (): JSX.Element => {
             )
         }
     ]
+
+    useEffect(() => {
+        const path = location.pathname;
+        if (path == "/") {
+            setHeaderItemSelect(1);
+        } else if (path == "/all-product") {
+            setHeaderItemSelect(2);
+        } else if (path == "/search") {
+            setHeaderItemSelect(3);
+        }
+    }, [])
+
+    const navigateHeader = (index: number) => {
+        if (index == 1) {
+            navigate("/");
+        } else if (index == 2) {
+            navigate("/all-product");
+        } else if (index == 3) {
+            navigate("/search");
+        }
+    }
     return(
         <>
             <Row className="header-container container-fluid" align="middle">
@@ -63,13 +80,16 @@ const Header = (): JSX.Element => {
                 </Col>
                 <Col span={12} className="d-flex justify-content-center gap-4">
                     {
-                        headerItems.map((item) => (
+                        headerItems.map((item, index) => (
                             <div
-                                key={item.id}
-                                onClick={() => {setHeaderItemSelect(item.id)}}
-                                className={`header-item ${item.id == headerItemSelect ? "header-item-active": ""}`}
+                                key={index}
+                                onClick={() => {
+                                    setHeaderItemSelect(index + 1);
+                                    navigateHeader(index + 1)
+                                }}
+                                className={`header-item ${index + 1 == headerItemSelect ? "header-item-active": ""}`}
                             >
-                                {item.label}
+                                {item}
                             </div>
                         ))
                     }

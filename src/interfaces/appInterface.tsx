@@ -31,7 +31,6 @@ export interface InputEmailModalProps {
 export interface AccountInformation {
   email: string,
   name: string,
-  phone: string | null,
   dob: Dayjs | null,
   gender: string | null,
   password: string

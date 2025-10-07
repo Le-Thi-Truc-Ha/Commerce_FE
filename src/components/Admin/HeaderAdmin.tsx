@@ -110,7 +110,7 @@ const HeaderAdmin = (): JSX.Element => {
                         </div>
                     </div>
                 </Col>
-                <Col span={19} style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+                <Col span={19} style={{display: "flex", justifyContent: "end", alignItems: "center"}}>
                     <div className="outlet page-container">{<Outlet />}</div>
                 </Col>
             </Row>
