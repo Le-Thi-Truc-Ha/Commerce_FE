@@ -34,7 +34,7 @@ const HeaderAdmin = (): JSX.Element => {
         if (path == "") {  // Trang chủ
             setIndexOfItem(1);
         } else if (path == "/admin/product") {  // Sản phẩm
-            setIndexOfItem(9);
+            setIndexOfItem(2);
         } else if (path == "") {  // Đơn hàng
             setIndexOfItem(3);
         } else if (path == "") {  // Khách hàng
