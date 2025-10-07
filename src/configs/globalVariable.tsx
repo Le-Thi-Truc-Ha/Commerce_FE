@@ -15,13 +15,17 @@ interface UserContextType {
     loginContext: (userData: UserType) => void;
     logoutContext: () => void;
     isLoading: boolean;
+    pathBeforeLogin: string;
+    setPathBeforeLogin: (path: string) => void;
 }
 
 export const UserContext = createContext<UserContextType>({
     user: {isAuthenticated: false, roleId: -1, accountId: -1, googleLogin: false},
     loginContext: () => {},
     logoutContext: () => {},
-    isLoading: false
+    isLoading: false,
+    pathBeforeLogin: "/",
+    setPathBeforeLogin: () => {}
 });
 
 interface UserProviderProps {
@@ -32,6 +36,7 @@ export const UserProvider = ({children}: UserProviderProps): JSX.Element => {
     const userDefault: UserType = {isAuthenticated: false, roleId: -1, accountId: -1, googleLogin: false};
     const [user, setUser] = useState<UserType>(userDefault);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [pathBeforeLogin, setPathBeforeLogin] = useState<string>("/");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -87,7 +92,7 @@ export const UserProvider = ({children}: UserProviderProps): JSX.Element => {
     }
 
     return(
-        <UserContext.Provider value={{user: user, loginContext: loginContext, logoutContext: logoutContext, isLoading: isLoading}}>
+        <UserContext.Provider value={{user: user, loginContext: loginContext, logoutContext: logoutContext, isLoading: isLoading, pathBeforeLogin: pathBeforeLogin, setPathBeforeLogin: setPathBeforeLogin}}>
             {children}
         </UserContext.Provider>
     );

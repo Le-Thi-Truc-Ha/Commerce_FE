@@ -3,11 +3,12 @@ import { useContext, useState, type JSX } from "react";
 import "./Header.scss";
 import { ShoppingCart, User } from "lucide-react";
 import { UserContext } from "../../configs/globalVariable";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Header = (): JSX.Element => {
-    const {user, logoutContext} = useContext(UserContext);
+    const {user, logoutContext, setPathBeforeLogin} = useContext(UserContext);
     const navigate = useNavigate();
+    const location = useLocation();
     const [headerItemSelect, setHeaderItemSelect] = useState<number>(1);
     
     const headerItems: {id: number, label: string}[] = [
@@ -19,7 +20,7 @@ const Header = (): JSX.Element => {
         {
             key: "1",
             label: user.roleId == 1 ? (
-                <div onClick={() => {navigate("/admin/admin-page")}}>Trang quản trị</div>
+                <div onClick={() => {navigate("/admin/product")}}>Trang quản trị</div>
             ) : (
                 <div>Tài khoản cá nhân</div>
             )
@@ -35,7 +36,12 @@ const Header = (): JSX.Element => {
         {
             key: "1",
             label: (
-                <div onClick={() => {navigate("/login")}}>Đăng nhập</div>
+                <div onClick={() => {
+                    navigate("/login");
+                    setPathBeforeLogin(location.pathname);
+                }}>
+                    Đăng nhập
+                </div>
             )
         },
         {
@@ -51,7 +57,7 @@ const Header = (): JSX.Element => {
                 <Col span={6}>
                     <Row align="middle" justify="start" onClick={() => {navigate("/")}}>
                         <Col>
-                            <div style={{cursor: "pointer", color: "black", fontFamily: "Playfair Display", fontWeight: "600", fontSize: "30px", paddingLeft: "20px"}}>Commerce</div>
+                            <div style={{cursor: "pointer", color: "black", fontFamily: "Prata", fontWeight: "600", fontSize: "30px", paddingLeft: "20px"}}>Commerce</div>
                         </Col>
                     </Row>
                 </Col>
@@ -73,16 +79,16 @@ const Header = (): JSX.Element => {
                         theme={{
                             components: {
                                 Badge: {
-                                    colorTextLightSolid: "var(--baseFive)",
-                                    colorBorderBg: "var(--baseFive)"
+                                    colorTextLightSolid: "var(--color8)",
+                                    colorBorderBg: "var(--color8)"
                                 },
                                 Dropdown: {
-                                    controlItemBgHover: "var(--baseOne)"
+                                    controlItemBgHover: "var(--color1)"
                                 }
                             }
                         }}
                     >
-                        <Badge color="var(--baseOne)" count={100}>
+                        <Badge color="var(--color1)" count={100}>
                             <ShoppingCart size={30} strokeWidth={1} className="cart-icon"/>
                         </Badge>
                         <Dropdown

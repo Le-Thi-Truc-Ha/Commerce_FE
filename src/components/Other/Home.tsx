@@ -1,25 +1,125 @@
-import type { JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import "./Home.scss";
-import { Carousel, Col, Row } from "antd";
+import { Col, Row } from "antd";
+import { AnimatePresence, motion, type MotionProps } from "framer-motion";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+
+const MotionDiv = motion.div
+const divConfig: MotionProps = {
+    initial: {opacity: 0},
+    animate: {opacity: 1},
+    exit: {opacity: 0},
+    transition: {duration: 0.3}
+}
 
 const Home = (): JSX.Element => {
+    const [bannerActive, setBannerActive] = useState<number>(0);
+
     const urlBanners = [
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1756229129/e583ad3d-3c98-4cc4-b12b-0023fb0c5b58_large_xepag7.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1757520149/electronics-store-facebook-cover-template_htcind.png"
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1759039590/Beige_Aesthetic_New_Arrival_Fashion_Banner_Landscape_vqsazn.png",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1759039590/Gray_and_Beige_Modern_Fashion_Banner_swwy4s.png",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1759039436/Peach_Orange_and_Brown_Illustrative_Autumn_Big_Sale_Promotion_Banner_Landscape_bzuoru.png",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1759039436/Brown_and_White_Modern_Fashion_Collection_Banner_Landscape_hadcta.png",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1759039435/Beige_and_Brown_Minimalist_New_Style_Collection_Banner_1_lbtce5.png",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1759039435/Beige_and_Brown_Minimalist_New_Style_Collection_Banner_swnotc.png"   
     ]
+
+    const categories: {name: string, url: string}[] = [
+        {name: "Áo", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751103/tshirt_enlypz.png"},
+        {name: "Quần", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/pants_yfrgrx.png"},
+        {name: "Váy", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751847/dress_tvwba9.png"},
+        {name: "Đầm", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/skirt_tbxhg5.png"},
+        {name: "Giày", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/high-heels_nsomr4.png"},
+        {name: "Túi", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/handbag_sge74h.png"},
+    ]
+
+    const controlSlider = (nameButton: string) => {
+        if (nameButton == "left") {
+            if (bannerActive == 0) {
+                setBannerActive(urlBanners.length - 1);
+            } else {
+                setBannerActive(bannerActive - 1)
+            }
+        } else {
+            if (bannerActive == urlBanners.length - 1) {
+                setBannerActive(0);
+            } else {
+                setBannerActive(bannerActive + 1)
+            }
+        }
+    }
+    
     return(
         <>
             <Row className="home-container">
                 <Col span={24}>
-                    <Carousel style={{height: "650px", width: "100%", backgroundColor: "var(--baseOne)", paddingTop: "40px"}}>
-                        {
-                            urlBanners.map((item, index) => (
-                                <div key={index} style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100%"}}>
-                                    <img style={{maxWidth: "60%", height: "auto", objectFit: "contain", borderRadius: "20px", boxShadow: "0 0 20px 2px rgba(0, 0, 0, 0.3)"}} src={item} />
-                                </div>  
-                            ))
-                        }
-                    </Carousel>
+                    <div style={{position: "relative", width: "100%"}}>
+                        <div style={{width: "100%", height: "600px", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f4f4f4"}}>
+                            <div style={{height: "90%", width: "100%"}}>
+                                <div style={{width: "100%", height: "100%"}}>
+                                    <div style={{position: "relative", width: "100%", height: "100%"}}>
+                                        {urlBanners.map((url, index) => (
+                                            <img
+                                                key={index}
+                                                src={url}
+                                                loading="eager"
+                                                style={{
+                                                    position: "absolute",
+                                                    top: 0,
+                                                    left: "50%",
+                                                    transform: "translateX(-50%)",
+                                                    maxHeight: "100%", 
+                                                    height: "fit-content", 
+                                                    maxWidth: "100%",
+                                                    objectFit: "contain",
+                                                    objectPosition: "center",
+                                                    borderRadius: "20px",
+                                                    boxShadow: "0 0 20px 2px rgba(0, 0, 0, 0.3)",
+                                                    opacity: bannerActive === index ? 1 : 0,
+                                                    transition: "opacity 0.5s ease"
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div style={{width: "100%", position: "absolute", bottom: "5px", display: "flex", justifyContent: "center", gap: "15px"}}>
+                            {
+                                urlBanners.map((_, index) => (
+                                    <div 
+                                        key={index} 
+                                        className={`indicator ${bannerActive == index ? "indicator-active" : ""}`}
+                                        onClick={() => {setBannerActive(index)}}
+                                    ></div>
+                                ))
+                            }
+                        </div>
+                        <div style={{width: "100%", position: "absolute", top: "50%", transform: "translateY(-50%)", display: "flex", justifyContent: "space-between", padding: "0px 30px"}}>
+                            <div className="background-control" onClick={() => {controlSlider("left")}}>
+                                <ArrowLeft size={24} strokeWidth={1} stroke="white" />
+                            </div>
+                            <div className="background-control" onClick={() => {controlSlider("right")}}>
+                                <ArrowRight size={24} strokeWidth={1} stroke="white" />
+                            </div>
+                        </div>
+                    </div>
+                </Col>
+                <Col span={24} style={{paddingTop: "30px", display: "flex", justifyContent: "center"}}>
+                    <div style={{width: "90%", backgroundColor: "white", padding: "20px", borderRadius: "20px", boxShadow: "0 0 20px 2px rgba(0, 0, 0, 0.3)"}}>
+                        <div style={{fontFamily: "Prata", fontSize: "30px", width: "100%", textAlign: "center", paddingBottom: "20px"}}>Danh mục</div>
+                        <div style={{width: "100%", display: "flex", justifyContent: "center", alignItems: "center", gap: "80px"}}>
+                            {
+                                categories.map((item, index) => (
+                                    <div className="category" key={index}>
+                                        <img className="icon-category" loading="eager" src={item.url} />
+                                        <div className="name-category">{item.name}</div>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    </div>
                 </Col>
                 <Col span={24}>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Optio, est possimus error dolorum voluptatum ea sit? Voluptate rerum nesciunt vitae ipsam, sint est possimus doloremque. Repellat ratione dolor harum quam?
                 Laborum consectetur tempora commodi quas, necessitatibus quia? Tempore ipsum unde voluptate fuga? Porro nobis earum deleniti, ab unde natus aperiam laborum quo cupiditate excepturi similique in itaque quia blanditiis nisi.

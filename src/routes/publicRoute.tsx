@@ -7,9 +7,12 @@ interface PublicRouteProps {
 }
 
 const PublicRoute = ({children}: PublicRouteProps): JSX.Element => {
-    const {user} = useContext(UserContext);
+    const {user, pathBeforeLogin} = useContext(UserContext);
     if (user.isAuthenticated) {
-        return <Navigate to="/" replace />
+        if (user.roleId == 1) {
+            return <Navigate to="/admin/product" replace />
+        }
+        return <Navigate to={pathBeforeLogin} replace />
     }
     
     return(
