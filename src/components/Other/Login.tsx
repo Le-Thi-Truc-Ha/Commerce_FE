@@ -1,9 +1,9 @@
-import { Button, Col, ConfigProvider, Divider, Input, Row } from "antd";
-import { use, useContext, useState, type JSX, type KeyboardEvent } from "react";
+import { Button, Col, Divider, Input, Row } from "antd";
+import { useContext, useState, type JSX, type KeyboardEvent } from "react";
 import "./Login.scss";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { GoogleAuthProvider, signInWithPopup, type UserCredential } from "firebase/auth";
+import { signInWithPopup, type UserCredential } from "firebase/auth";
 import { auth, provider } from "../../configs/firebase";
 import { messageService, type BackendResponse, type GoogleUser } from "../../interfaces/appInterface";
 import appService from "../../services/appService";
@@ -98,7 +98,12 @@ const Login = (): JSX.Element => {
                         googleLogin: result.data.googleLogin
                     }
                     loginContext(userData);
-                    navigate("/");
+                    if (userData.roleId == 1) {
+                        console.log("co")
+                        navigate("/admin/product");
+                    } else {
+                        navigate("/");
+                    }
                     setSessionKey(result.data.sessionKey, 30);
                 } else {
                     messageService.error(result.message);

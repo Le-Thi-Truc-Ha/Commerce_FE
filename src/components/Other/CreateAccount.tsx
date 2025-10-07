@@ -89,7 +89,7 @@ const CreateAccount = (): JSX.Element => {
                 <Col xs={13} md={7} style={{height: "85%", display: "flex", justifyContent: "center", alignItems: "center"}}>
                     <Row className="form-create">
                         <Col span={24} style={{paddingBottom: "20px"}}>
-                            <div style={{textAlign: "center", fontFamily: "Playfair Display", fontSize: "30px"}}>Đăng Ký Tài Khoản</div>
+                            <div style={{textAlign: "center", fontFamily: "Prata", fontSize: "30px"}}>Đăng Ký Tài Khoản</div>
                         </Col>
                         <Col span={24}>
                             <Input 

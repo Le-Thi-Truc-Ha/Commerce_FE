@@ -6,12 +6,12 @@ import PrivateRoute from "./privateRoute";
 import NotFound from "../components/Other/NotFound";
 import Home from "../components/Other/Home";
 import Loading from "../components/Other/Loading";
-import AdminPage from "../components/Admin/adminPage";
 import CustomerPage from "../components/Customer/customerPage";
 import Login from "../components/Other/Login";
 import Header from "../components/Other/Header";
 import CreateAccount from "../components/Other/CreateAccount";
 import HeaderAdmin from "../components/Admin/HeaderAdmin";
+import ProductAdmin from "../components/Admin/ProductAdmin";
 
 const HeaderCustomer = (): JSX.Element => {
     return(
@@ -47,7 +47,7 @@ const AppRoute = (): JSX.Element => {
                     </PrivateRoute>
                 } 
             >
-                <Route path="admin-page" element={<AdminPage />} />
+                <Route path="product" element={<ProductAdmin />} />
             </Route>
 
             <Route element={<HeaderCustomer />}>
