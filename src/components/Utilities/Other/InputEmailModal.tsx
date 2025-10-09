@@ -11,6 +11,7 @@ const InputEmailModal = ({openEmail, setOpenEmail}: InputEmailModalProps): JSX.E
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [openOtp, setOpenOtp] = useState<boolean>(false);
     const [expiryOtp, setExpiryOtp] = useState<number>(0);
+    const [otpEmail, setOtpEmail] = useState<string>("");
 
     const handleOk = async (email: string, isLoading: boolean) => {
         if (email.length != 0) {
@@ -18,9 +19,10 @@ const InputEmailModal = ({openEmail, setOpenEmail}: InputEmailModalProps): JSX.E
             try {
                 const result: BackendResponse = await appService.checkEmailApi(email);
                 if (result.code == 0 || result.code == 2) {
-                    handleCancel();
                     setOpenOtp(true);
+                    setOtpEmail(email);
                     setExpiryOtp(result.data);
+                    handleCancel();
                     if (result.code == 2) {
                         messageService.success(result.message);
                     }
@@ -90,7 +92,7 @@ const InputEmailModal = ({openEmail, setOpenEmail}: InputEmailModalProps): JSX.E
             </Modal>
             <InputOtpModal 
                 openOtp={openOtp}
-                email={email}
+                email={otpEmail}
                 expiryOtp={expiryOtp}
                 verifyEmail={false}
                 accountInformation={null}

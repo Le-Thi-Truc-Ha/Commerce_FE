@@ -1,16 +1,7 @@
-import { useEffect, useState, type JSX } from "react";
+import { useState, type JSX } from "react";
 import "./Home.scss";
 import { Col, Row } from "antd";
-import { AnimatePresence, motion, type MotionProps } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-
-const MotionDiv = motion.div
-const divConfig: MotionProps = {
-    initial: {opacity: 0},
-    animate: {opacity: 1},
-    exit: {opacity: 0},
-    transition: {duration: 0.3}
-}
 
 const Home = (): JSX.Element => {
     const [bannerActive, setBannerActive] = useState<number>(0);

@@ -1,8 +1,10 @@
-import { useState, type JSX } from "react";
-import "./Information.scss";
-import { Col, ConfigProvider, DatePicker, Input, Row, Select } from "antd";
-import type { Dayjs } from "dayjs";
-import { messageService } from "../../../interfaces/appInterface";
+import { useContext, useEffect, useState, type JSX } from "react";
+import { Button, Col, DatePicker, Input, Row, Select } from "antd";
+import dayjs, { Dayjs } from "dayjs";
+import { messageService, type BackendResponse } from "../../../interfaces/appInterface";
+import customerService from "../../../services/customerService";
+import { UserContext } from "../../../configs/globalVariable";
+import Loading from "../../Other/Loading";
 
 interface UserInformation {
     name: string,
@@ -11,9 +13,86 @@ interface UserInformation {
     gender: string | null
 }
 const Information = (): JSX.Element => {
-    const [edit, setEdit] = useState<boolean>(true);
+    const {user} = useContext(UserContext);
+    const [edit, setEdit] = useState<boolean>(false);
+    const [rawInformation, setRawInformation] = useState<UserInformation>({name: "", email: "", dob: null, gender: ""});
     const [userInformation, setUserInformation] = useState<UserInformation>({name: "", email: "", dob: null, gender: ""});
-    const [hasValidate, setHasValidate] = useState<boolean[]>([false, false])
+    const [hasValidate, setHasValidate] = useState<boolean>(false)
+    const [getInformationLoading, setGetInformationLoading] = useState<boolean>(false);
+    const [saveInformationLoading, setSaveInformationLoading] = useState<boolean>(false);
+
+    useEffect(() => {
+        getAccountInformation()
+    }, [])
+
+    const getAccountInformation = async () => {
+        setGetInformationLoading(true);
+        try {
+            const result: BackendResponse = await customerService.getAccountInformationApi(user.accountId);
+            if (result.code == 0) {
+                const account = result.data;
+                const dob = account.dob?.isValid ? dayjs(account.dob) : null;
+                setRawInformation({name: account.name, email: account.email, dob: dob, gender: account.gender})
+                setUserInformation({name: account.name, email: account.email, dob: dob, gender: account.gender})
+            } else {
+                messageService.error(result.message);
+            }
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở server");
+        } finally {
+            setGetInformationLoading(false);
+        }
+    }
+
+    const checkChange = (): boolean => {
+        if (rawInformation.name != userInformation.name) {
+            return true;
+        }
+        if (rawInformation.dob != userInformation.dob) {
+            return true;
+        }
+        if (rawInformation.gender != userInformation.gender) {
+            return true;
+        }
+        return false;
+    }
+
+    const saveInformation = async () => {
+        if (userInformation.name != "") {
+            if (checkChange()) {
+                setSaveInformationLoading(true);
+                try {
+                    e.log("co");
+                    const result: BackendResponse = await customerService.saveInformationApi(user.accountId, userInformation.name, userInformation.email, userInformation.dob?.toISOString() ?? null, userInformation.gender);
+                    if (result.code == 0) {
+                        messageService.success(result.message);
+                        setEdit(false);
+                        setRawInformation(userInformation);
+                    } else {
+                        messageService.error(result.message);
+                    }
+                } catch(e) {
+                    console.log(e);
+                    messageService.error("Xảy ra lỗi ở server");
+                } finally {
+                    setSaveInformationLoading(false);
+                }
+            } else {
+                messageService.success("Lưu thông tin thành công");
+                setEdit(false);
+            }
+        } else {
+            setHasValidate(true);
+            messageService.error("Nhập đầy đủ thông tin bắt buộc")
+        }
+    }
+
+    const cancelSaveInformation = () => {
+        setUserInformation(rawInformation);
+        setEdit(false);
+        setHasValidate(false);
+    }
 
     return(
         <>
@@ -29,14 +108,12 @@ const Information = (): JSX.Element => {
                                 className="input-ant"
                                 style={{width: "40%", borderRadius: "20px"}}
                                 disabled={!edit}
-                                status={`${hasValidate[0] ? "error" : ""}`}
+                                status={`${hasValidate ? "error" : ""}`}
                                 placeholder="Nhập họ tên"
                                 value={userInformation.name}
                                 onChange={(event) => {
                                     setUserInformation({...userInformation, name: event.target.value})
-                                    setHasValidate(hasValidate.map((item, index) => (
-                                        index == 0 ? false : item
-                                    )))
+                                    setHasValidate(false);
                                 }}
                             />
                         </Col>
@@ -52,15 +129,11 @@ const Information = (): JSX.Element => {
                                 id="email"
                                 className="input-ant"
                                 style={{width: "60%", borderRadius: "20px"}}
-                                disabled={!edit}
-                                status={`${hasValidate[1] ? "error" : ""}`}
+                                disabled
                                 placeholder="Nhập email"
                                 value={userInformation.email}
                                 onChange={(event) => {
                                     setUserInformation({...userInformation, email: event.target.value})
-                                    setHasValidate(hasValidate.map((item, index) => (
-                                        index == 1 ? false : item
-                                    )))
                                 }}
                             />
                         </Col>
@@ -116,7 +189,43 @@ const Information = (): JSX.Element => {
                         </Col>
                     </Row>
                 </Col>
+                <Col span={16}>
+                    <div></div>
+                </Col>
+                <Col span={6} style={{display: "flex", justifyContent: "start", gap: "20px"}}>
+                    {
+                        edit && (
+                            <Button
+                                variant="outlined"
+                                size="large"
+                                color="primary"
+                                onClick={() => {cancelSaveInformation()}}
+                            >
+                                Hủy
+                            </Button>
+                        )
+                    }
+                    <Button
+                        variant="solid"
+                        color="primary"
+                        size="large"
+                        onClick={() => {
+                            if (edit) {
+                                saveInformation();
+                            } else {
+                                setEdit(true);
+                            }
+                        }}
+                    >
+                        {`${edit ? "Lưu" : "Chỉnh sửa"}`}
+                    </Button>
+                </Col>
             </Row>
+            {
+                (getInformationLoading || saveInformationLoading) && (
+                    <Loading />
+                )
+            }
         </>
     )
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type JSX, type KeyboardEvent } from "react";
 import { messageService, type InputOtpModalProps } from "../../../interfaces/appInterface";
-import { Col, Input, Modal, Row, type InputRef } from "antd";
+import { Col, ConfigProvider, Input, Modal, Row, type InputRef } from "antd";
 import Loading from "../../Other/Loading";
 import appService from "../../../services/appService";
 import ResetPasswordModal from "./ResetPasswordModal";
@@ -93,8 +93,8 @@ const InputOtpModal = ({openOtp, email, expiryOtp, verifyEmail, accountInformati
                     messageService.error(result.message);
                 }
             } else {
-                const {email, name, phone, dob, gender, password} = accountInformation ?? {email: "", name: "", phone: "", dob: null, gender: "", password: ""};
-                const result = await appService.createAccountApi(otp, email, name, phone, dob && dob.toISOString(), gender, password);
+                const {email, name, dob, gender, password} = accountInformation ?? {email: "", name: "", phone: "", dob: null, gender: "", password: ""};
+                const result = await appService.createAccountApi(otp, email, name, dob && dob.toISOString(), gender, password);
                 if (result.code == 0) {
                     handleCancel();
                     navigate("/login");
@@ -135,32 +135,41 @@ const InputOtpModal = ({openOtp, email, expiryOtp, verifyEmail, accountInformati
                         <div style={{textAlign: "center"}}>{`Nhập mã xác thực được gửi qua email ${email}`}</div>
                     </Col>
                     <Col span={24} style={{display: "flex", justifyContent: "center", gap: "20px"}}>
-                        {
-                            Array.from({length: 5}, (_, index) => (
-                                <Input 
-                                    style={{width: "9%", height: "40px", fontFamily: "Quicksand", fontSize: "20px", textAlign: "center"}}
-                                    key={index + 10}
-                                    tabIndex={index + 10}
-                                    inputMode="numeric"
-                                    ref={(element) => {inputRef.current[index] = element}}
-                                    value={otp[index]}
-                                    onChange={(event: ChangeEvent<HTMLInputElement>) => {handleChange(event, index)}}
-                                    onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {handleKeyDown(event, index)}}
-                                />
-                            ))
-                        }
+                        <ConfigProvider
+                            theme={{
+                                components: {
+                                    Input: {
+                                        borderRadius: 10
+                                    }
+                                }
+                            }}
+                        >
+                            {
+                                Array.from({length: 5}, (_, index) => (
+                                    <Input 
+                                        style={{width: "9%", height: "40px", fontFamily: "Quicksand", fontSize: "20px", textAlign: "center"}}
+                                        key={index + 10}
+                                        tabIndex={index + 10}
+                                        inputMode="numeric"
+                                        ref={(element) => {inputRef.current[index] = element}}
+                                        value={otp[index]}
+                                        onChange={(event: ChangeEvent<HTMLInputElement>) => {handleChange(event, index)}}
+                                        onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {handleKeyDown(event, index)}}
+                                    />
+                                ))
+                            }
+                        </ConfigProvider>
                     </Col>
                     {
                         expiryOtp > 0 ? (
                             <Col span={24} style={{display: "flex", justifyContent: "center", paddingTop: "15px"}}>
-                                <div>Mã xác thực hết hạn sau <span className="text-primary" style={{cursor: "default"}}>{formatTimeLeft()}</span></div>
+                                <div>Mã xác thực hết hạn sau <span style={{cursor: "default", color: "var(--color6)"}}>{formatTimeLeft()}</span></div>
                             </Col>
                         ) : (
                             <Col span={24} style={{display: "flex", justifyContent: "center", paddingTop: "15px"}}>
                                 <div>
                                     Không nhận được mã? <span 
-                                        className="text-primary" 
-                                        style={{cursor: "pointer"}} 
+                                        style={{cursor: "pointer", color: "var(--color6)"}} 
                                         onClick={async () => {
                                             setOtp(Array(5).fill(""));
                                             setTimeLeft(-1);

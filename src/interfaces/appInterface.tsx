@@ -1,4 +1,5 @@
 import type { Dayjs } from "dayjs";
+import { motion, type MotionProps } from "framer-motion";
 
 export interface BackendResponse {
   message: string,
@@ -51,4 +52,12 @@ export interface ResetPasswordModalProps {
   openReset: boolean,
   email: string,
   setOpenReset: (value: boolean) => void
+}
+
+export const MotionDiv = motion.div
+export const divConfig: MotionProps = {
+    initial: {opacity: 0},
+    animate: {opacity: 1},
+    exit: {opacity: 0},
+    transition: {duration: 0.3}
 }
