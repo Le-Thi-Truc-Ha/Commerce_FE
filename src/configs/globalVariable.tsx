@@ -50,7 +50,7 @@ export const UserProvider = ({children}: UserProviderProps): JSX.Element => {
             if (result.code == 0) {
                 const userData: UserType = {
                     isAuthenticated: true,
-                    accountId: result.data.id,
+                    accountId: result.data.accountId,
                     roleId: result.data.roleId,
                     googleLogin: result.data.googleLogin
                 }

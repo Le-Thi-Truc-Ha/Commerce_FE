@@ -74,21 +74,21 @@ const HeaderAdmin = (): JSX.Element => {
                 </Col>
             </Row>
             <Row className="menu-outlet-container" align="top">
-                <Col span={5} style={{display: "flex", justifyContent: "center", alignItems: "center", height: "fit-content"}}>
+                <Col span={5} style={{display: "flex", justifyContent: "center", alignItems: "center", height: "fit-content", position: "sticky", top: "80px"}}>
                     <div className="menu-static">
                         <div className="feature-menu">
                             {
                                 iconsItem.map((Item, index) => (
                                     <div 
                                         key={index}
-                                        className={`menu-item ${indexOfItem == index + 1 ? "menu-item-active" : ""}`}
+                                        className={`admin-menu-item ${indexOfItem == index + 1 ? "admin-menu-item-active" : ""}`}
                                         onClick={() => {
                                             setIndexOfItem(index + 1);
                                             navigateMenu(index + 1);
                                         }}
                                     >
                                         <Item size={22} strokeWidth={1} />
-                                        <div className="menu-item-name">{nameItem[index]}</div>
+                                        <div className="admin-menu-item-name">{nameItem[index]}</div>
                                     </div>
                                 ))
                             }

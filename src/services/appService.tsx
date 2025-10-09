@@ -47,11 +47,11 @@ const verifyEmailApi = (email: string): Promise<BackendResponse> => {
 }
 
 const createAccountApi = (
-    otp: string, email: string, name: string, phone: string | null, 
-    dob: string | null, gender: string | null, password: string
+    otp: string, email: string, name: string, dob: string | null,
+    gender: string | null, password: string
 ): Promise<BackendResponse> => {
     return axios.post("/create-account", {
-        otp, email, name, phone, dob, gender, password
+        otp, email, name, dob, gender, password
     })
 }
 

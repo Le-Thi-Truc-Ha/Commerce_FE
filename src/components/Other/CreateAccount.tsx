@@ -104,7 +104,8 @@ const CreateAccount = (): JSX.Element => {
                             activeBorderColor: "var(--color6)",
                             activeOutlineColor: "var(--color2)",
                             hoverBorderColor: "var(--color4)",
-                            optionActiveBg: "var(--color1)",
+                            optionActiveBg: "var(--color2)",
+                            controlItemBgActive: "var(--color4)"
                         },
                         Button: {
                             defaultActiveBorderColor: "var(--color7)",
@@ -116,8 +117,13 @@ const CreateAccount = (): JSX.Element => {
                             colorPrimary: "var(--color5)",
                             colorPrimaryActive: "var(--color6)",
                             colorPrimaryHover: "var(--color4)",
-                            primaryShadow: "0 0 0 black"
-                            
+                            primaryShadow: "0 0 0 black",
+                            colorPrimaryTextHover: "var(--color4)",
+                            colorPrimaryTextActive: "var(--color6)"
+                        },
+                        Checkbox: {
+                            colorPrimary: "var(--color7)",
+                            colorPrimaryHover: "var(--color6)"
                         }
                     }
                 }}
