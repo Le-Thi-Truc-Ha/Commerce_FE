@@ -1,7 +1,8 @@
 import { useState, type JSX } from "react";
 import "./Home.scss";
-import { Col, Row } from "antd";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Button, Col, ConfigProvider, Divider, Row } from "antd";
+import { ArrowLeft, ArrowRight, Heart, ShoppingCart } from "lucide-react";
+import ProductionCard from "../Utilities/ProductionCard/ProductionCard";
 
 const Home = (): JSX.Element => {
     const [bannerActive, setBannerActive] = useState<number>(0);
@@ -39,6 +40,54 @@ const Home = (): JSX.Element => {
             }
         }
     }
+
+    const nameProduction: string[] = [
+        "Áo kiểu tay ngắn cổ sơ mi phối ren", "Đầm mini 2 dây thêu hoa form suông phối bèo",
+        "Đầm midi form suông sát nách thắt nơ lưng", "Quần ống suông lưng cao dây kéo sau",
+        "Đầm midi sát nách rút nhún ngực thun eo", "Áo thun crop 3 lỗ cổ thuyền",
+        "Áo thun crop tay ngắn cổ V cài nút", "Áo thun ôm 2 dây cơ bản"
+    ]
+    const priceProduction: string[] = [
+        "177,500₫", "556,000₫",
+        "476,000₫", "445,500₫",
+        "595,000₫", "124,000₫",
+        "153,000₫", "175,500₫"
+    ]
+    const imageProduction: string[] = [
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031339/pro_trang_2_4c261b702dd74bf58325a21830e364ce_grande_nyfzhr.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031343/pro_hoa_01_1_6cb772274f3544d989e5014291f40455_grande_ptdi0v.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031345/pro_luc_01_1_0af140c6cd3c4058b97970c80993d8c7_grande_dfmcdb.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031348/pro_luc_01_1_fc8d49a109c74088ada562dafe6f2341_grande_nsz4lq.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031350/pro_hong_05_1_1bb33f68add045ed947ed49fce9fcb70_grande_aqy9uq.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031352/pro_den_1_20113637fef04182868296ccdf4b4eae_grande_yj3mc4.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031355/pro_nau_01_4_adef39546c694d7eb19d9eb2ab1ba7db_grande_rgn2y5.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031357/pro_nau_01_2_afb7429972b34433b1a65849244b335e_grande_emuttg.jpg"
+    ]
+
+    const nameRecommend: string[] = [
+        "Áo tơ thêu sát nách cổ tròn phối ren đính nút gỗ", "Áo thun hoa trễ vai tay dài viền ren đính nơ",
+        "Váy skort cơ bản kẻ sọc", "Áo gile kẻ sọc thắt nơ thân trước",
+        "Áo decoup tay phồng cổ tròn viền ren", "Quần culotte xếp li hông",
+        "Áo blazer form cơ bản tay dài 2 túi", "Áo thun 4 chiều form basic tay ngắn"
+    ]
+    const priceRecommend: string[] = [
+        "364,000₫", "265,500₫",
+        "213,000₫", "213,000₫",
+        "355,000₫", "364,000₫",
+        "556,000₫", "204,000₫"
+    ]
+    const imageRecommend: string[] = [
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034348/pro_hong_01_2_91fa9ebd5e7448e3a11f151f19b9e8ef_grande_h86y3i.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034350/pro_den_1_fd131a81abbf42c1b1e7868ad99fef17_grande_r5txmz.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034352/pro_trang_4_6188e6cde05c40ce98f7e65c19fc7011_grande_w0byvi.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034357/pro_den_3_b5e52ae3d9e54b65bdf58a64be1dcf19_grande_fbf0qy.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034355/pro_nau_02_2_69885c0c4ae549f784aa67539a1bd84b_grande_adl8g3.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034359/pro_den_3_b8bbfb2ca9eb4ec1979f93041d65a3dd_grande_nye8yu.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034361/pro_nau_02_2_7d4060a2227a4752b0b63c3085115cbd_grande_fhjfrz.jpg",
+        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034364/pro_xanh_la_02_2_1f6d681e5b90406297ad49dc9ad4e850_grande_gbmcbx.jpg"
+    ]
+
+    
     
     return(
         <>
@@ -112,36 +161,84 @@ const Home = (): JSX.Element => {
                         </div>
                     </div>
                 </Col>
-                <Col span={24}>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Optio, est possimus error dolorum voluptatum ea sit? Voluptate rerum nesciunt vitae ipsam, sint est possimus doloremque. Repellat ratione dolor harum quam?
-                Laborum consectetur tempora commodi quas, necessitatibus quia? Tempore ipsum unde voluptate fuga? Porro nobis earum deleniti, ab unde natus aperiam laborum quo cupiditate excepturi similique in itaque quia blanditiis nisi.
-                Corporis repellat ipsam doloribus voluptatum magnam. Corrupti, quod facilis? Sint, quia? Quos architecto temporibus fuga nisi est magni voluptate necessitatibus incidunt totam. Excepturi et enim assumenda unde eveniet, corporis maxime?
-                Maxime reiciendis in error, enim autem voluptate fuga excepturi. Aspernatur quis quo tempore reprehenderit consequuntur necessitatibus repellendus. Accusamus eligendi laudantium exercitationem at ipsam quibusdam, a illo iusto voluptatem commodi! Excepturi?
-                Placeat ipsa hic deleniti earum fuga corrupti voluptate modi voluptas praesentium eaque ducimus excepturi ad facere possimus optio sunt tenetur voluptatibus rem iusto, laboriosam exercitationem id! Veritatis, totam. Enim, nulla!
-                Dolore officiis ut eaque mollitia eos vel porro voluptatem qui reprehenderit. Ipsum temporibus, ut recusandae et eveniet asperiores itaque aut esse tempore culpa dolorem aliquid? Maiores quasi excepturi vel voluptatem.
-                Libero sapiente dolore hic molestiae dolores deleniti. A, sunt. Accusantium esse possimus molestiae laudantium sunt ipsum eum consequuntur assumenda! Iste dolorum repellendus beatae distinctio repudiandae quaerat qui laudantium maiores architecto.
-                Qui distinctio, unde maiores molestiae beatae, asperiores cum aspernatur quas sit ratione assumenda nemo atque aliquam architecto iste perspiciatis laboriosam accusantium expedita excepturi blanditiis dolorem error. Similique nisi sint dolor.
-                Voluptatibus tempora, alias quidem saepe reprehenderit laboriosam unde sunt voluptas repellat ex corrupti? Libero, eveniet officia. Dolores, amet ipsam, corporis atque nesciunt totam laboriosam doloribus consectetur deserunt accusamus iste corrupti!
-                Iure ad quisquam recusandae tempora voluptas nihil reprehenderit iusto, laborum consequuntur ullam perspiciatis nostrum cumque soluta, illo itaque deserunt, corporis numquam nemo natus. Nulla, et enim. Quasi ipsum maxime reiciendis.
-                Fuga provident sint quae illo nostrum, dolor cum ad incidunt! Velit provident consequatur consectetur voluptatem? Illum, distinctio doloribus. Consequatur nulla cupiditate unde blanditiis aliquam illo rerum nobis harum qui veniam?
-                Beatae perspiciatis nisi sit molestiae iusto, suscipit labore blanditiis, corrupti, facilis ut quasi sequi eaque fuga consequatur soluta et distinctio impedit eius iste deserunt. Quos fugit voluptatem a iusto ab.
-                Fugit, deleniti. Maxime quod sed odit consequatur asperiores ullam tenetur quidem quas quia adipisci. Quam tenetur eaque in, perspiciatis aspernatur modi minus ipsam qui quos facilis nemo saepe, cumque ratione?
-                Minus est rem labore incidunt in odit, esse, molestias voluptatibus omnis repellat pariatur, quos non porro deleniti modi nulla earum vero! Neque atque dolore ipsam porro numquam iusto architecto adipisci!
-                Ea obcaecati ratione provident dolor expedita eveniet velit aliquid illum voluptas vero. Minus fugit at molestias placeat suscipit hic, illum nulla distinctio dolor, maiores a ratione temporibus ut error sint.
-                Repudiandae, nobis commodi! Eveniet dignissimos doloribus sed corrupti voluptatem sint sapiente ex maiores dolorum, enim error sunt officia magnam necessitatibus nemo, atque magni aliquam, minus impedit praesentium excepturi explicabo ipsam!
-                Inventore quia sequi nobis et, odio omnis in eaque! Porro perferendis animi a delectus aut, deserunt quod expedita minima ab unde suscipit est, illum quibusdam sapiente nesciunt velit reprehenderit cupiditate?
-                Asperiores sunt deserunt alias. Accusamus magni eveniet assumenda veritatis mollitia sed, illum corrupti debitis nobis molestiae odio explicabo doloremque id. Atque deserunt numquam quidem repudiandae repellat. Accusamus excepturi provident alias?
-                Perspiciatis nostrum, consequatur iste sapiente consectetur nam dolorum. Qui tenetur cumque atque, placeat odio quod, labore ullam, minima commodi blanditiis excepturi? Corrupti officia necessitatibus nostrum quos incidunt, nobis deserunt blanditiis!
-                Ex eum quis doloribus, quidem voluptas officia ipsam facilis enim porro error? Quisquam, id dolorum, nihil nemo labore possimus facilis, molestias minima exercitationem cupiditate aspernatur maxime nesciunt quidem nobis ullam!
-                Fugiat repellendus perspiciatis magni. Quam dicta et quod autem sunt fugiat explicabo sed, a incidunt reprehenderit ea repudiandae voluptatem iure voluptate quia, officia ad consequuntur eos atque magni amet natus!
-                Enim vero deserunt quo officiis! Sed id officiis sequi ipsa, laudantium ex aliquam quidem voluptatibus hic maxime labore nemo accusamus quam adipisci nihil pariatur voluptatum iusto! A veritatis repellat voluptatem!
-                Quas labore aut, exercitationem sit nulla molestiae totam vitae nesciunt numquam adipisci? Pariatur doloremque repudiandae libero sint amet placeat maiores sed iusto, ad, voluptatem quae qui rem tenetur cum consequuntur!
-                Eligendi ad sed porro esse totam nisi magnam, odio repellendus nesciunt magni atque at, veritatis non quam cum. Quisquam a nihil perferendis nam quae voluptatibus ab quibusdam saepe, molestias iure.
-                Libero consequatur eveniet nobis possimus assumenda quos, facere accusamus explicabo voluptates saepe natus iste blanditiis aperiam cupiditate? Fuga architecto beatae minima dicta, iure fugiat, aut, earum debitis corrupti cupiditate quia!
-                Reprehenderit possimus rem dolores ducimus eum, cum quaerat aliquam labore dolorum voluptates necessitatibus totam ipsa beatae maxime enim facilis. Impedit quia numquam debitis in id eveniet mollitia atque aliquid dolorum?
-                Adipisci eveniet sit cumque saepe dicta, eaque perferendis nostrum ut voluptatem obcaecati debitis nisi sint consectetur porro laborum suscipit esse neque. Eveniet quo laudantium unde iure sunt ad totam voluptas?
-                Explicabo voluptas cum incidunt distinctio ipsam illo dolor! Neque maiores fugit perferendis magnam nulla ullam mollitia temporibus nostrum consequatur earum. Cumque tenetur cum temporibus, placeat ipsam ad repellendus dolore modi.
-                Assumenda repudiandae autem dolores minima, sed officiis culpa vero dolor harum voluptatem quis quos. Saepe, animi beatae quasi, pariatur nihil at dolore veritatis earum ipsum facilis nisi nulla. Quidem, inventore?
-                Culpa obcaecati doloremque error, quisquam consectetur eius harum a aliquid recusandae voluptatem maxime? Minima ipsa deserunt illum sit possimus a dolorem quasi provident ullam rem eius, sed impedit at voluptatibus.</Col>
+                <Col span={24} style={{padding: "50px 00px 40px 0px"}}>
+                    <ConfigProvider
+                        theme={{
+                            components: {
+                                Divider: {
+                                    colorSplit: "rgba(0, 0, 0, 0.2)",
+                                }
+                            }
+                        }}
+                    >
+                        <Divider><div style={{fontFamily: "Prata", fontSize: "30px"}}>Sản phẩm bán chạy</div></Divider>
+                    </ConfigProvider>
+                </Col>
+                <Col span={24} style={{display: "flex", justifyContent: "center"}}>
+                    <div style={{width: "94%"}}>
+                        <Row gutter={[0, 50]}>
+                            {
+                                nameProduction.map((item, index) => (
+                                    <ProductionCard key={index} url={imageProduction[index]} name={item} price={priceProduction[index]} />
+                                ))
+                            }
+                        </Row>
+                    </div>
+                </Col>
+                <Col span={24} style={{padding: "50px 00px 40px 0px"}}>
+                    <ConfigProvider
+                        theme={{
+                            components: {
+                                Divider: {
+                                    colorSplit: "rgba(0, 0, 0, 0.2)",
+                                }
+                            }
+                        }}
+                    >
+                        <Divider><div style={{fontFamily: "Prata", fontSize: "30px"}}>Sản phẩm gợi ý</div></Divider>
+                    </ConfigProvider>
+                </Col>
+                <Col span={24} style={{display: "flex", justifyContent: "center"}}>
+                    <div style={{width: "94%"}}>
+                        <Row gutter={[0, 50]}>
+                            {
+                                nameRecommend.map((item, index) => (
+                                    <ProductionCard key={index} url={imageRecommend[index]} name={item} price={priceRecommend[index]} />
+                                ))
+                            }
+                        </Row>
+                    </div>
+                </Col>
+                <Col span={24} style={{display: "flex", justifyContent: "center", padding: "40px 0px 0px"}}>
+                    <ConfigProvider
+                        theme={{
+                            components: {
+                                Button: {
+                                    defaultActiveBorderColor: "var(--color7)",
+                                    defaultActiveColor: "var(--color7)",
+                                    defaultHoverBorderColor: "var(--color6)",
+                                    defaultHoverColor: "var(--color6)",
+                                    defaultShadow: "0 0 0 black",
+
+                                    colorPrimary: "var(--color5)",
+                                    colorPrimaryActive: "var(--color6)",
+                                    colorPrimaryHover: "var(--color4)",
+                                    primaryShadow: "0 0 0 black",
+                                    colorPrimaryTextHover: "var(--color4)",
+                                    colorPrimaryTextActive: "var(--color6)"
+                                }
+                            }
+                        }}
+                    >
+                        <Button
+                            variant="solid"
+                            color="primary"
+                            size="large"
+                        >
+                            Xem thêm
+                        </Button>
+                    </ConfigProvider>
+                </Col>
             </Row>
         </>
     )

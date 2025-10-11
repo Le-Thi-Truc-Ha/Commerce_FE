@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState, type JSX } from "react";
-import "./Address.scss";
 import { Button, Checkbox, Col, ConfigProvider, Divider, Row } from "antd";
 import CreateAddressModal from "./CreateAddressModal";
 import { UserContext } from "../../../configs/globalVariable";
@@ -167,7 +166,7 @@ const Address = (): JSX.Element => {
                         )
                     }
                     <Button
-                        style={{zIndex: 2}}
+                        style={{zIndex: 2, boxShadow: `${addressList.length == 0 ? "0 0 10px 2px rgba(0, 0, 0, 0.3)" : ""}`}}
                         variant="solid"
                         color="primary"
                         size="large"
@@ -182,11 +181,9 @@ const Address = (): JSX.Element => {
                     {
                         addressList.length == 0 && (
                             <div style={{position: "absolute", top: "0px", zIndex: 1, transform: "translateY(-50%)", display: "flex", flexDirection: "column", alignItems: "center"}}>
-                                <ArchiveX 
-                                    size={300} 
-                                    strokeWidth={0.1}
-                                    style={{stroke: "rgba(0, 0, 0, 0.2)"}} 
-                                />
+                                <div style={{width: "300px", height: "300px", overflow: "hidden"}}>
+                                    <img style={{width: "100%", height: "100%", objectFit: "cover", opacity: 0.3, filter: "blur(3px)"}} src="https://res.cloudinary.com/dibigdhgr/image/upload/v1760129523/no-data_q4r0yj.png" />
+                                </div>
                                 <div style={{color: "rgba(0, 0, 0, 0.6)", fontSize: "25px"}}>Không có dữ liệu</div>
                             </div>
                         )

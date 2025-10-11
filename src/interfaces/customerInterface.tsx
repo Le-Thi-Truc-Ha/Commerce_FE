@@ -24,3 +24,8 @@ export interface CreateAddressModalProps {
     setMode: (value: string) => void,
     setAddressDefault: (value: number) => void
 }
+
+export interface FeedbackModalProps {
+    openModal: boolean,
+    setOpenModal: (value: boolean) => void
+}

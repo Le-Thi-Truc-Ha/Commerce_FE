@@ -16,8 +16,12 @@ import HeaderCustomer from "../components/Customer/HeaderCustomer";
 import Order from "../components/Customer/Order";
 import Favourite from "../components/Customer/Favourite";
 import History from "../components/Customer/History";
-import AllProduct from "../components/Other/AllProduct";
-import Search from "../components/Other/Search";
+import AllProduction from "../components/Other/AllProduction/AllProduction";
+import SearchProduction from "../components/Other/SearchProduction";
+import Cart from "../components/Customer/Cart";
+import Pay from "../components/Customer/Pay";
+import ProductList from "../components/Other/AllProduction/ProductionList";
+import ProductionDetail from "../components/Other/ProductionDetail";
 
 const HeaderOverall = (): JSX.Element => {
     return(
@@ -74,8 +78,27 @@ const AppRoute = (): JSX.Element => {
             {/* PUBLIC */}
             <Route element={<HeaderOverall />}>
                 <Route path="/" element={<Home />} />
-                <Route path="/all-product" element={<AllProduct />} />
-                <Route path="/search" element={<Search />} />
+                <Route path="/all-production" element={<AllProduction />}>
+                    <Route path=":category" element={<ProductList />} />
+                </Route>
+                <Route path="/search" element={<SearchProduction />} />
+                <Route path="/all-production/:category/:id" element={<ProductionDetail />} />
+                <Route 
+                    path="/customer/cart"
+                    element={
+                        <PrivateRoute roleId={2}>
+                            <Cart />
+                        </PrivateRoute>
+                    }
+                />
+                <Route 
+                    path="/customer/pay"
+                    element={
+                        <PrivateRoute roleId={2}>
+                            <Pay />
+                        </PrivateRoute>
+                    }
+                />
             </Route>
         </Routes>
     );

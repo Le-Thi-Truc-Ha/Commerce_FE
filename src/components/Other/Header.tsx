@@ -52,18 +52,20 @@ const Header = (): JSX.Element => {
         const path = location.pathname;
         if (path == "/") {
             setHeaderItemSelect(1);
-        } else if (path == "/all-product") {
+        } else if (path.includes("/all-production")) {
             setHeaderItemSelect(2);
         } else if (path == "/search") {
             setHeaderItemSelect(3);
+        } else {
+            setHeaderItemSelect(-1);
         }
-    }, [])
+    }, [location.pathname])
 
     const navigateHeader = (index: number) => {
         if (index == 1) {
             navigate("/");
         } else if (index == 2) {
-            navigate("/all-product");
+            navigate("/all-production");
         } else if (index == 3) {
             navigate("/search");
         }
@@ -108,7 +110,7 @@ const Header = (): JSX.Element => {
                             }
                         }}
                     >
-                        <Badge color="var(--color1)" count={100}>
+                        <Badge color="var(--color1)" count={3} onClick={() => {navigate("/customer/cart")}}>
                             <ShoppingCart size={30} strokeWidth={1} className="cart-icon"/>
                         </Badge>
                         <Dropdown

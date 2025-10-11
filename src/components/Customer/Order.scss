@@ -1,0 +1,9 @@
+.order-container {
+    .item-underline {
+        position: absolute;
+        transform: translateY(-50%);
+        height: 2px;
+        background-color: var(--color7);
+        transition: all 0.3s ease-in-out;
+    }
+}
