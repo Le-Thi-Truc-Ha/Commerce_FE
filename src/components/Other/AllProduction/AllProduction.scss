@@ -1,33 +1,4 @@
-.home-container {
-    padding-bottom: 40px;
-    .indicator {
-        cursor: pointer;
-        height: 5px;
-        width: 30px;
-        background-color: var(--color7);
-        border-radius: 10px;
-        transition: all 0.3s ease-in-out;
-        &:hover {
-            background-color: var(--color8);
-        }
-    }
-    .indicator-active {
-        background-color: var(--color9);
-        &:hover {
-            background-color: var(--color9);
-        }
-    }
-    .background-control {
-        padding: 10px;
-        background-color: var(--color9);
-        border: 1px solid var(--color9);
-        border-radius: 50%;
-        transition: all 0.3s ease-in-out;
-        &:hover {
-            background-color: var(--color7);
-            border: 1px solid var(--color7);
-        }
-    }
+.all-product-container {
     .category {
         cursor: pointer;
         width: fit-content;
@@ -67,5 +38,10 @@
         color: var(--color4);
         font-size: 25px;
         transition: all 0.3s ease-in-out;
+    }
+    .sort-option {
+        padding: 10px 15px;
+        border: 1px solid var(--color8);
+        border-radius: 30px;
     }
 }
