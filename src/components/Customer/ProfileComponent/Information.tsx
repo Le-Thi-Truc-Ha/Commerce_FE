@@ -1,10 +1,10 @@
 import { useContext, useEffect, useState, type JSX } from "react";
-import { Button, Col, DatePicker, Input, Row, Select } from "antd";
+import { Button, Col, DatePicker, Input, Row, Select, Skeleton } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { messageService, type BackendResponse } from "../../../interfaces/appInterface";
-import customerService from "../../../services/customerService";
+import * as customerService from "../../../services/customerService";
 import { UserContext } from "../../../configs/globalVariable";
-import Loading from "../../Other/Loading";
+import LoadingModal from "../../Other/LoadingModal";
 
 interface UserInformation {
     name: string,
@@ -31,7 +31,7 @@ const Information = (): JSX.Element => {
             const result: BackendResponse = await customerService.getAccountInformationApi(user.accountId);
             if (result.code == 0) {
                 const account = result.data;
-                const dob = account.dob?.isValid ? dayjs(account.dob) : null;
+                const dob = account.dob ? dayjs(account.dob) : null;
                 setRawInformation({name: account.name, email: account.email, dob: dob, gender: account.gender})
                 setUserInformation({name: account.name, email: account.email, dob: dob, gender: account.gender})
             } else {
@@ -63,8 +63,8 @@ const Information = (): JSX.Element => {
             if (checkChange()) {
                 setSaveInformationLoading(true);
                 try {
-                    e.log("co");
                     const result: BackendResponse = await customerService.saveInformationApi(user.accountId, userInformation.name, userInformation.email, userInformation.dob?.toISOString() ?? null, userInformation.gender);
+                    setSaveInformationLoading(false);
                     if (result.code == 0) {
                         messageService.success(result.message);
                         setEdit(false);
@@ -94,7 +94,9 @@ const Information = (): JSX.Element => {
         setHasValidate(false);
     }
 
-    return(
+    return getInformationLoading ? (
+        <Skeleton active paragraph={{rows: 10}} />
+    ) : (
         <>
             <Row className="information-container" gutter={[30, 40]}>
                 <Col span={24}>
@@ -222,8 +224,11 @@ const Information = (): JSX.Element => {
                 </Col>
             </Row>
             {
-                (getInformationLoading || saveInformationLoading) && (
-                    <Loading />
+                (saveInformationLoading) && (
+                    <LoadingModal
+                        message="Đang lưu"
+                        open={saveInformationLoading}
+                    />
                 )
             }
         </>

@@ -1,5 +1,5 @@
 import { Col, Input, Modal, Rate, Row } from "antd";
-import { CloudUpload, FileImage, FileVideo, Star } from "lucide-react";
+import { FileImage, FileVideo, Star } from "lucide-react";
 import type { JSX } from "react";
 import type { FeedbackModalProps } from "../../../interfaces/customerInterface";
 
@@ -22,7 +22,7 @@ const FeedbackModal = ({openModal, setOpenModal}: FeedbackModalProps): JSX.Eleme
                 maskClosable={false}
             >
                 <Row style={{padding: "20px 0px"}}>
-                    <Col span={24} style={{display: "flex", justifyContent: "center"}}>
+                    <Col span={24} style={{display: "flex", justifyContent: "center", paddingBottom: "20px"}}>
                         <Rate
                             defaultValue={5}
                             character={<Star stroke="none" fill="currentColor" size={30} />}

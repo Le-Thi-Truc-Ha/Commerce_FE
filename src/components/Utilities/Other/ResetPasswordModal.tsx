@@ -2,7 +2,7 @@ import { useState, type JSX } from "react";
 import { messageService, type ResetPasswordModalProps } from "../../../interfaces/appInterface";
 import { Col, Input, Modal, Row } from "antd";
 import { Eye, EyeOff } from "lucide-react";
-import appService from "../../../services/appService";
+import * as appService from "../../../services/appService";
 import Loading from "../../Other/Loading";
 
 const ResetPasswordModal = ({openReset, email, setOpenReset}: ResetPasswordModalProps): JSX.Element => {

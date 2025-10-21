@@ -1,52 +1,52 @@
 import type { Dayjs } from "dayjs";
 import axios from "../configs/axios";
-import type { BackendResponse, GoogleUser } from "../interfaces/appInterface";
+import type { BackendResponse, GoogleUser, ProductionCardProps, RawProduction } from "../interfaces/appInterface";
 
-const reloadPageApi = (): Promise<BackendResponse> => {
+export const reloadPageApi = (): Promise<BackendResponse> => {
     return axios.get("/reload-page");
 }
 
-const googleLoginApi = (userInformation: GoogleUser): Promise<BackendResponse> => {
+export const googleLoginApi = (userInformation: GoogleUser): Promise<BackendResponse> => {
     return axios.post("/google-login", {
         userInformation
     })
 }
 
-const normalLoginApi = (email: string, password: string): Promise<BackendResponse> => {
+export const normalLoginApi = (email: string, password: string): Promise<BackendResponse> => {
     return axios.post("/normal-login", {
         email, password
     });
 };
 
-const logoutApi = (): Promise<BackendResponse> => {
+export const logoutApi = (): Promise<BackendResponse> => {
     return axios.get("/logout");
 }
 
-const checkEmailApi = (email: string): Promise<BackendResponse> => {
+export const checkEmailApi = (email: string): Promise<BackendResponse> => {
     return axios.post("/check-email", {
         email
     });
 }
 
-const checkOtpApi = (email: string, otp: string): Promise<BackendResponse> => {
+export const checkOtpApi = (email: string, otp: string): Promise<BackendResponse> => {
     return axios.post("/check-opt", {
         email, otp
     })
 }
 
-const resetPasswordApi = (email: string, newPassword: string): Promise<BackendResponse> => {
+export const resetPasswordApi = (email: string, newPassword: string): Promise<BackendResponse> => {
     return axios.post("/reset-password", {
         email, newPassword
     })
 }
 
-const verifyEmailApi = (email: string): Promise<BackendResponse> => {
+export const verifyEmailApi = (email: string): Promise<BackendResponse> => {
     return axios.post("/verify-email", {
         email
     });
 }
 
-const createAccountApi = (
+export const createAccountApi = (
     otp: string, email: string, name: string, dob: string | null,
     gender: string | null, password: string
 ): Promise<BackendResponse> => {
@@ -55,7 +55,36 @@ const createAccountApi = (
     })
 }
 
-export default {
-    reloadPageApi, googleLoginApi, normalLoginApi, logoutApi, checkEmailApi,
-    checkOtpApi, resetPasswordApi, verifyEmailApi, createAccountApi
+export const getBestSellerApi = (accountId: number): Promise<BackendResponse> => {
+    return axios.get(`/get-best-seller?accountId=${accountId}`);
+}
+
+export const getProductApi = (accountId: number, nowCategory: number, nowSort: number, nowPage: number): Promise<BackendResponse> => {
+    return axios.post("/get-product", {
+        accountId, nowCategory, nowSort, nowPage
+    })
+}
+
+export const productDataProcess = (rawData: RawProduction[]): ProductionCardProps[] => {
+    let result: ProductionCardProps[] = [];
+    const categoriesPath: string[] = ["shirt", "pant", "dress", "skirt"]
+
+    result = rawData.map((item) => {
+        const percent = item.productPromotions.find((promotionItem) => (promotionItem.promotion != null))?.promotion?.percent ?? null;
+        return({
+            productId: item.id,
+            url: item.medias[0].url,
+            name: item.name,
+            star: item.rateStar ? item.rateStar : 0,
+            price: item.productVariants[0].price,
+            discount: percent ? `${(Math.round((item.productVariants[0].price * ((100 - percent) / 100)) / 1000) * 1000).toLocaleString("en-US")}đ` : null,
+            category: item.category.parentId ? categoriesPath[item.category.parentId - 1] : categoriesPath[item.category.id - 1],
+            isLike: item.favourites.length > 0 ? true : false,
+            status: item.status,
+            saleFigure: item.saleFigure
+        })
+    })
+
+    console.log(result)
+    return result;
 }

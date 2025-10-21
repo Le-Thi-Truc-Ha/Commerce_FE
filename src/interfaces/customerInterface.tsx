@@ -1,3 +1,6 @@
+import type { Dispatch, SetStateAction } from "react"
+import type { ProductionCardProps, RawProduction } from "./appInterface"
+
 export interface AddressInformation {
     id: number,
     name: string,
@@ -28,4 +31,22 @@ export interface CreateAddressModalProps {
 export interface FeedbackModalProps {
     openModal: boolean,
     setOpenModal: (value: boolean) => void
+}
+
+export interface FavouriteListProps {
+  id: number,
+  productCard: ProductionCardProps
+}
+export interface RawFavourite {
+  id: number,
+  product: RawProduction
+}
+
+export interface ProductionFavouriteProps {
+    id: number,
+    productCard: ProductionCardProps
+    setFavouriteList: Dispatch<SetStateAction<FavouriteListProps[]>>,
+    type: string,
+    setTotal: Dispatch<SetStateAction<number>>,
+    take: number
 }

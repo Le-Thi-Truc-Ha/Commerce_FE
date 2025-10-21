@@ -36,6 +36,13 @@ const SearchProduction = (): JSX.Element => {
         "https://res.cloudinary.com/dibigdhgr/image/upload/v1760101071/pro_hoa_01_1_f3dd533b64f74cbb84f6f0a7bb94b0da_grande_drn4rw.jpg",
         "https://res.cloudinary.com/dibigdhgr/image/upload/v1760101075/pro_hong_01_2_91fa9ebd5e7448e3a11f151f19b9e8ef_grande_ccn0f6.jpg"
     ]
+    const starProduction: number[] =[
+        5, 5,
+        5, 5,
+        5, 5,
+        5, 5,
+        5, 5
+    ]
     return(
         <>
             <ConfigProvider
@@ -112,7 +119,15 @@ const SearchProduction = (): JSX.Element => {
                             <Row gutter={[0, 50]}>
                                 {
                                     nameProduction.map((item, index) => (
-                                        <ProductionCard key={index} url={imageProduction[index]} name={item} price={priceProduction[index]} />
+                                        <ProductionCard 
+                                            key={index} 
+                                            productId={index} 
+                                            url={imageProduction[index]} 
+                                            name={item} 
+                                            price={priceProduction[index]} 
+                                            star={starProduction[index]} 
+                                            discount={null}
+                                        />
                                     ))
                                 }
                             </Row>

@@ -1,45 +1,43 @@
 import { useEffect, useState, type JSX } from "react";
 import "./AllProduction.scss";
 import { Col, ConfigProvider, Divider, Row } from "antd";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
 
 const AllProduction = (): JSX.Element => {
     const navigate = useNavigate();
-    const location = useLocation();
+    const {category} = useParams();
     const [categoryActive, setCategoryActive] = useState<number>(-1);
+    const [sortOptions, setSortOptions] = useState<string[]>(["Mới nhất", "Bán chạy", "Giá tăng dần", "Giá giảm dần"])
+    const [currentSort, setCurrentSort] = useState<number>(0);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+
     const categories: {name: string, path: string, url: string}[] = [
         {name: "Áo", path: "shirt", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751103/tshirt_enlypz.png"},
         {name: "Quần", path: "pant", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/pants_yfrgrx.png"},
-        {name: "Váy", path: "dress", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751847/dress_tvwba9.png"},
-        {name: "Đầm", path: "skirt", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/skirt_tbxhg5.png"},
-        {name: "Giày", path: "shoes", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/high-heels_nsomr4.png"},
-        {name: "Túi", path: "bag", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/handbag_sge74h.png"},
+        {name: "Đầm", path: "dress", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751847/dress_tvwba9.png"},
+        {name: "Váy", path: "skirt", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/skirt_tbxhg5.png"}
     ]
 
     useEffect(() => {
-        const path = location.pathname;
-        if (path == "/all-production/shirt") {
+        if (category == "shirt") {
             setCategoryActive(0);
-        } else if (path == "/all-production/pant") {
+        } else if (category == "pant") {
             setCategoryActive(1);
-        } else if (path == "/all-production/dress") {
+        } else if (category == "dress") {
             setCategoryActive(2);
-        } else if (path == "/all-production/skirt") {
+        } else if (category == "skirt") {
             setCategoryActive(3);
-        } else if (path == "/all-production/shoes") {
-            setCategoryActive(4);
-        } else if (path == "/all-production/bag") {
-            setCategoryActive(5);
         } else {
             setCategoryActive(-1);
         }
-    }, [location.pathname])
+    }, [category])
 
     const navigateCategories = (indexCategory: number) => {
         const pathCategory = categories[indexCategory].path;
         if (!pathCategory) {
             return;
-        } 
+        }
+        setCurrentPage(1);
         setCategoryActive(indexCategory);
         navigate(`/all-production/${pathCategory}`);
     }
@@ -124,15 +122,25 @@ const AllProduction = (): JSX.Element => {
                         <div style={{display: "flex", alignItems: "center", gap: "20px", padding: "0px 70px 40px"}}>
                             <div style={{fontFamily: "Prata", fontSize: "20px"}}>Sắp xếp theo:</div>
                             <div style={{display: "flex", alignItems: "center", gap: "20px"}}>
-                                <div className="sort-option">Bán chạy</div>
-                                <div className="sort-option">Mới nhất</div>
-                                <div className="sort-option">Giá tăng dần</div>
-                                <div className="sort-option">Giá giảm dần</div>
+                                {
+                                    sortOptions.map((item, index) => (
+                                        <div 
+                                            className={`sort-option ${currentSort == index ? "sort-active" : ""}`} 
+                                            key={index} 
+                                            onClick={() => {
+                                                setCurrentSort(index);
+                                                setCurrentPage(1);
+                                            }}
+                                        >
+                                            {item}
+                                        </div>
+                                    ))
+                                }
                             </div>
                         </div>
                     </Col>
                     <Col span={24} style={{paddingBottom: "40px"}}>
-                        <Outlet />
+                        <Outlet context={{currentSort, currentPage, setCurrentPage}} />
                     </Col>
                 </Row>
             </ConfigProvider>

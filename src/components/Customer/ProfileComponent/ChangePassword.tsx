@@ -3,7 +3,7 @@ import { Button, Col, Input, Row } from "antd";
 import { Eye, EyeOff } from "lucide-react";
 import { messageService, type BackendResponse } from "../../../interfaces/appInterface";
 import Loading from "../../Other/Loading";
-import customerService from "../../../services/customerService";
+import * as customerService from "../../../services/customerService";
 import { UserContext } from "../../../configs/globalVariable";
 
 const ChangePassword = (): JSX.Element => {

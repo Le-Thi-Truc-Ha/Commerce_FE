@@ -8,7 +8,7 @@ import { UserContext } from "../../configs/globalVariable";
 import Loading from "./Loading";
 import { messageService } from "../../interfaces/appInterface";
 import { Eye, EyeOff } from "lucide-react";
-import appService from "../../services/appService";
+import * as appService from "../../services/appService";
 import InputOtpModal from "../Utilities/Other/InputOtpModal";
 
 const CreateAccount = (): JSX.Element => {

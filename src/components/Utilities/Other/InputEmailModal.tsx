@@ -1,7 +1,7 @@
 import { Col, Input, Modal, Row } from "antd";
 import { useState, type JSX } from "react";
 import { messageService, type BackendResponse, type InputEmailModalProps } from "../../../interfaces/appInterface";
-import appService from "../../../services/appService";
+import * as appService from "../../../services/appService";
 import Loading from "../../Other/Loading";
 import InputOtpModal from "./InputOtpModal";
 
