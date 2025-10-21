@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type JSX, type KeyboardE
 import { messageService, type InputOtpModalProps } from "../../../interfaces/appInterface";
 import { Col, ConfigProvider, Input, Modal, Row, type InputRef } from "antd";
 import Loading from "../../Other/Loading";
-import appService from "../../../services/appService";
+import * as appService from "../../../services/appService";
 import ResetPasswordModal from "./ResetPasswordModal";
 import { useNavigate } from "react-router-dom";
 

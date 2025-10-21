@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { signInWithPopup, type UserCredential } from "firebase/auth";
 import { auth, provider } from "../../configs/firebase";
 import { messageService, type BackendResponse, type GoogleUser } from "../../interfaces/appInterface";
-import appService from "../../services/appService";
+import * as appService from "../../services/appService";
 import { UserContext, type UserType } from "../../configs/globalVariable";
 import Loading from "./Loading";
 import InputEmailModal from "../Utilities/Other/InputEmailModal";

@@ -29,7 +29,7 @@ const Order = (): JSX.Element => {
     const orderList: {status: number, id: number, orderDate: string, url: string[], name: string[], price: string[], size: string[], color: string[], quantity: number[], total: string}[] = [
         {
             status: 0,
-            id: 4,
+            id: 10,
             orderDate: "11/10/2025",
             url: [
                 "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031339/pro_trang_2_4c261b702dd74bf58325a21830e364ce_grande_nyfzhr.jpg",
@@ -118,7 +118,51 @@ const Order = (): JSX.Element => {
             ],
             quantity: [1, 1],
             total: "364,000₫"
-        }
+        },
+        {
+            status: 1,
+            id: 9,
+            orderDate: "09/10/2025",
+            url: [
+                "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031348/pro_luc_01_1_fc8d49a109c74088ada562dafe6f2341_grande_nsz4lq.jpg"    
+            ],
+            name: [
+                "Quần ống suông lưng cao dây kéo sau"
+            ],
+            price: [
+                "445,500₫"
+            ],
+            size: [
+                "L"
+            ],
+            color: [
+                "Trắng", "Đen"
+            ],
+            quantity: [1],
+            total: "445,500₫"
+        },
+        {
+            status: 4,
+            id: 8,
+            orderDate: "01/10/2025",
+            url: [
+                "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031339/pro_trang_2_4c261b702dd74bf58325a21830e364ce_grande_nyfzhr.jpg"    
+            ],
+            name: [
+                "Áo kiểu tay ngắn cổ sơ mi phối ren"
+            ],
+            price: [
+                "177,500₫"
+            ],
+            size: [
+                "L"
+            ],
+            color: [
+                "Trắng"
+            ],
+            quantity: [1],
+            total: "177,500₫"
+        },
     ]
     const orderStatus: {id: number, confirm: string | null, transit: string  | null, receive: string  | null, cancel: string  | null, return: string | null}[] = [
         {
@@ -152,6 +196,22 @@ const Order = (): JSX.Element => {
             receive: null,
             cancel: null,
             return: null
+        },
+        {
+            id: 9,
+            confirm: "09/10/2025",
+            transit: "10/10/2025",
+            receive: null,
+            cancel: null,
+            return: null
+        },
+        {
+            id: 8,
+            confirm: "02/10/2025",
+            transit: "02/10/2025",
+            receive: "06/10/2025",
+            cancel: null,
+            return: "07/10/2025"
         }
     ]
     return(

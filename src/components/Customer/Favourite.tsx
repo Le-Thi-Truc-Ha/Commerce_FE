@@ -1,73 +1,106 @@
-import type { JSX } from "react";
-import { Col, Row } from "antd";
-import { HeartOff, ShoppingCart } from "lucide-react";
+import { useContext, useEffect, useState, type JSX } from "react";
+import { Button, Col, Row, Skeleton } from "antd";
+import { messageService } from "../../interfaces/appInterface";
+import { favouriteDataProcess, getFavouriteListApi } from "../../services/customerService";
+import { UserContext } from "../../configs/globalVariable";
+import ProductionFavourite from "../Utilities/ProductionCard/ProductionFavourite";
+import type { FavouriteListProps, RawFavourite } from "../../interfaces/customerInterface";
+import LoadingModal from "../Other/LoadingModal";
 
 const Favourite = (): JSX.Element => {
-    const favouriteList: {id: number, url: string, name: string, price: string}[] = [
-        {
-            id: 1,
-            url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1760101058/pro_hong_01_1_9e8e71e41020442bb41e8695a3d0d41c_grande_gocgch.jpg",
-            name: "Áo kiểu crop phối bèo viền cổ",
-            price: "495,000₫"
-        },
-        {
-            id: 2,
-            url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1760101073/pro_kem_01_1_82c6568b8f2148acb48d7488460d30b4_grande_hdkdsk.jpg",
-            name: "Áo sơ mi sheer tay dài phối bèo",
-            price: "444,000₫"
-        },
-        {
-            id: 3,
-            url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034357/pro_den_3_b5e52ae3d9e54b65bdf58a64be1dcf19_grande_fbf0qy.jpg",
-            name: "Áo gile kẻ sọc thắt nơ thân trước",
-            price: "213,000₫"
-        },
-        {
-            id: 4,
-            url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031345/pro_luc_01_1_0af140c6cd3c4058b97970c80993d8c7_grande_dfmcdb.jpg",
-            name: "Đầm midi form suông sát nách thắt nơ lưng",
-            price: "476,000₫"
-        },
-        {
-            id: 5,
-            url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1760101061/pro_den_1_ab9339c762134ec3926d86faaa116493_grande_gtnbcn.jpg",
-            name: "Áo sát nách cổ bèo phối ren dây kéo sau",
-            price: "395,000₫"
-        },
-    ]
-    return(
+    const {user} = useContext(UserContext);
+    const [getFavouriteLoading, setGetFavouriteLoading] = useState<boolean>(false);
+    const [favouriteList, setFavouriteList] = useState<FavouriteListProps[]>([]);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [total, setTotal] = useState<number>(0);
+
+    useEffect(() => {
+        getFavouriteList();
+    }, [currentPage])
+
+    const getFavouriteList = async () => {
+        setGetFavouriteLoading(true);
+        try {
+            const result = await getFavouriteListApi(user.accountId, currentPage);
+            setGetFavouriteLoading(false);
+            if (result.code == 0) {
+                const rawData: RawFavourite[] = result.data.favourite;
+                if (result.data.count >= 0) {
+                    setTotal(result.data.count);
+                }
+                const processedData = favouriteDataProcess(rawData);
+                setFavouriteList((prev) => ([...prev, ...processedData]));
+            } else {
+                messageService.error(result.message);
+            }
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở server");
+        } finally {
+            setGetFavouriteLoading(false);
+        }
+    }
+    
+    return (getFavouriteLoading && currentPage == 1) ? (
+        <Skeleton active paragraph={{rows: 10}} />
+    ) : (
         <>
             <Row>
                 <Col span={24} style={{minHeight: "calc(100vh - 130px)"}}>
-                    <Row gutter={[0, 30]} style={{display: "flex", justifyContent: "space-between", padding: "10px 30px"}}>
-                        {
-                            favouriteList.map((item, index) => (
-                                <Col span={5} key={index} style={{border: "1px solid rgba(0, 0, 0, 0.2)", padding: "10px", borderRadius: "10px", position: "relative", boxShadow: "0 0 20px 2px rgba(0, 0, 0, 0.3)", cursor: "pointer"}}>
-                                    <div>
-                                        <div style={{width: "100%", height: "200px", overflow: "hidden"}}>
-                                            <img style={{width: "100%", height: "100%", objectFit: "cover"}} src={item.url} />
-                                        </div>
-                                        <div style={{paddingTop: "10px", display: "flex", flexDirection: "column"}}>
-                                            <div style={{textAlign: "center", paddingBottom: "20px"}}>{item.name}</div>
-                                            <div style={{display: "flex", justifyContent: "end", alignItems: "center"}}>
-                                                <div style={{fontWeight: "600"}}>{item.price}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div style={{display: "flex", gap: "10px", position: "absolute", bottom: "10px"}}>
-                                        <div style={{padding: "5px 7px", backgroundColor: "var(--color7)", borderRadius: "50%"}}>
-                                            <HeartOff size={20} strokeWidth={1} color="white" />
-                                        </div>
-                                        <div style={{padding: "5px 7px", backgroundColor: "var(--color7)", borderRadius: "50%"}}>
-                                            <ShoppingCart size={20} strokeWidth={1} color="white" />
-                                        </div>
-                                    </div>
+                    {
+                        total > 0 ? (
+                            <Row gutter={[0, 60]} style={{paddingBottom: "40px"}}>
+                                <Col span={24}>
+                                    <Row gutter={[0, 90]} style={{display: "flex", padding: "10px 30px"}}>
+                                        {
+                                            favouriteList.map((item, index) => (
+                                                <ProductionFavourite 
+                                                    key={index} 
+                                                    id={item.id}
+                                                    productCard={item.productCard}
+                                                    setFavouriteList={setFavouriteList}
+                                                    type="favourite"
+                                                    setTotal={setTotal}
+                                                    take={favouriteList.length < total ? favouriteList.length : -1}
+                                                />
+                                            ))
+                                        }
+                                    </Row>
                                 </Col>
-                            ))
-                        }
-                    </Row>
+                                {
+                                    favouriteList.length < total && (
+                                        <Col span={24} style={{display: "flex", justifyContent: "center"}}>
+                                            <Button
+                                                variant="solid"
+                                                color="primary"
+                                                size="large"
+                                                onClick={() => {setCurrentPage((prev) => {return prev + 1})}}
+                                            >
+                                                Xem thêm
+                                            </Button>
+                                        </Col>
+                                    )
+                                }
+                            </Row>
+                        ) : (
+                            <div style={{position: "absolute", top: "50%", left: "50%", zIndex: 1, transform: "translate(-50%, -50%)", display: "flex", flexDirection: "column", alignItems: "center"}}>
+                                <div style={{width: "300px", height: "300px", overflow: "hidden"}}>
+                                    <img style={{width: "100%", height: "100%", objectFit: "cover", opacity: 0.3, filter: "blur(3px)"}} src="https://res.cloudinary.com/dibigdhgr/image/upload/v1760129523/no-data_q4r0yj.png" />
+                                </div>
+                                <div style={{color: "rgba(0, 0, 0, 0.6)", fontSize: "25px"}}>Không có dữ liệu</div>
+                            </div>
+                        )
+                    }
                 </Col>
             </Row>
+            {
+                (getFavouriteLoading && currentPage != 1) && (
+                    <LoadingModal 
+                        message="Đang lấy dữ liệu"
+                        open={getFavouriteLoading}
+                    />
+                )
+            }
         </>
     )
 }

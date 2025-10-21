@@ -1,10 +1,10 @@
 import { useContext, useEffect, useState, type JSX } from "react";
-import { Button, Checkbox, Col, ConfigProvider, Divider, Row } from "antd";
+import { Button, Checkbox, Col, ConfigProvider, Divider, Row, Skeleton } from "antd";
 import CreateAddressModal from "./CreateAddressModal";
 import { UserContext } from "../../../configs/globalVariable";
 import { messageService, type BackendResponse } from "../../../interfaces/appInterface";
 import Loading from "../../Other/Loading";
-import customerService from "../../../services/customerService";
+import * as customerService from "../../../services/customerService";
 import type { AddressInformation } from "../../../interfaces/customerInterface";
 import { ArchiveX } from "lucide-react";
 
@@ -73,7 +73,9 @@ const Address = (): JSX.Element => {
         }
     }
 
-    return(
+    return getAllAddressLoading ? (
+        <Skeleton active paragraph={{rows: 10}} />
+    ) :(
         <>
             <Row className="address-container" gutter={[0, 30]}>
                 <Col span={24}>

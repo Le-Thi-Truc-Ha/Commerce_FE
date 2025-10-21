@@ -17,11 +17,21 @@ export const messageService: MessageFuncs = {
   error: () => {},
 };
 
+export interface ModalLoadingProps {
+  message: string,
+  open: boolean
+}
+
 export interface GoogleUser {
   name: string,
   email: string,
   idToken: string,
   uid: string
+}
+
+export interface LoadingModalProps {
+  message: string,
+  open: boolean
 }
 
 export interface InputEmailModalProps {
@@ -58,7 +68,26 @@ export interface ProductionCardProps {
   productId: number,
   url: string,
   name: string,
-  price: string
+  price: number,
+  star: number,
+  discount: string | null,
+  category: string,
+  isLike: boolean,
+  status: number,
+  saleFigure: number
+}
+
+export interface RawProduction {
+  category: {id: number, parentId: number | null},
+  id: number, 
+  favourites: {id: number}[],
+  medias: {url: string}[], 
+  name: string, 
+  productPromotions: {promotion: {percent: number}}[],
+  productVariants: {price: number}[], 
+  rateStar: number,
+  status: number,
+  saleFigure: number
 }
 
 export const MotionDiv = motion.div

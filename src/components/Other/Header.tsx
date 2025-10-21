@@ -65,7 +65,7 @@ const Header = (): JSX.Element => {
         if (index == 1) {
             navigate("/");
         } else if (index == 2) {
-            navigate("/all-production");
+            navigate("/all-production/all");
         } else if (index == 3) {
             navigate("/search");
         }

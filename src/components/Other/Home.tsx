@@ -1,11 +1,20 @@
-import { useState, type JSX } from "react";
+import { useContext, useEffect, useState, type JSX } from "react";
 import "./Home.scss";
 import { Button, Col, ConfigProvider, Divider, Row } from "antd";
-import { ArrowLeft, ArrowRight, Heart, ShoppingCart } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import ProductionCard from "../Utilities/ProductionCard/ProductionCard";
+import { useNavigate } from "react-router-dom";
+import { messageService, type BackendResponse, type ProductionCardProps, type RawProduction } from "../../interfaces/appInterface";
+import { getBestSellerApi, productDataProcess } from "../../services/appService";
+import Loading from "./Loading";
+import { UserContext } from "../../configs/globalVariable";
 
 const Home = (): JSX.Element => {
+    const navigate = useNavigate();
+    const {user} = useContext(UserContext);
     const [bannerActive, setBannerActive] = useState<number>(0);
+    const [bestSellerLoading, setBestSellerLoading] = useState<boolean>(false);
+    const [bestSeller, setBestSeller] = useState<ProductionCardProps[]>([]);
 
     const urlBanners = [
         "https://res.cloudinary.com/dibigdhgr/image/upload/v1759039590/Beige_Aesthetic_New_Arrival_Fashion_Banner_Landscape_vqsazn.png",
@@ -16,14 +25,11 @@ const Home = (): JSX.Element => {
         "https://res.cloudinary.com/dibigdhgr/image/upload/v1759039435/Beige_and_Brown_Minimalist_New_Style_Collection_Banner_swnotc.png"   
     ]
 
-    const categories: {name: string, url: string}[] = [
-        {name: "Áo", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751103/tshirt_enlypz.png"},
-        {name: "Quần", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/pants_yfrgrx.png"},
-        {name: "Váy", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751847/dress_tvwba9.png"},
-        {name: "Đầm", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/skirt_tbxhg5.png"},
-        {name: "Giày", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/high-heels_nsomr4.png"},
-        {name: "Túi", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/handbag_sge74h.png"},
-    ]
+    const categories: {name: string, path: string, url: string}[] = [
+        {name: "Áo", path: "shirt",  url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751103/tshirt_enlypz.png"},
+        {name: "Quần", path: "pant", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/pants_yfrgrx.png"},
+        {name: "Đầm", path: "dress", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751847/dress_tvwba9.png"},
+        {name: "Váy", path: "skirt", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/skirt_tbxhg5.png"}    ]
 
     const controlSlider = (nameButton: string) => {
         if (nameButton == "left") {
@@ -41,27 +47,33 @@ const Home = (): JSX.Element => {
         }
     }
 
-    const nameProduction: string[] = [
-        "Áo kiểu tay ngắn cổ sơ mi phối ren", "Đầm mini 2 dây thêu hoa form suông phối bèo",
-        "Đầm midi form suông sát nách thắt nơ lưng", "Quần ống suông lưng cao dây kéo sau",
-        "Đầm midi sát nách rút nhún ngực thun eo", "Áo thun crop 3 lỗ cổ thuyền",
-        "Áo thun crop tay ngắn cổ V cài nút", "Áo thun ôm 2 dây cơ bản"
-    ]
-    const priceProduction: string[] = [
-        "177,500₫", "556,000₫",
-        "476,000₫", "445,500₫",
-        "595,000₫", "124,000₫",
-        "153,000₫", "175,500₫"
-    ]
-    const imageProduction: string[] = [
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031339/pro_trang_2_4c261b702dd74bf58325a21830e364ce_grande_nyfzhr.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031343/pro_hoa_01_1_6cb772274f3544d989e5014291f40455_grande_ptdi0v.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031345/pro_luc_01_1_0af140c6cd3c4058b97970c80993d8c7_grande_dfmcdb.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031348/pro_luc_01_1_fc8d49a109c74088ada562dafe6f2341_grande_nsz4lq.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031350/pro_hong_05_1_1bb33f68add045ed947ed49fce9fcb70_grande_aqy9uq.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031352/pro_den_1_20113637fef04182868296ccdf4b4eae_grande_yj3mc4.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031355/pro_nau_01_4_adef39546c694d7eb19d9eb2ab1ba7db_grande_rgn2y5.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031357/pro_nau_01_2_afb7429972b34433b1a65849244b335e_grande_emuttg.jpg"
+    useEffect(() => {
+        getBestSeller();
+    }, [])
+
+    const getBestSeller = async () => {
+        setBestSellerLoading(true);
+        try {
+            const result: BackendResponse = await getBestSellerApi(user.isAuthenticated ? user.accountId : -1);
+            if (result.code == 0) {
+                const rawData: RawProduction[] = result.data;
+                setBestSeller(productDataProcess(rawData));
+            } else {
+                messageService.error(result.message);
+            }
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở server");
+        } finally {
+            setBestSellerLoading(false);
+        }
+    }
+
+    const starProduction: number[] =[
+        5, 5,
+        5, 5,
+        5, 5,
+        5, 5
     ]
 
     const nameRecommend: string[] = [
@@ -86,8 +98,6 @@ const Home = (): JSX.Element => {
         "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034361/pro_nau_02_2_7d4060a2227a4752b0b63c3085115cbd_grande_fhjfrz.jpg",
         "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034364/pro_xanh_la_02_2_1f6d681e5b90406297ad49dc9ad4e850_grande_gbmcbx.jpg"
     ]
-
-    
     
     return(
         <>
@@ -152,7 +162,7 @@ const Home = (): JSX.Element => {
                         <div style={{width: "100%", display: "flex", justifyContent: "center", alignItems: "center", gap: "80px"}}>
                             {
                                 categories.map((item, index) => (
-                                    <div className="category" key={index}>
+                                    <div className="category" key={index} onClick={() => {navigate(`/all-production/${item.path}`)}}>
                                         <img className="icon-category" loading="eager" src={item.url} />
                                         <div className="name-category">{item.name}</div>
                                     </div>
@@ -178,8 +188,20 @@ const Home = (): JSX.Element => {
                     <div style={{width: "94%"}}>
                         <Row gutter={[0, 50]}>
                             {
-                                nameProduction.map((item, index) => (
-                                    <ProductionCard key={index} url={imageProduction[index]} name={item} price={priceProduction[index]} />
+                                bestSeller.map((item, index) => (
+                                    <ProductionCard 
+                                        key={index} 
+                                        productId={item.productId} 
+                                        url={item.url} 
+                                        name={item.name} 
+                                        price={item.price} 
+                                        star={item.star} 
+                                        discount={item.discount}
+                                        category={item.category}
+                                        isLike={item.isLike}
+                                        status={item.status}
+                                        saleFigure={item.saleFigure}
+                                    />
                                 ))
                             }
                         </Row>
@@ -203,7 +225,19 @@ const Home = (): JSX.Element => {
                         <Row gutter={[0, 50]}>
                             {
                                 nameRecommend.map((item, index) => (
-                                    <ProductionCard key={index} url={imageRecommend[index]} name={item} price={priceRecommend[index]} />
+                                    <ProductionCard 
+                                        key={index} 
+                                        productId={index} 
+                                        url={imageRecommend[index]} 
+                                        name={item} 
+                                        price={100000} 
+                                        star={starProduction[index]}
+                                        discount={null}
+                                        category={"shirt"}
+                                        isLike={false}
+                                        status={1}
+                                        saleFigure={1}
+                                    />
                                 ))
                             }
                         </Row>
@@ -240,6 +274,11 @@ const Home = (): JSX.Element => {
                     </ConfigProvider>
                 </Col>
             </Row>
+            {
+                bestSellerLoading && (
+                    <Loading />
+                )
+            }
         </>
     )
 }

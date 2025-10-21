@@ -1,5 +1,4 @@
 import type { JSX } from "react";
-import "./History.scss";
 import { Button, Col, Row } from "antd";
 import { Heart, ShoppingCart } from "lucide-react";
 

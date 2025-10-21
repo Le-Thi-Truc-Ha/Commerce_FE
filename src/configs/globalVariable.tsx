@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState, type JSX, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import appService from "../services/appService";
+import * as appService from "../services/appService";
 import { messageService, type BackendResponse } from "../interfaces/appInterface";
 
 export interface UserType {

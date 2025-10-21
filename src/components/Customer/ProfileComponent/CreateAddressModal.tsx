@@ -3,7 +3,7 @@ import type { AddressInput, CreateAddressModalProps } from "../../../interfaces/
 import { Checkbox, Col, Input, Modal, Row, Select } from "antd";
 import axios from "axios";
 import { messageService, type BackendResponse } from "../../../interfaces/appInterface";
-import customerService from "../../../services/customerService";
+import * as customerService from "../../../services/customerService";
 import { UserContext } from "../../../configs/globalVariable";
 import Loading from "../../Other/Loading";
 

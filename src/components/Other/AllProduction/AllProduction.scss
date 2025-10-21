@@ -43,5 +43,24 @@
         padding: 10px 15px;
         border: 1px solid var(--color8);
         border-radius: 30px;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+
+        &:hover {
+            color: white;
+            background-color: var(--color7);
+            border-color: var(--color7);
+        }
+    }
+    .sort-active {
+        color: white;
+        background-color: var(--color8);
+        border-color: var(--color8);
+
+        &:hover {
+            color: white;
+            background-color: var(--color8);
+            border-color: var(--color8);
+        }
     }
 }
