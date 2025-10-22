@@ -65,6 +65,12 @@ export const getProductApi = (accountId: number, nowCategory: number, nowSort: n
     })
 }
 
+export const getProductDetailApi = (accountId: number, productId: number, pageRate: number): Promise<BackendResponse> => {
+    return axios.post("/get-product-detail", {
+        accountId, productId, pageRate
+    })
+}
+
 export const productDataProcess = (rawData: RawProduction[]): ProductionCardProps[] => {
     let result: ProductionCardProps[] = [];
     const categoriesPath: string[] = ["shirt", "pant", "dress", "skirt"]
@@ -84,7 +90,5 @@ export const productDataProcess = (rawData: RawProduction[]): ProductionCardProp
             saleFigure: item.saleFigure
         })
     })
-
-    console.log(result)
     return result;
 }
