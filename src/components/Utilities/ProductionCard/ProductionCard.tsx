@@ -5,7 +5,7 @@ import { messageService, type BackendResponse, type ProductionCardProps } from "
 import "./ProductionCard.scss";
 import { useLocation, useNavigate } from "react-router-dom";
 import { UserContext } from "../../../configs/globalVariable";
-import { addFavouriteApi, deleteFavouriteApi } from "../../../services/customerService";
+import { addFavourite, addFavouriteApi, deleteFavourite, deleteFavouriteApi } from "../../../services/customerService";
 import LoadingModal from "../../Other/LoadingModal";
 
 const ProductionCard = ({productId, url, name, price, star, discount, category, isLike, status, saleFigure}: ProductionCardProps): JSX.Element => {
@@ -16,53 +16,7 @@ const ProductionCard = ({productId, url, name, price, star, discount, category, 
     const [loading, setLoading] = useState<boolean>(false);
 
     const navigateProductionDetail = () => {
-        navigate(`all-production/${category}/${productId}`);
-    }
-
-    const addFavourite = async () => {
-        if (user.isAuthenticated) {
-            setLoading(true)
-            try {
-                const result: BackendResponse = await addFavouriteApi(user.accountId, productId)
-                setLoading(false);
-                if (result.code == 0) {
-                    setIsLikeState(true);
-                } else {
-                    messageService.error(result.message);
-                }
-            } catch(e) {
-                console.log(e);
-                messageService.error("Xảy ra lỗi ở server")
-            } finally {
-                setLoading(false);
-            }
-        } else {
-            navigate("/login");
-            setPathBeforeLogin(location.pathname);
-        }
-    }
-
-    const deleteFavourite = async () => {
-        if (user.isAuthenticated) {
-            setLoading(true);
-            try {
-                const result: BackendResponse = await deleteFavouriteApi(user.accountId, productId, -1)
-                setLoading(false);
-                if (result.code == 0) {
-                    setIsLikeState(false);
-                } else {
-                    messageService.error(result.message);
-                }
-            } catch(e) {
-                console.log(e);
-                messageService.error("Xảy ra lỗi ở server")
-            } finally {
-                setLoading(false);
-            }
-        } else {
-            navigate("/login");
-            setPathBeforeLogin(location.pathname);
-        }
+        navigate(`/all-production/${category}/${productId}`);
     }
     return(
         <>
@@ -98,9 +52,9 @@ const ProductionCard = ({productId, url, name, price, star, discount, category, 
                 <div className="background-enjoy">
                     {
                         !isLikeState ? (
-                            <Heart size={22} strokeWidth={1} color="white" onClick={() => {addFavourite()}} />
+                            <Heart size={22} strokeWidth={1} color="white" onClick={() => {addFavourite(user, setLoading, productId, setIsLikeState, navigate, setPathBeforeLogin)}} />
                         ) : (
-                            <HeartOff size={22} strokeWidth={1} color="white" onClick={() => {deleteFavourite()}} />
+                            <HeartOff size={22} strokeWidth={1} color="white" onClick={() => {deleteFavourite(user, setLoading, productId, setIsLikeState, navigate, setPathBeforeLogin)}} />
                         )
                     }
                 </div>

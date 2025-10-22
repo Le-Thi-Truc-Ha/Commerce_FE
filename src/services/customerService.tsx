@@ -1,6 +1,9 @@
+import type { Dispatch, SetStateAction } from "react";
 import axios from "../configs/axios";
-import type { BackendResponse } from "../interfaces/appInterface";
+import type { UserType } from "../configs/globalVariable";
+import { messageService, type BackendResponse } from "../interfaces/appInterface";
 import type { FavouriteListProps, RawFavourite } from "../interfaces/customerInterface";
+import type { NavigateFunction } from "react-router-dom";
 
 export const getAccountInformationApi = (accountId: number): Promise<BackendResponse> => {
     return axios.get(`/customer/get-account-information?accountId=${accountId}`)
@@ -84,4 +87,64 @@ export const favouriteDataProcess = (rawData: RawFavourite[]): FavouriteListProp
         })
     })
     return result;
+}
+
+export const addFavourite = async (
+    user: UserType, 
+    setLoading: Dispatch<SetStateAction<boolean>>, 
+    productId: number, 
+    setIsLikeState: Dispatch<SetStateAction<boolean>>,
+    navigate: NavigateFunction,
+    setPathBeforeLogin: (value: string) => void
+) => {
+    if (user.isAuthenticated) {
+        setLoading(true)
+        try {
+            const result: BackendResponse = await addFavouriteApi(user.accountId, productId)
+            setLoading(false);
+            if (result.code == 0) {
+                setIsLikeState(true);
+            } else {
+                messageService.error(result.message);
+            }
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở server")
+        } finally {
+            setLoading(false);
+        }
+    } else {
+        navigate("/login");
+        setPathBeforeLogin(location.pathname);
+    }
+}
+
+export const deleteFavourite = async (
+    user: UserType, 
+    setLoading: Dispatch<SetStateAction<boolean>>, 
+    productId: number, 
+    setIsLikeState: Dispatch<SetStateAction<boolean>>,
+    navigate: NavigateFunction,
+    setPathBeforeLogin: (value: string) => void
+) => {
+    if (user.isAuthenticated) {
+        setLoading(true);
+        try {
+            const result: BackendResponse = await deleteFavouriteApi(user.accountId, productId, -1)
+            setLoading(false);
+            if (result.code == 0) {
+                setIsLikeState(false);
+            } else {
+                messageService.error(result.message);
+            }
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở server")
+        } finally {
+            setLoading(false);
+        }
+    } else {
+        navigate("/login");
+        setPathBeforeLogin(location.pathname);
+    }
 }

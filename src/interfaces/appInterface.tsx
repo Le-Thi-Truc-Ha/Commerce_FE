@@ -1,3 +1,4 @@
+import type dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 import { motion, type MotionProps } from "framer-motion";
 
@@ -88,6 +89,83 @@ export interface RawProduction {
   rateStar: number,
   status: number,
   saleFigure: number
+}
+
+export interface ProductDetail {
+  id: number,
+  name: string,
+  percent: number | null,
+  variant: {
+    id: number, 
+    color: string,
+    size: string, 
+    price: number, 
+    quantity: number
+  }[],
+  size: string[],
+  color: string[],
+  isLike: boolean,
+  image: string[],
+  description: string,
+  totalRate: number,
+  averageStar: number,
+  rate: {
+    id: number,
+    createAt: Dayjs,
+    accountId: number,
+    name: string,
+    star: number,
+    content: string,
+    url: string[]
+    size: string,
+    color: string
+  }[]
+}
+
+export interface RawProductDetail {
+  count: number,
+  product: {
+    id: number,
+    name: string,
+    description: string,
+    rateStar: number | null,
+    favourites: {
+      id: number,
+    }[],
+    medias: {
+      url: string,
+    }[],
+    productPromotions: {
+      promotion: {
+        percent: number,
+      } | null,
+    }[],
+    productVariants: {
+      id: number,
+      price: number,
+      quantity: number,
+      size: string,
+      color: string,
+    }[],
+  },
+  rate: {
+    id: number;
+    medias: {
+      url: string;
+    }[];
+    productVariant: {
+      id: number;
+      size: string;
+      color: string;
+    };
+    account: {
+      id: number;
+      email: string;
+      };
+    content: string;
+    feeedbackDate: Date;
+    star: number;
+  }[]
 }
 
 export const MotionDiv = motion.div

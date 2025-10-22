@@ -21,9 +21,6 @@ const ProductList = (): JSX.Element => {
     const categories: string[] = ["all", "shirt", "pant", "dress", "skirt"]
 
     useEffect(() => {
-        console.log(currentPage);
-        console.log(category);
-        console.log(currentSort);
         getProduct()
     }, [category, currentPage, currentSort]);
 
@@ -35,7 +32,6 @@ const ProductList = (): JSX.Element => {
         }
         try {
             const result = await getProductApi(user.isAuthenticated ? user.accountId : -1, categories.indexOf(category ?? "all"), currentSort, currentPage);
-            console.log(result.data);
             if (result.code == 0) {
                 const rawData: RawProduction[] = result.data.product;
                 if (currentPage == 1) {
