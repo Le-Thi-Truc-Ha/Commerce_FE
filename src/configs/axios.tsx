@@ -1,6 +1,6 @@
 import axios, { AxiosError, type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
 
-const getSessionKey = (): String | null => {
+export const getSessionKey = (): string | null => {
   const item = localStorage.getItem("sessionKey");
 
   if (!item) {
@@ -18,22 +18,22 @@ const getSessionKey = (): String | null => {
 
 
 const instance: AxiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_BASE_URL
+  baseURL: import.meta.env.VITE_BASE_URL
 });
 
 // instance.defaults.withCredentials = true;
 
 instance.interceptors.request.use(
-    (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-        const sessionKey = getSessionKey();
-        if (sessionKey) {
-          config.headers.Authorization = `Bearer ${sessionKey}`;
-        }
-        return config;
-    },
-    (error: AxiosError): Promise<never> => {
-        return Promise.reject(error);
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    const sessionKey = getSessionKey();
+    if (sessionKey) {
+      config.headers.Authorization = `Bearer ${sessionKey}`;
     }
+    return config;
+  },
+  (error: AxiosError): Promise<never> => {
+    return Promise.reject(error);
+  }
 );
 
 instance.interceptors.response.use(

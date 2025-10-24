@@ -2,6 +2,7 @@ import { useEffect, useState, type JSX } from "react";
 import "./AllProduction.scss";
 import { Col, ConfigProvider, Divider, Row } from "antd";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { configProvider } from "../../../interfaces/appInterface";
 
 const AllProduction = (): JSX.Element => {
     const navigate = useNavigate();
@@ -44,53 +45,7 @@ const AllProduction = (): JSX.Element => {
 
     return(
         <>
-            <ConfigProvider
-                theme={{
-                    components: {
-                        Input: {
-                            borderRadius: 15,
-                            activeBorderColor: "var(--color6)",
-                            activeShadow: "0 0 0 2px var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                        },
-                        DatePicker: {
-                            borderRadius: 15,
-                            activeBorderColor: "var(--color6)",
-                            activeShadow: "0 0 0 2px var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                        },
-                        Select: {
-                            borderRadius: 15,
-                            activeBorderColor: "var(--color6)",
-                            activeOutlineColor: "var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                            optionActiveBg: "var(--color2)",
-                            controlItemBgActive: "var(--color4)"
-                        },
-                        Button: {
-                            defaultActiveBorderColor: "var(--color7)",
-                            defaultActiveColor: "var(--color7)",
-                            defaultHoverBorderColor: "var(--color6)",
-                            defaultHoverColor: "var(--color6)",
-                            defaultShadow: "0 0 0 black",
-
-                            colorPrimary: "var(--color5)",
-                            colorPrimaryActive: "var(--color6)",
-                            colorPrimaryHover: "var(--color4)",
-                            primaryShadow: "0 0 0 black",
-                            colorPrimaryTextHover: "var(--color4)",
-                            colorPrimaryTextActive: "var(--color6)"
-                        },
-                        Checkbox: {
-                            colorPrimary: "var(--color7)",
-                            colorPrimaryHover: "var(--color6)"
-                        },
-                        Divider: {
-                            colorSplit: "rgba(0, 0, 0, 0.2)",
-                        }
-                    }
-                }}
-            >
+            <ConfigProvider theme={{components: configProvider}}>
                 <Row className="all-product-container">
                     <Col span={24} style={{paddingTop: "30px", display: "flex", justifyContent: "center"}}>
                         <div style={{width: "90%", backgroundColor: "white", padding: "20px", borderRadius: "20px", boxShadow: "0 0 20px 2px rgba(0, 0, 0, 0.3)"}}>

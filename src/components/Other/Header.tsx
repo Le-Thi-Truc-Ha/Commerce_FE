@@ -6,7 +6,7 @@ import { UserContext } from "../../configs/globalVariable";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Header = (): JSX.Element => {
-    const {user, logoutContext, setPathBeforeLogin} = useContext(UserContext);
+    const {user, logoutContext, setPathBeforeLogin, cart, quantityOrder, setQuantityOrder} = useContext(UserContext);
     const navigate = useNavigate();
     const location = useLocation();
     const [headerItemSelect, setHeaderItemSelect] = useState<number>();
@@ -18,7 +18,7 @@ const Header = (): JSX.Element => {
             label: user.roleId == 1 ? (
                 <div onClick={() => {navigate("/admin/product")}}>Trang quản trị</div>
             ) : (
-                <div onClick={() => {navigate("/customer/order")}}>Tài khoản cá nhân</div>
+                <div onClick={() => {navigate("/customer/order");}}>Tài khoản cá nhân</div>
             )
         },
         {
@@ -70,6 +70,7 @@ const Header = (): JSX.Element => {
             navigate("/search");
         }
     }
+
     return(
         <>
             <Row className="header-container container-fluid" align="middle">
@@ -110,7 +111,7 @@ const Header = (): JSX.Element => {
                             }
                         }}
                     >
-                        <Badge color="var(--color1)" count={3} onClick={() => {navigate("/customer/cart")}}>
+                        <Badge color="var(--color1)" count={cart} onClick={() => {navigate("/customer/cart")}}>
                             <ShoppingCart size={30} strokeWidth={1} className="cart-icon"/>
                         </Badge>
                         <Dropdown

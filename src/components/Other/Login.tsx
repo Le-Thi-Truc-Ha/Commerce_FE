@@ -5,7 +5,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { signInWithPopup, type UserCredential } from "firebase/auth";
 import { auth, provider } from "../../configs/firebase";
-import { messageService, type BackendResponse, type GoogleUser } from "../../interfaces/appInterface";
+import { configProvider, messageService, type BackendResponse, type GoogleUser } from "../../interfaces/appInterface";
 import * as appService from "../../services/appService";
 import { UserContext, type UserType } from "../../configs/globalVariable";
 import Loading from "./Loading";
@@ -24,7 +24,8 @@ export const googleLogin = async (
     setLoginLoading: (value: boolean) => void, 
     loginContext: (value: UserType) => void,
     navigate: (value: string) => void,
-    setSessionKey: (value: string, ttl: number) => void
+    setSessionKey: (value: string, ttl: number) => void,
+    setCart: (value: number) => void
 ) => {
     try {
         const login: UserCredential = await signInWithPopup(auth, provider);
@@ -44,6 +45,7 @@ export const googleLogin = async (
                 googleLogin: result.data.googleLogin
             }
             loginContext(userData);
+            setCart(result.data.cart);
             navigate("/");
             setSessionKey(result.data.sessionKey, 30);
         } else {
@@ -58,7 +60,7 @@ export const googleLogin = async (
 
 const Login = (): JSX.Element => {
     const navigate = useNavigate();
-    const {loginContext} = useContext(UserContext);
+    const {loginContext, setCart} = useContext(UserContext);
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [loginLoading, setLoginLoading] = useState<boolean>(false);
     const [email, setEmail] = useState<string>("");
@@ -98,6 +100,7 @@ const Login = (): JSX.Element => {
                         googleLogin: result.data.googleLogin
                     }
                     loginContext(userData);
+                    setCart(result.data.cart);
                     if (userData.roleId == 1) {
                         navigate("/admin/product");
                     } else {
@@ -118,50 +121,7 @@ const Login = (): JSX.Element => {
 
     return(
         <>
-            <ConfigProvider
-                theme={{
-                    components: {
-                        Input: {
-                            borderRadius: 20,
-                            activeBorderColor: "var(--color6)",
-                            activeShadow: "0 0 0 2px var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                        },
-                        DatePicker: {
-                            borderRadius: 20,
-                            activeBorderColor: "var(--color6)",
-                            activeShadow: "0 0 0 2px var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                        },
-                        Select: {
-                            borderRadius: 20,
-                            activeBorderColor: "var(--color6)",
-                            activeOutlineColor: "var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                            optionActiveBg: "var(--color2)",
-                            controlItemBgActive: "var(--color4)"
-                        },
-                        Button: {
-                            defaultActiveBorderColor: "var(--color7)",
-                            defaultActiveColor: "var(--color7)",
-                            defaultHoverBorderColor: "var(--color6)",
-                            defaultHoverColor: "var(--color6)",
-                            defaultShadow: "0 0 0 black",
-
-                            colorPrimary: "var(--color5)",
-                            colorPrimaryActive: "var(--color6)",
-                            colorPrimaryHover: "var(--color4)",
-                            primaryShadow: "0 0 0 black",
-                            colorPrimaryTextHover: "var(--color4)",
-                            colorPrimaryTextActive: "var(--color6)"
-                        },
-                        Checkbox: {
-                            colorPrimary: "var(--color7)",
-                            colorPrimaryHover: "var(--color6)"
-                        }
-                    }
-                }}
-            >
+            <ConfigProvider theme={{components: configProvider}}>
                 <Row className="login-container" justify="center" align="middle">
                     <Col span={14} style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
                         <img style={{width: "70%"}} src="https://res.cloudinary.com/dibigdhgr/image/upload/v1756143715/online-shopping_pnbyyn.png" />
@@ -263,7 +223,7 @@ const Login = (): JSX.Element => {
                                         <Button
                                             size="large"
                                             style={{width: "100%"}}
-                                            onClick={() => {googleLogin(setLoginLoading, loginContext, navigate, setSessionKey)}}
+                                            onClick={() => {googleLogin(setLoginLoading, loginContext, navigate, setSessionKey, setCart)}}
                                         >
                                             <svg width="24px" height="24px" viewBox="-3 0 262 262" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid" fill="#000000">
                                                 <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>

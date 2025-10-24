@@ -71,6 +71,18 @@ export const getProductDetailApi = (accountId: number, productId: number, pageRa
     })
 }
 
+export const saveHistoryApi = (accountId: number, productId: number, now: string): Promise<BackendResponse> => {
+    return axios.post("/save-history", {
+        accountId, productId, now
+    })
+}
+
+export const checkUpdateCartApi = (cartId: number): Promise<BackendResponse> => {
+    return axios.post("/check-update-cart", {
+        cartId
+    })
+}
+
 export const productDataProcess = (rawData: RawProduction[]): ProductionCardProps[] => {
     let result: ProductionCardProps[] = [];
     const categoriesPath: string[] = ["shirt", "pant", "dress", "skirt"]

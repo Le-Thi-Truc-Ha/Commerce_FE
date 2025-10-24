@@ -4,6 +4,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Header from "../Other/Header";
 import { Heart, ListChecks, Package, UserPen } from "lucide-react";
 import "./HeaderCustomer.scss";
+import { configProvider } from "../../interfaces/appInterface";
 
 const HeaderCustomer = (): JSX.Element => {
     const navigate = useNavigate();
@@ -40,50 +41,7 @@ const HeaderCustomer = (): JSX.Element => {
     
     return(
         <>
-            <ConfigProvider
-                theme={{
-                    components: {
-                        Input: {
-                            borderRadius: 20,
-                            activeBorderColor: "var(--color6)",
-                            activeShadow: "0 0 0 2px var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                        },
-                        DatePicker: {
-                            borderRadius: 20,
-                            activeBorderColor: "var(--color6)",
-                            activeShadow: "0 0 0 2px var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                        },
-                        Select: {
-                            borderRadius: 20,
-                            activeBorderColor: "var(--color6)",
-                            activeOutlineColor: "var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                            optionActiveBg: "var(--color2)",
-                            controlItemBgActive: "var(--color4)"
-                        },
-                        Button: {
-                            defaultActiveBorderColor: "var(--color7)",
-                            defaultActiveColor: "var(--color7)",
-                            defaultHoverBorderColor: "var(--color6)",
-                            defaultHoverColor: "var(--color6)",
-                            defaultShadow: "0 0 0 black",
-
-                            colorPrimary: "var(--color5)",
-                            colorPrimaryActive: "var(--color6)",
-                            colorPrimaryHover: "var(--color4)",
-                            primaryShadow: "0 0 0 black",
-                            colorPrimaryTextHover: "var(--color4)",
-                            colorPrimaryTextActive: "var(--color6)"
-                        },
-                        Checkbox: {
-                            colorPrimary: "var(--color7)",
-                            colorPrimaryHover: "var(--color6)"
-                        }
-                    }
-                }}
-            >
+            <ConfigProvider theme={{components: configProvider}}>
                 <Header />
                 <Row className="menu-outlet-container" align="top">
                     <Col span={5} style={{display: "flex", justifyContent: "center", alignItems: "center", height: "fit-content", position: "sticky", top: "80px"}}>

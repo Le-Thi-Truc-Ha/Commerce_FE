@@ -63,6 +63,28 @@ export const getFavouriteListApi = (accountId: number, currentPage: number): Pro
     return axios.get(`/customer/get-all-favourite?accountId=${accountId}&page=${currentPage}`)
 }
 
+export const getHistoryListApi = (accountId: number, currentPage: number): Promise<BackendResponse> => {
+    return axios.get(`/customer/get-all-history?accountId=${accountId}&page=${currentPage}`)
+}
+
+export const addCartApi = (accountId: number, productVariantId: number, quantity: number, now: string): Promise<BackendResponse> => {
+    return axios.post("/customer/add-cart", {
+        accountId, productVariantId, quantity, now
+    })
+}
+
+export const getProductInCartApi = (accountId: number, page: number): Promise<BackendResponse> => {
+    return axios.post("/customer/get-product-in-cart", {
+        accountId, page
+    })
+}
+
+export const updateQuantityCartApi = (quantityCart: {cartId: number, quantityUpdate: number}[], now: string): Promise<BackendResponse> => {
+    return axios.post("/customer/update-quantity-cart", {
+        quantityCart, now
+    })
+}
+
 export const favouriteDataProcess = (rawData: RawFavourite[]): FavouriteListProps[] => {
     let result: FavouriteListProps[] = [];
     const categoriesPath: string[] = ["shirt", "pant", "dress", "skirt"]
@@ -80,7 +102,7 @@ export const favouriteDataProcess = (rawData: RawFavourite[]): FavouriteListProp
                 price: item.product.productVariants[0].price,
                 discount: percent ? `${(Math.round((item.product.productVariants[0].price * ((100 - percent) / 100)) / 1000) * 1000).toLocaleString("en-US")}đ` : null,
                 category: item.product.category.parentId ? categoriesPath[item.product.category.parentId - 1] : categoriesPath[item.product.category.id - 1],
-                isLike: true,
+                isLike: item.product.favourites.length > 0 ? true : false,
                 status: item.product.status,
                 saleFigure: item.product.saleFigure
             }
@@ -146,5 +168,46 @@ export const deleteFavourite = async (
     } else {
         navigate("/login");
         setPathBeforeLogin(location.pathname);
+    }
+}
+
+export const addCart = async (
+    user: UserType,
+    sizeSelect: string,
+    colorSelect: string,
+    variantId: number,
+    quantitySelect: number,
+    setCart: Dispatch<SetStateAction<number>>,
+    setPathBeforeLogin: (value: string) => void,
+    navigate: NavigateFunction,
+    setModalLoading: Dispatch<SetStateAction<boolean>>,
+    now: string
+) => {
+    if (user.isAuthenticated) {
+        if (sizeSelect == "" || colorSelect == "") {
+            messageService.error("Chọn phân loại sản phẩm")
+        } else {
+            setModalLoading(true);
+            try {
+                const result: BackendResponse = await addCartApi(user.accountId, variantId, quantitySelect, now);
+                setModalLoading(false);
+                if (result.code == 0) {
+                    messageService.success(result.message);
+                    if (result.data) {
+                        setCart(prev => prev + 1)
+                    }
+                } else {
+                    messageService.error(result.message);
+                }
+            } catch(e) {
+                console.log(e);
+                messageService.error("Xảy ra lỗi ở server");
+            } finally {
+                setModalLoading(false)
+            }
+        }
+    } else {
+        setPathBeforeLogin(location.pathname);
+        navigate("/login")
     }
 }

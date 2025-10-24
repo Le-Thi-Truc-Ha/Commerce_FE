@@ -6,14 +6,14 @@ import { googleLogin, setSessionKey } from "./Login";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../configs/globalVariable";
 import Loading from "./Loading";
-import { messageService } from "../../interfaces/appInterface";
+import { configProvider, messageService } from "../../interfaces/appInterface";
 import { Eye, EyeOff } from "lucide-react";
 import * as appService from "../../services/appService";
 import InputOtpModal from "../Utilities/Other/InputOtpModal";
 
 const CreateAccount = (): JSX.Element => {
     const navigate = useNavigate();
-    const {loginContext} = useContext(UserContext);
+    const {loginContext, setCart} = useContext(UserContext);
     const [loginLoading, setLoginLoading] = useState<boolean>(false);
     const [email, setEmail] = useState<string>("");
     const [name, setName] = useState<string>("");
@@ -84,50 +84,7 @@ const CreateAccount = (): JSX.Element => {
 
     return(
         <>
-            <ConfigProvider
-                theme={{
-                    components: {
-                        Input: {
-                            borderRadius: 15,
-                            activeBorderColor: "var(--color6)",
-                            activeShadow: "0 0 0 2px var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                        },
-                        DatePicker: {
-                            borderRadius: 15,
-                            activeBorderColor: "var(--color6)",
-                            activeShadow: "0 0 0 2px var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                        },
-                        Select: {
-                            borderRadius: 15,
-                            activeBorderColor: "var(--color6)",
-                            activeOutlineColor: "var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                            optionActiveBg: "var(--color2)",
-                            controlItemBgActive: "var(--color4)"
-                        },
-                        Button: {
-                            defaultActiveBorderColor: "var(--color7)",
-                            defaultActiveColor: "var(--color7)",
-                            defaultHoverBorderColor: "var(--color6)",
-                            defaultHoverColor: "var(--color6)",
-                            defaultShadow: "0 0 0 black",
-
-                            colorPrimary: "var(--color5)",
-                            colorPrimaryActive: "var(--color6)",
-                            colorPrimaryHover: "var(--color4)",
-                            primaryShadow: "0 0 0 black",
-                            colorPrimaryTextHover: "var(--color4)",
-                            colorPrimaryTextActive: "var(--color6)"
-                        },
-                        Checkbox: {
-                            colorPrimary: "var(--color7)",
-                            colorPrimaryHover: "var(--color6)"
-                        }
-                    }
-                }}
-            >
+            <ConfigProvider theme={{components: configProvider}}>
                 <Row className="create-account-container" justify="center" align="middle" style={{height: "100vh"}}>
                     <Col xs={13} md={7} style={{height: "85%", display: "flex", justifyContent: "center", alignItems: "center"}}>
                         <Row className="form-create">
@@ -290,7 +247,7 @@ const CreateAccount = (): JSX.Element => {
                                 <Button
                                     size="large"
                                     style={{width: "100%"}}
-                                    onClick={() => {googleLogin(setLoginLoading, loginContext, navigate, setSessionKey)}}
+                                    onClick={() => {googleLogin(setLoginLoading, loginContext, navigate, setSessionKey, setCart)}}
                                 >
                                     <svg width="24px" height="24px" viewBox="-3 0 262 262" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid" fill="#000000">
                                         <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
