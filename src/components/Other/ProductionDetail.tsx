@@ -3,13 +3,15 @@ import { ChevronDown, ChevronUp, Heart, HeartOff, Minus, PencilLine, Plus, Star 
 import { useContext, useEffect, useState, type JSX } from "react";
 import "./ProductionDetail.scss";
 import { AnimatePresence, percent } from "framer-motion";
-import { divConfig, messageService, MotionDiv, type ProductDetail, type RawProductDetail } from "../../interfaces/appInterface";
+import { configProvider, divConfig, messageService, MotionDiv, type BackendResponse, type ProductDetail, type RawProductDetail } from "../../interfaces/appInterface";
 import { UserContext } from "../../configs/globalVariable";
-import { getProductDetailApi } from "../../services/appService";
-import { useNavigate, useParams } from "react-router-dom";
+import { getProductDetailApi, saveHistoryApi } from "../../services/appService";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import LoadingModal from "./LoadingModal";
-import { addFavourite, deleteFavourite } from "../../services/customerService";
+import { addCart, addCartApi, addFavourite, deleteFavourite } from "../../services/customerService";
+import { getSessionKey } from "../../configs/axios";
+import { setSessionKey } from "./Login";
 
 const RateValue = ({rate, size}: {rate: number, size: number}): JSX.Element => {
     const rateString = rate.toFixed(1);
@@ -38,8 +40,9 @@ const RateValue = ({rate, size}: {rate: number, size: number}): JSX.Element => {
 }
 
 const ProductionDetail = (): JSX.Element => {
-    const {user, setPathBeforeLogin} = useContext(UserContext);
+    const {user, setPathBeforeLogin, setCart} = useContext(UserContext);
     const {id} = useParams();
+    const location = useLocation();
     const navigate = useNavigate();
 
     const optionFiler: string[] = ["Tất cả", "5 sao", "4 sao", "3 sao", "2 sao", "1 sao"]
@@ -77,22 +80,38 @@ const ProductionDetail = (): JSX.Element => {
     const [quantitySelect, setQuantitySelect] = useState<number>(1);
     const [quantityNumber, setQuantityNumber] = useState<number | null>(null);
     const [showSelectQuantity, setShowSelectQuantity] = useState<boolean>(true);
-
-    const saveHistory = async () => {
-        try {
-
-        } catch(e) {
-            console.log(e);
-            messageService.error("Xảy ra lỗi ở server");
-        }
-    }
+    
     useEffect(() => {
         window.scrollTo({
             top: 0,
             behavior: "smooth"
         })
+        saveHistory();
         getData();
     }, [])
+    
+    const saveHistory = async () => {
+        if (!isNaN(Number(id))) {
+            setSkeletonLoading(true)
+            try {
+                const result = await saveHistoryApi(user.isAuthenticated ? user.accountId : -1, Number(id), dayjs().toISOString());
+                if (result.code != 0) {
+                    messageService.error("Xảy ra lỗi trong quá trình lưu lịch sử xem sản phẩm");
+                } else {
+                    if (!user.isAuthenticated) {
+                        const keyBeforeLogin = getSessionKey();
+                        if (!keyBeforeLogin) {
+                            setSessionKey(result.data, 30);
+                        }
+                    }
+                }
+            } catch(e) {
+                console.log(e);
+                messageService.error("Xảy ra lỗi ở server");
+            }
+        }
+    }
+    
     const processData = (rawData: RawProductDetail): ProductDetail => {
         const product = rawData.product;
         const rate = rawData.rate.filter((item) => (item != null));
@@ -140,22 +159,19 @@ const ProductionDetail = (): JSX.Element => {
         return result
     }
     const getData = async () => {
-        if (id && !isNaN(Number(id))) {
+        if (!isNaN(Number(id))) {
             setSkeletonLoading(true);
             try {
                 const result = await getProductDetailApi(user.isAuthenticated ? user.accountId : -1, Number(id), pageRate);
-                console.log(result.data);
-                setSkeletonLoading(false);
                 if (result.code == 0) {
                     setDataDetail(processData(result.data));
                 } else {
                     messageService.error(result.message)
+                    setSkeletonLoading(false);
                 }
             } catch(e) {
                 console.log(e);
                 messageService.error("Xảy ra lỗi tại server");
-            } finally {
-                setSkeletonLoading(false);
             }
         } else {
             setSkeletonLoading(true);
@@ -205,7 +221,8 @@ const ProductionDetail = (): JSX.Element => {
                 setPrice(`${variantSelect.price.toLocaleString("en-US")}đ`);
                 setVariantId(variantSelect.id);
                 if (dataDetail.percent) {
-                    setDiscount(`${(Math.round(((variantSelect.price * (100 - dataDetail.percent)) / 100) / 1000) * 1000).toLocaleString("en-US")}đ`)
+                    const priceAfterDiscount = (Math.round(((variantSelect.price * (100 - dataDetail.percent)) / 100) / 1000) * 1000);
+                    setDiscount(`${priceAfterDiscount.toLocaleString("en-US")}đ`)
                 }
                 if (variantSelect.quantity <= 0) {
                     setShowSelectQuantity(false);
@@ -216,6 +233,7 @@ const ProductionDetail = (): JSX.Element => {
                 messageService.error("Không có dữ liệu");
             }
         }
+        setSkeletonLoading(false);
     }
 
     const increaseQuantity = () => {
@@ -234,7 +252,7 @@ const ProductionDetail = (): JSX.Element => {
 
     const decreaseQuantity = () => {
         if (colorSelect != "" && sizeSelect != "") {
-            if (quantitySelect < 1) {
+            if (quantitySelect <= 1) {
                 messageService.error("Số lượng đặt hàng phải lớn hơn 0")
             } else {
                 setQuantitySelect(prev => prev - 1)
@@ -243,7 +261,19 @@ const ProductionDetail = (): JSX.Element => {
             messageService.error("Chọn phân loại sản phẩm")
         }
     }
-    
+
+    const orderProduct = async () => {
+        if (user.isAuthenticated) {
+            if (sizeSelect == "" || colorSelect == "") {
+                messageService.error("Chọn phân loại sản phẩm")
+            } else {
+                
+            }
+        } else {
+            setPathBeforeLogin(location.pathname);
+            navigate("/login")
+        }
+    }
     
     const feedbackList: {name: string, rate: number, content: string}[] = [
         {
@@ -265,59 +295,7 @@ const ProductionDetail = (): JSX.Element => {
 
     return(
         <>
-            <ConfigProvider
-                theme={{
-                    components: {
-                        Input: {
-                            borderRadius: 20,
-                            activeBorderColor: "var(--color6)",
-                            activeShadow: "0 0 0 2px var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                        },
-                        DatePicker: {
-                            borderRadius: 20,
-                            activeBorderColor: "var(--color6)",
-                            activeShadow: "0 0 0 2px var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                        },
-                        Select: {
-                            borderRadius: 20,
-                            activeBorderColor: "var(--color6)",
-                            activeOutlineColor: "var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                            optionActiveBg: "var(--color2)",
-                            controlItemBgActive: "var(--color4)"
-                        },
-                        Button: {
-                            defaultActiveBorderColor: "var(--color7)",
-                            defaultActiveColor: "var(--color7)",
-                            defaultHoverBorderColor: "var(--color6)",
-                            defaultHoverColor: "var(--color6)",
-                            defaultShadow: "0 0 0 black",
-
-                            colorPrimary: "var(--color5)",
-                            colorPrimaryActive: "var(--color6)",
-                            colorPrimaryHover: "var(--color4)",
-                            primaryShadow: "0 0 0 black",
-                            colorPrimaryTextHover: "var(--color4)",
-                            colorPrimaryTextActive: "var(--color6)"
-                        },
-                        Checkbox: {
-                            colorPrimary: "var(--color7)",
-                            colorPrimaryHover: "var(--color6)"
-                        },
-                        Divider: {
-                            colorSplit: "rgba(0, 0, 0, 0.5)",
-                        },
-                        Radio: {
-                            colorPrimaryActive: "var(--color7)",
-                            colorPrimary: "var(--color6)",
-                            colorPrimaryHover: "var(--color5)",
-                            colorPrimaryBorder: "var(--color8)"
-                        }
-                    }
-                }}
-            >
+            <ConfigProvider theme={{components: configProvider}}>
                 <Row style={{padding: "30px 200px"}} className="production-detail-container">
                     <Col span={24} style={{padding: "20px", backgroundColor: "white", boxShadow: "0 0 20px 2px rgba(0, 0, 0, 0.3)", position: "relative"}}>
                         {
@@ -431,6 +409,7 @@ const ProductionDetail = (): JSX.Element => {
                                                                 color="primary"
                                                                 variant="outlined"
                                                                 style={{width: "50%"}}
+                                                                onClick={() => {addCart(user, sizeSelect, colorSelect, variantId, quantitySelect, setCart, setPathBeforeLogin, navigate, setModalLoading, dayjs().toISOString())}}
                                                             >
                                                                 Thêm vào giỏ hàng
                                                             </Button>
@@ -439,6 +418,7 @@ const ProductionDetail = (): JSX.Element => {
                                                                 color="primary"
                                                                 variant="solid"
                                                                 style={{width: "50%"}}
+                                                                onClick={() => {orderProduct()}}
                                                             >
                                                                 Mua ngay
                                                             </Button>

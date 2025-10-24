@@ -49,8 +49,8 @@ const Favourite = (): JSX.Element => {
                 <Col span={24} style={{minHeight: "calc(100vh - 130px)"}}>
                     {
                         total > 0 ? (
-                            <Row gutter={[0, 60]} style={{paddingBottom: "40px"}}>
-                                <Col span={24}>
+                            <Row gutter={[0, 30]}>
+                                <Col span={24} style={{paddingBottom: "40px"}}>
                                     <Row gutter={[0, 90]} style={{display: "flex", padding: "10px 30px"}}>
                                         {
                                             favouriteList.map((item, index) => (

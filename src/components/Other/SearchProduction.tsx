@@ -3,6 +3,7 @@ import { Button, Col, ConfigProvider, Input, Row } from "antd";
 import { Heart, Search, ShoppingCart, X } from "lucide-react";
 import { UserContext } from "../../configs/globalVariable";
 import ProductionCard from "../Utilities/ProductionCard/ProductionCard";
+import { configProvider } from "../../interfaces/appInterface";
 
 const SearchProduction = (): JSX.Element => {
     const [findValue, setFindValue] = useState<string>("áo");
@@ -45,53 +46,7 @@ const SearchProduction = (): JSX.Element => {
     ]
     return(
         <>
-            <ConfigProvider
-                theme={{
-                    components: {
-                        Input: {
-                            borderRadius: 20,
-                            activeBorderColor: "var(--color6)",
-                            activeShadow: "0 0 0 2px var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                        },
-                        DatePicker: {
-                            borderRadius: 20,
-                            activeBorderColor: "var(--color6)",
-                            activeShadow: "0 0 0 2px var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                        },
-                        Select: {
-                            borderRadius: 20,
-                            activeBorderColor: "var(--color6)",
-                            activeOutlineColor: "var(--color2)",
-                            hoverBorderColor: "var(--color4)",
-                            optionActiveBg: "var(--color2)",
-                            controlItemBgActive: "var(--color4)"
-                        },
-                        Button: {
-                            defaultActiveBorderColor: "var(--color7)",
-                            defaultActiveColor: "var(--color7)",
-                            defaultHoverBorderColor: "var(--color6)",
-                            defaultHoverColor: "var(--color6)",
-                            defaultShadow: "0 0 0 black",
-
-                            colorPrimary: "var(--color5)",
-                            colorPrimaryActive: "var(--color6)",
-                            colorPrimaryHover: "var(--color4)",
-                            primaryShadow: "0 0 0 black",
-                            colorPrimaryTextHover: "var(--color4)",
-                            colorPrimaryTextActive: "var(--color6)"
-                        },
-                        Checkbox: {
-                            colorPrimary: "var(--color7)",
-                            colorPrimaryHover: "var(--color6)"
-                        },
-                        Divider: {
-                            colorSplit: "rgba(0, 0, 0, 0.2)",
-                        }
-                    }
-                }}
-            >
+            <ConfigProvider theme={{components: configProvider}}>
                 <Row className="search-production-container" style={{padding: "30px 0px"}}>
                     <Col span={24}>
                         <div style={{display: "flex", justifyContent: "center"}}>

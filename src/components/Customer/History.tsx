@@ -1,9 +1,47 @@
-import type { JSX } from "react";
-import { Button, Col, Row } from "antd";
+import { useContext, useEffect, useState, type JSX } from "react";
+import { Button, Col, Row, Skeleton } from "antd";
 import { Heart, ShoppingCart } from "lucide-react";
+import type { FavouriteListProps, RawFavourite } from "../../interfaces/customerInterface";
+import { messageService } from "../../interfaces/appInterface";
+import LoadingModal from "../Other/LoadingModal";
+import { favouriteDataProcess, getHistoryListApi } from "../../services/customerService";
+import ProductionFavourite from "../Utilities/ProductionCard/ProductionFavourite";
+import { UserContext } from "../../configs/globalVariable";
 
 const History = (): JSX.Element => {
-    const historyList: {id: number, url: string, name: string, price: string}[] = [
+    const {user} = useContext(UserContext);
+    const [historyLoading, setHistoryLoading] = useState<boolean>(false);
+    const [historyList, setHistoryList] = useState<FavouriteListProps[]>([]);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [total, setTotal] = useState<number>(0);
+
+    useEffect(() => {
+        getFavouriteList();
+    }, [currentPage])
+
+    const getFavouriteList = async () => {
+        setHistoryLoading(true);
+        try {
+            const result = await getHistoryListApi(user.accountId, currentPage);
+            setHistoryLoading(false);
+            if (result.code == 0) {
+                const rawData: RawFavourite[] = result.data.history;
+                if (result.data.count >= 0) {
+                    setTotal(result.data.count);
+                }
+                const processedData = favouriteDataProcess(rawData);
+                setHistoryList((prev) => ([...prev, ...processedData]));
+            } else {
+                messageService.error(result.message);
+            }
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở server");
+        } finally {
+            setHistoryLoading(false);
+        }
+    }
+    const historyListt: {id: number, url: string, name: string, price: string}[] = [
         {
             id: 1,
             url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1760164494/pro_den_1_341c12ed4dea4f48b87b4081496dee66_grande_fqendz.jpg",
@@ -53,50 +91,66 @@ const History = (): JSX.Element => {
             price: "395,000₫"
         },
     ]
-    return(
+    return (historyLoading && currentPage == 1) ? (
+        <Skeleton active paragraph={{rows: 10}} />
+    ) : (
         <>
             <Row>
                 <Col span={24} style={{minHeight: "calc(100vh - 130px)"}}>
-                    <Row gutter={[0, 30]} style={{display: "flex", justifyContent: "space-between", padding: "10px 30px"}}>
-                        {
-                            historyList.map((item, index) => (
-                                <Col span={5} key={index} style={{border: "1px solid rgba(0, 0, 0, 0.2)", padding: "10px", borderRadius: "10px", boxShadow: "0 0 20px 2px rgba(0, 0, 0, 0.3)", cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "space-between"}}>
-                                    <div>
-                                        <div style={{width: "100%", height: "200px", overflow: "hidden"}}>
-                                            <img style={{width: "100%", height: "100%", objectFit: "cover"}} src={item.url} />
-                                        </div>
-                                        <div style={{paddingTop: "10px", display: "flex", flexDirection: "column"}}>
-                                            <div style={{textAlign: "center", paddingBottom: "15px"}}>{item.name}</div>
-                                        </div>
-                                    </div>
-                                    <div style={{display: "flex", justifyContent: "space-between"}}>
-                                        <div style={{display: "flex", gap: "10px"}}>
-                                            <div style={{padding: "5px 7px", backgroundColor: "var(--color7)", borderRadius: "50%"}}>
-                                                <Heart size={20} strokeWidth={1} color="white" />
-                                            </div>
-                                            <div style={{padding: "5px 7px", backgroundColor: "var(--color7)", borderRadius: "50%"}}>
-                                                <ShoppingCart size={20} strokeWidth={1} color="white" />
-                                            </div>
-                                        </div>
-                                        <div style={{display: "flex", justifyContent: "end", alignItems: "center"}}>
-                                            <div style={{fontWeight: "600"}}>{item.price}</div>
-                                        </div>
-                                    </div>
+                    {
+                        total > 0 ? (
+                            <Row gutter={[0, 30]}>
+                                <Col span={24} style={{paddingBottom: "40px"}}>
+                                    <Row gutter={[0, 90]} style={{display: "flex", padding: "10px 30px"}}>
+                                        {
+                                            historyList.map((item, index) => (
+                                                <ProductionFavourite 
+                                                    key={index} 
+                                                    id={item.id}
+                                                    productCard={item.productCard}
+                                                    setFavouriteList={setHistoryList}
+                                                    type="history"
+                                                    setTotal={setTotal}
+                                                    take={historyList.length < total ? historyList.length : -1}
+                                                />
+                                            ))
+                                        }
+                                    </Row>
                                 </Col>
-                            ))
-                        }
-                    </Row>
-                    <div style={{display: "flex", justifyContent: "center", paddingTop: "20px"}}>
-                        <Button
-                            variant="solid"
-                            color="primary"
-                            size="large"
-                        >
-                            Xem thêm
-                        </Button>
-                    </div>
+                                {
+                                    historyList.length < total && (
+                                        <Col span={24} style={{display: "flex", justifyContent: "center"}}>
+                                            <Button
+                                                variant="solid"
+                                                color="primary"
+                                                size="large"
+                                                onClick={() => {setCurrentPage((prev) => {return prev + 1})}}
+                                            >
+                                                Xem thêm
+                                            </Button>
+                                        </Col>
+                                    )
+                                }
+                            </Row>
+                        ) : (
+                            <div style={{position: "absolute", top: "50%", left: "50%", zIndex: 1, transform: "translate(-50%, -50%)", display: "flex", flexDirection: "column", alignItems: "center"}}>
+                                <div style={{width: "300px", height: "300px", overflow: "hidden"}}>
+                                    <img style={{width: "100%", height: "100%", objectFit: "cover", opacity: 0.3, filter: "blur(3px)"}} src="https://res.cloudinary.com/dibigdhgr/image/upload/v1760129523/no-data_q4r0yj.png" />
+                                </div>
+                                <div style={{color: "rgba(0, 0, 0, 0.6)", fontSize: "25px"}}>Không có dữ liệu</div>
+                            </div>
+                        )
+                    }
                 </Col>
             </Row>
+            {
+                (historyLoading && currentPage != 1) && (
+                    <LoadingModal
+                        open={historyLoading}
+                        message="Đang lấy dữ liệu"
+                    />
+                )
+            }
         </>
     )
 }

@@ -175,3 +175,53 @@ export const divConfig: MotionProps = {
   exit: {opacity: 0},
   transition: {duration: 0.3}
 }
+
+export const configProvider = {
+  Input: {
+    borderRadius: 20,
+    activeBorderColor: "var(--color6)",
+    activeShadow: "0 0 0 2px var(--color2)",
+    hoverBorderColor: "var(--color4)",
+  },
+  DatePicker: {
+    borderRadius: 20,
+    activeBorderColor: "var(--color6)",
+    activeShadow: "0 0 0 2px var(--color2)",
+    hoverBorderColor: "var(--color4)",
+  },
+  Select: {
+    borderRadius: 20,
+    activeBorderColor: "var(--color6)",
+    activeOutlineColor: "var(--color2)",
+    hoverBorderColor: "var(--color4)",
+    optionActiveBg: "var(--color2)",
+    controlItemBgActive: "var(--color4)"
+  },
+  Button: {
+    defaultActiveBorderColor: "var(--color7)",
+    defaultActiveColor: "var(--color7)",
+    defaultHoverBorderColor: "var(--color6)",
+    defaultHoverColor: "var(--color6)",
+    defaultShadow: "0 0 0 black",
+
+    colorPrimary: "var(--color5)",
+    colorPrimaryActive: "var(--color6)",
+    colorPrimaryHover: "var(--color4)",
+    primaryShadow: "0 0 0 black",
+    colorPrimaryTextHover: "var(--color4)",
+    colorPrimaryTextActive: "var(--color6)"
+  },
+  Checkbox: {
+    colorPrimary: "var(--color7)",
+    colorPrimaryHover: "var(--color6)"
+  },
+  Divider: {
+    colorSplit: "rgba(0, 0, 0, 0.5)",
+  },
+  Radio: {
+    colorPrimaryActive: "var(--color7)",
+    colorPrimary: "var(--color6)",
+    colorPrimaryHover: "var(--color5)",
+    colorPrimaryBorder: "var(--color8)"
+  }
+}
