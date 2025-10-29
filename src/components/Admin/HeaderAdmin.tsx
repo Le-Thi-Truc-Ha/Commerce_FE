@@ -1,7 +1,7 @@
 import { Col, Divider, Dropdown, Row, type MenuProps } from "antd";
 import { useContext, useEffect, useState, type JSX } from "react";
 import "./HeaderAdmin.scss";
-import { BadgePercent, CircleUserRound, House, List, Package, ReceiptText, TicketPercent, UsersRound } from "lucide-react";
+import { BadgePercent, CircleUserRound, House, List, Package, ReceiptText, TicketPercent, UsersRound, Mail } from "lucide-react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { UserContext } from "../../configs/globalVariable";
 
@@ -11,8 +11,8 @@ const HeaderAdmin = (): JSX.Element => {
     const location = useLocation();
     
     const [indexOfItem, setIndexOfItem] = useState<number>(1);
-    const iconsItem = [House, Package, ReceiptText, UsersRound, BadgePercent, TicketPercent, List]
-    const nameItem = ["Trang chủ", "Sản phẩm", "Đơn hàng", "Khách hàng", "Chương trình ưu đãi", "Mã giảm giá", "Danh mục hàng"]
+    const iconsItem = [House, Package, ReceiptText, UsersRound, BadgePercent, TicketPercent, List, Mail]
+    const nameItem = ["Trang chủ", "Sản phẩm", "Đơn hàng", "Khách hàng", "Chương trình ưu đãi", "Mã giảm giá", "Danh mục hàng", "Phản hồi"]
 
     const accountItem: MenuProps["items"] = [
         {
@@ -31,20 +31,22 @@ const HeaderAdmin = (): JSX.Element => {
 
     useEffect(() => {
         const path = location.pathname;
-        if (path == "") {  // Trang chủ
+        if (path == "/admin") {  // Trang chủ
             setIndexOfItem(1);
         } else if (path == "/admin/product") {  // Sản phẩm
             setIndexOfItem(2);
-        } else if (path == "") {  // Đơn hàng
+        } else if (path == "/admin/order") {  // Đơn hàng
             setIndexOfItem(3);
-        } else if (path == "") {  // Khách hàng
+        } else if (path == "/admin/customer") {  // Khách hàng
             setIndexOfItem(4);
-        } else if (path == "") {  // Chương trình ưu đãi
+        } else if (path == "/admin/promotion") {  // Chương trình ưu đãi
             setIndexOfItem(5);
         } else if (path == "") {  // Mã giảm giá
             setIndexOfItem(6);
         } else if (path == "") {  // Danh mục hàng
             setIndexOfItem(7);
+        }else if (path == "/admin/feedback") {  // Phản hồi
+            setIndexOfItem(8);
         }
     }, [])
 
@@ -54,15 +56,17 @@ const HeaderAdmin = (): JSX.Element => {
         } else if (index == 2) {  // Sản phẩm
             navigate("/admin/product");
         } else if (index == 3) {  // Đơn hàng
-            navigate("");
+            navigate("/admin/order");
         } else if (index == 4) {  // Khách hàng
-            navigate("");
+            navigate("/admin/customer");
         } else if (index == 5) {  // Chương trình ưu đãi
-            navigate("");
+            navigate("/admin/promotion");
         } else if (index == 6) {  // Mã giảm giá
-            navigate("");
+            navigate("/admin/voucher");
         } else if (index == 7) {  // Danh mục hàng
-            navigate("");
+            navigate("/admin/category");
+        } else if (index == 8) {  // Phản hồi
+            navigate("/admin/feedback");
         }
     }
 

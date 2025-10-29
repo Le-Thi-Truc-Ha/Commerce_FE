@@ -10,7 +10,6 @@ import Login from "../components/Other/Login";
 import Header from "../components/Other/Header";
 import CreateAccount from "../components/Other/CreateAccount";
 import HeaderAdmin from "../components/Admin/HeaderAdmin";
-import ProductAdmin from "../components/Admin/ProductAdmin";
 import Profile from "../components/Customer/ProfileComponent/Profile";
 import HeaderCustomer from "../components/Customer/HeaderCustomer";
 import Order from "../components/Customer/Order";
@@ -22,6 +21,15 @@ import Cart from "../components/Customer/Cart";
 import Pay from "../components/Customer/Pay";
 import ProductList from "../components/Other/AllProduction/ProductionList";
 import ProductionDetail from "../components/Other/ProductionDetail";
+import Dashboard from "../components/Admin/Dashboard";
+import ProductAdmin from "../components/Admin/ProductAdmin";
+import ProductDetail from "../components/Admin/ProductDetail";
+import OrderAdmin from "../components/Admin/Order";
+import CustomerAdmin from "../components/Admin/Customer";
+import PromotionAdmin from "../components/Admin/Promotion";
+import VoucherAdmin from "../components/Admin/Voucher";
+import CategoryAdmin from "../components/Admin/Category";
+import FeedbackAdmin from "../components/Admin/Feedback";
 
 const HeaderOverall = (): JSX.Element => {
     return(
@@ -57,7 +65,15 @@ const AppRoute = (): JSX.Element => {
                     </PrivateRoute>
                 } 
             >
+                <Route path="" element={<Dashboard />} />
                 <Route path="product" element={<ProductAdmin />} />
+                <Route path="product/:id" element={<ProductDetail />} />
+                <Route path="order" element={<OrderAdmin />} />
+                <Route path="promotion" element={<CustomerAdmin />} />
+                <Route path="promotion" element={<PromotionAdmin />} />
+                <Route path="voucher" element={<VoucherAdmin />} />
+                <Route path="category" element={<CategoryAdmin />} />
+                <Route path="feedback" element={<FeedbackAdmin />} />
             </Route>
 
             {/* CUSTOMER */}
