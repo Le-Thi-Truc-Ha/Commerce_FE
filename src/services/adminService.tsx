@@ -57,3 +57,15 @@ export const variantApi = {
         return axios.delete("/admin/delete-variant", { params: { id } });
     }
 };
+
+export const orderApi = {
+    async getStatus() {
+        return axios.get("/admin/status");
+    },
+    async getAll(page: number, limit: number, search?: string, fromDate?: string, toDate?: string, status?: number) {
+        return axios.get("/admin/orders", { params: { page, limit, search, fromDate, toDate, status } });
+    },
+    async getBill(id: number) {
+        return axios.get("/admin/bill", { params: { id }});
+    }
+};

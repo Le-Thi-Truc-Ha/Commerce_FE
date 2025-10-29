@@ -55,3 +55,76 @@ export interface ProductVariant {
     price: number;
     quantity: number;
 }
+
+/** Quản lý đơn hàng */
+export interface Status {
+    id: number;
+    name: string;
+}
+
+export interface Order {
+    id: number;
+    account: { fullName: string };
+    total: number;
+    orderDate: string;
+    orderStatus: { id: number, name: string };
+    address: { address: string };
+}
+
+export interface Order {
+    id: number;
+    account: { fullName: string };
+    total: number;
+    orderDate: string;
+    orderStatus: { id: number, name: string };
+    address: { address: string } ;
+}
+
+export interface OrderBill {
+    id: number;
+    total: number;
+    orderDate: string;
+    orderStatus: { id: number, name: string };
+    address: { address: string, name: string } ;
+    orderVouchers: {
+        voucher: {
+            code: string;
+            type: number;
+            discountPercent: number;
+        }
+    }[];
+    totalVoucher: number;
+    orderDetails: OrderDetail[];
+    orderHistories: OrderHistory[];
+    bills: Bill[];
+}
+
+export interface OrderDetail {
+    id: number;
+    productVariant: {
+        price: number;
+        color: string;
+        size: string;
+        product: {
+            name: string;
+        };
+    };
+    productName: string;
+    quantity: number;
+    
+}
+
+export interface OrderHistory {
+    date: string;
+    orderStatus: { id: number, name: string };
+    note?: string;
+}
+
+export interface Bill {
+    id: number;
+    paymentMethod: string;
+    shippingFee: { cost: number };
+    total: number;
+    invoiceTime: string;
+    paymentTime?: string;
+}
