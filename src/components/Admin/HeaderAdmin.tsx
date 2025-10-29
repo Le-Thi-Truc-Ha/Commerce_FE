@@ -62,7 +62,7 @@ const HeaderAdmin = (): JSX.Element => {
         } else if (index == 6) {  // Mã giảm giá
             navigate("/admin/voucher");
         } else if (index == 7) {  // Danh mục hàng
-            navigate("");
+            navigate("/admin/category");
         }
     }
 

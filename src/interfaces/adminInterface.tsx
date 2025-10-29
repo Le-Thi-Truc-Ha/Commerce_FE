@@ -224,3 +224,14 @@ export interface VoucherDetail {
     condition: number;
     voucherCategories: CategoryVoucher[];
 }
+
+/** Quản lý danh mục hàng */
+export interface Category {
+    id: number;
+    name: string;
+    parent?: {
+        id: number;
+        name: string;
+    };
+    totalProducts: number;
+}

@@ -26,6 +26,9 @@ import ProductAdmin from "../components/Admin/ProductAdmin";
 import ProductDetail from "../components/Admin/ProductDetail";
 import OrderAdmin from "../components/Admin/Order";
 import CustomerAdmin from "../components/Admin/Customer";
+import PromotionAdmin from "../components/Admin/Promotion";
+import VoucherAdmin from "../components/Admin/Voucher";
+import CategoryAdmin from "../components/Admin/Category";
 
 const HeaderOverall = (): JSX.Element => {
     return(
@@ -68,6 +71,7 @@ const AppRoute = (): JSX.Element => {
                 <Route path="promotion" element={<CustomerAdmin />} />
                 <Route path="promotion" element={<PromotionAdmin />} />
                 <Route path="voucher" element={<VoucherAdmin />} />
+                <Route path="category" element={<CategoryAdmin />} />
             </Route>
 
             {/* CUSTOMER */}

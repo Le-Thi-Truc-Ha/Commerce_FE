@@ -129,3 +129,18 @@ export const voucherApi = {
         return axios.delete("/admin/delete-voucher", { params: { id } });
     }
 };
+
+export const categoryApi = {
+    async getAll(page: number, limit: number, search?: string) {
+        return axios.get("/admin/categories", { params: { page, limit, search } });
+    },
+    async create(formData: FormData) {
+        return axios.post("/admin/create-category", formData);
+    },
+    async update(formData: FormData) {
+        return axios.put("/admin/update-category", formData);
+    },
+    async delete(id: number) {
+        return axios.delete("/admin/delete-category", { params: { id } });
+    }
+};
