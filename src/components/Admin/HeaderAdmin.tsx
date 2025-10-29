@@ -31,9 +31,9 @@ const HeaderAdmin = (): JSX.Element => {
 
     useEffect(() => {
         const path = location.pathname;
-        if (path == "") {  // Trang chủ
+        if (path == "/admin") {  // Trang chủ
             setIndexOfItem(1);
-        } else if (path == "/admin/product") {  // Sản phẩm
+        } else if (path == "") {  // Sản phẩm
             setIndexOfItem(2);
         } else if (path == "") {  // Đơn hàng
             setIndexOfItem(3);
@@ -52,7 +52,7 @@ const HeaderAdmin = (): JSX.Element => {
         if (index == 1) {  // Trang chủ
             navigate("");
         } else if (index == 2) {  // Sản phẩm
-            navigate("/admin/product");
+            navigate("");
         } else if (index == 3) {  // Đơn hàng
             navigate("");
         } else if (index == 4) {  // Khách hàng
