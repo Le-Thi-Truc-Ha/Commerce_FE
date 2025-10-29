@@ -69,3 +69,15 @@ export const orderApi = {
         return axios.get("/admin/bill", { params: { id }});
     }
 };
+
+export const customerApi = {
+    async getAll(page: number, limit: number, search: string) {
+        return axios.get("/admin/customers", { params: { page, limit, search }});
+    },
+    async getDetail(id: number) {
+        return axios.get("/admin/customer-detail", { params: { id }});
+    },
+    async getOrders(id: number, page: number, limit: number) {
+        return axios.get("/admin/customer-orders", { params: { id, page, limit }});
+    }
+};

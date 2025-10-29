@@ -37,7 +37,7 @@ const HeaderAdmin = (): JSX.Element => {
             setIndexOfItem(2);
         } else if (path == "/admin/order") {  // Đơn hàng
             setIndexOfItem(3);
-        } else if (path == "") {  // Khách hàng
+        } else if (path == "/admin/customer") {  // Khách hàng
             setIndexOfItem(4);
         } else if (path == "") {  // Chương trình ưu đãi
             setIndexOfItem(5);
@@ -56,7 +56,7 @@ const HeaderAdmin = (): JSX.Element => {
         } else if (index == 3) {  // Đơn hàng
             navigate("/admin/order");
         } else if (index == 4) {  // Khách hàng
-            navigate("");
+            navigate("/admin/customer");
         } else if (index == 5) {  // Chương trình ưu đãi
             navigate("");
         } else if (index == 6) {  // Mã giảm giá

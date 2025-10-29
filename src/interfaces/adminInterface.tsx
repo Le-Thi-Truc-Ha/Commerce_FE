@@ -128,3 +128,41 @@ export interface Bill {
     invoiceTime: string;
     paymentTime?: string;
 }
+
+/** Quản lý khách hàng */
+export interface Customer {
+    id: number;
+    fullName: string;
+    email: string;
+    gender: string;
+    dob: string;
+    status: number;
+    phoneNumber: string;
+}
+
+export interface Address {
+    id: number;
+    address: string;
+    name: string;
+    phoneNumber: string;
+}
+
+export interface Orders {
+    id: number;
+    orderDate: string;
+    orderStatus: {
+        id: number;
+        name: string;
+    };
+    bills: { total: number };
+}
+
+export interface OrderCustomer {
+    id: number;
+    orders: Orders[];
+}
+
+export interface CustomerDetail {
+    id: number;
+    addresses: Address[];
+}

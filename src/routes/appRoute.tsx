@@ -24,6 +24,8 @@ import ProductionDetail from "../components/Other/ProductionDetail";
 import Dashboard from "../components/Admin/Dashboard";
 import ProductAdmin from "../components/Admin/ProductAdmin";
 import ProductDetail from "../components/Admin/ProductDetail";
+import OrderAdmin from "../components/Admin/Order";
+import CustomerAdmin from "../components/Admin/Customer";
 
 const HeaderOverall = (): JSX.Element => {
     return(
@@ -63,6 +65,7 @@ const AppRoute = (): JSX.Element => {
                 <Route path="product" element={<ProductAdmin />} />
                 <Route path="product/:id" element={<ProductDetail />} />
                 <Route path="order" element={<OrderAdmin />} />
+                <Route path="promotion" element={<CustomerAdmin />} />
             </Route>
 
             {/* CUSTOMER */}
