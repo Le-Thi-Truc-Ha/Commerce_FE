@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_API_KEY,
+  apiKey: import.meta.env.VITE_FB_API_KEY,
   authDomain: "commerce-80ce4.firebaseapp.com",
   projectId: "commerce-80ce4",
   storageBucket: "commerce-80ce4.firebasestorage.app",

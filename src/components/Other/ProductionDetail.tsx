@@ -2,18 +2,18 @@ import { Button, Col, ConfigProvider, Row, Skeleton } from "antd";
 import { ChevronDown, ChevronUp, Heart, HeartOff, Minus, PencilLine, Plus, Star } from "lucide-react";
 import { useContext, useEffect, useState, type JSX } from "react";
 import "./ProductionDetail.scss";
-import { AnimatePresence, percent } from "framer-motion";
-import { configProvider, divConfig, messageService, MotionDiv, type BackendResponse, type ProductDetail, type RawProductDetail } from "../../interfaces/appInterface";
+import { AnimatePresence } from "framer-motion";
+import { configProvider, divConfig, messageService, MotionDiv, type ProductDetail, type RawProductDetail } from "../../interfaces/appInterface";
 import { UserContext } from "../../configs/globalVariable";
 import { getProductDetailApi, saveHistoryApi } from "../../services/appService";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import LoadingModal from "./LoadingModal";
-import { addCart, addCartApi, addFavourite, deleteFavourite } from "../../services/customerService";
+import { addCart, addFavourite, deleteFavourite } from "../../services/customerService";
 import { getSessionKey } from "../../configs/axios";
 import { setSessionKey } from "./Login";
 
-const RateValue = ({rate, size}: {rate: number, size: number}): JSX.Element => {
+export const RateValue = ({rate, size}: {rate: number, size: number}): JSX.Element => {
     const rateString = rate.toFixed(1);
     const integerPart = rateString.split(".")[0];
     const fractionalPart = rateString.split(".")[1];
@@ -80,14 +80,16 @@ const ProductionDetail = (): JSX.Element => {
     const [quantitySelect, setQuantitySelect] = useState<number>(1);
     const [quantityNumber, setQuantityNumber] = useState<number | null>(null);
     const [showSelectQuantity, setShowSelectQuantity] = useState<boolean>(true);
+    const [colorDisable, setColorDisable] = useState<string[]>([]);
+    const [sizeDisable, setSizeDisable] = useState<string[]>([]);
     
     useEffect(() => {
         window.scrollTo({
             top: 0,
             behavior: "smooth"
         })
-        saveHistory();
         getData();
+        saveHistory();
     }, [])
     
     const saveHistory = async () => {
@@ -115,7 +117,7 @@ const ProductionDetail = (): JSX.Element => {
     const processData = (rawData: RawProductDetail): ProductDetail => {
         const product = rawData.product;
         const rate = rawData.rate.filter((item) => (item != null));
-        let rawVariant: {id: number, color: string, size: string, price: number, quantity: number}[] = [];
+        let rawVariant: {id: number, color: string, size: string, price: number, quantity: number, status: number}[] = [];
         let rawColor: string[] = [];
         let rawSize: string[] = []
         product.productVariants.forEach((item) => {
@@ -124,7 +126,8 @@ const ProductionDetail = (): JSX.Element => {
                 color: item.color,
                 size: item.size,
                 price: item.price,
-                quantity: item.quantity
+                quantity: item.quantity,
+                status: item.status
             }],
             rawColor = [...rawColor, item.color];
             rawSize = [...rawSize, item.size];
@@ -165,6 +168,9 @@ const ProductionDetail = (): JSX.Element => {
                 const result = await getProductDetailApi(user.isAuthenticated ? user.accountId : -1, Number(id), pageRate);
                 if (result.code == 0) {
                     setDataDetail(processData(result.data));
+                } else if (result.code == 2) {
+                    messageService.error(result.message);
+                    navigate("/")
                 } else {
                     messageService.error(result.message)
                     setSkeletonLoading(false);
@@ -198,10 +204,12 @@ const ProductionDetail = (): JSX.Element => {
     }
 
     useEffect(() => {
+        disableSelectVariant();
         if (dataDetail && dataDetail.variant && dataDetail.variant.length > 0) {
             changePriceAndQuantity();
         }
     }, [colorSelect, sizeSelect, dataDetail])
+
     const changePriceAndQuantity = () => {
         if (colorSelect == "" || sizeSelect == "") {
             setQuantity("Còn hàng");
@@ -229,11 +237,73 @@ const ProductionDetail = (): JSX.Element => {
                 } else {
                     setShowSelectQuantity(true);
                 }
+                if (quantitySelect > variantSelect.quantity) {
+                    setQuantitySelect(1)
+                }
             } else {
                 messageService.error("Không có dữ liệu");
             }
         }
+        
         setSkeletonLoading(false);
+    }
+
+    useEffect(() => {
+        const elements = document.querySelectorAll(".variant-disable");
+        elements.forEach((element) => {
+            const el = element as HTMLElement;
+            const width = el.clientWidth;
+            const height = el.clientHeight;
+            const rotate = Math.atan(height / width) * (180 / Math.PI);
+            const diagonal = Math.sqrt(width ** 2 + height ** 2);
+            el.style.setProperty("--rotate", `${rotate}deg`);
+            el.style.setProperty("--diagonal", `${diagonal}px`);
+        });
+    }, [colorDisable, sizeDisable]);
+    const disableSelectVariant = () => {
+        if (colorSelect == "" && sizeSelect != "") {
+            const variant = dataDetail.variant.filter((item) => (item.size == sizeSelect));
+            const colorArray = variant.map((item) => (item.color))
+            const colorDisable = variant.filter((item) => (item.quantity == 0 || item.status == 2)).map((item) => (item.color))
+            for (const item of dataDetail.color) {
+                if (!colorArray.includes(item)) {
+                    colorDisable.push(item)
+                }
+            }
+            setColorDisable(colorDisable)
+        }
+        if (colorSelect != "" && sizeSelect == "") {
+            const variant = dataDetail.variant.filter((item) => (item.color == colorSelect));
+            const sizeArray = variant.map((item) => (item.size))
+            const sizeDisable = variant.filter((item) => (item.quantity == 0 || item.status == 2)).map((item) => (item.size))
+            for (const item of dataDetail.size) {
+                if (!sizeArray.includes(item)) {
+                    sizeDisable.push(item)
+                }
+            }
+            setSizeDisable(sizeDisable)
+        }
+        if (colorSelect != "" && sizeSelect != "") {
+            const variant1 = dataDetail.variant.filter((item) => (item.size == sizeSelect));
+            const colorArray = variant1.map((item) => (item.color))
+            const colorDisable = variant1.filter((item) => (item.quantity == 0 || item.status == 2)).map((item) => (item.color))
+            for (const item of dataDetail.color) {
+                if (!colorArray.includes(item)) {
+                    colorDisable.push(item)
+                }
+            }
+            setColorDisable(colorDisable)
+
+            const variant2 = dataDetail.variant.filter((item) => (item.color == colorSelect));
+            const sizeArray = variant2.map((item) => (item.size))
+            const sizeDisable = variant2.filter((item) => (item.quantity == 0 || item.status == 2)).map((item) => (item.size))
+            for (const item of dataDetail.size) {
+                if (!sizeArray.includes(item)) {
+                    sizeDisable.push(item)
+                }
+            }
+            setSizeDisable(sizeDisable)
+        }
     }
 
     const increaseQuantity = () => {
@@ -336,7 +406,7 @@ const ProductionDetail = (): JSX.Element => {
                                                         <ChevronDown size={24} strokeWidth={1} color={`${startIndex + 4 >= dataDetail.image.length ? "white" : "black"}`} style={{cursor: `${startIndex + 4 >= dataDetail.image.length ? "default" : "pointer"}`}} onClick={() => {moveUp()}} />
                                                     </div>
                                                 </Col>
-                                                <Col span={16}>
+                                                <Col span={16} style={{paddingLeft: "20px"}}>
                                                     <AnimatePresence mode="wait">
                                                         <MotionDiv key={imageSelect} {...divConfig} style={{width: "100%", height: "500px", overflow: "hidden"}}>
                                                             <img style={{width: "100%", height: "100%", objectFit: "cover"}} src={dataDetail.image[imageSelect]} />
@@ -367,7 +437,7 @@ const ProductionDetail = (): JSX.Element => {
                                                 {
                                                     dataDetail.color.map((item, index) => (
                                                         <div 
-                                                            className={`item-variant ${colorSelect == item ? "variant-active" : ""}`} 
+                                                            className={`item-variant ${colorSelect == item ? "variant-active" : ""} ${colorDisable.includes(item) ? "variant-disable" : ""}`} 
                                                             onClick={() => {setColorSelect(item)}} 
                                                             key={index}
                                                         >
@@ -380,7 +450,7 @@ const ProductionDetail = (): JSX.Element => {
                                                 {
                                                     dataDetail.size.map((item, index) => (
                                                         <div 
-                                                            className={`item-variant ${sizeSelect == item ? "variant-active" : ""}`} 
+                                                            className={`item-variant ${sizeSelect == item ? "variant-active" : ""} ${sizeDisable.includes(item) ? "variant-disable" : ""}`} 
                                                             onClick={() => {setSizeSelect(item)}} 
                                                             key={index} 
                                                         >

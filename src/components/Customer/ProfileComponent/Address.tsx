@@ -29,12 +29,14 @@ const Address = (): JSX.Element => {
             const result: BackendResponse = await customerService.getAllAddressApi(user.accountId);
             if (result.code == 0) {
                 const rawData = result.data.address.sort((a: any, b: any) => (a.id - b.id));
-                setAddressList(rawData.map((item: {id: number, name: string, phoneNumber: string, address: string}) => (
+                setAddressList(rawData.map((item: {id: number, name: string, phoneNumber: string, address: string, longitude: number, latitude: number}) => (
                     {
                         id: item.id,
                         name: item.name,
                         phone: item.phoneNumber,
-                        address: item.address
+                        address: item.address,
+                        longitude: item.longitude,
+                        latitude: item.latitude
                     }
                 )))
                 setAddressDefault(result.data.addressDefault);

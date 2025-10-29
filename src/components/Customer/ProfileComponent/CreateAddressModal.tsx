@@ -5,11 +5,13 @@ import axios from "axios";
 import { messageService, type BackendResponse } from "../../../interfaces/appInterface";
 import * as customerService from "../../../services/customerService";
 import { UserContext } from "../../../configs/globalVariable";
-import Loading from "../../Other/Loading";
+import LoadingModal from "../../Other/LoadingModal";
+import { getCity, getDistrict, getWard } from "../../../services/customerService";
 
 const CreateAddressModal = ({openModal, setOpenModal, addressList, setAddressList, mode, setMode, setAddressDefault}: CreateAddressModalProps): JSX.Element => {
     const {user} = useContext(UserContext);
-    const [address, setAddress] = useState<AddressInput>({name: "", phone: "", city: null, district: null, ward: null, detail: "", isDefault: false})
+    const [address, setAddress] = useState<AddressInput>({name: "", phone: "", detail: "", isDefault: false})
+    const [regionObj, setRegionObj] = useState<{cityCode: number | null, districtCode: number | null, wardCode: number | null}>({cityCode: null, districtCode: null, wardCode: null})
     const [hasValidate, setHasValidate] = useState<boolean[]>([false, false, false, false, false, false])
     const [cityName, setCityName] = useState<any[]>([]);
     const [districtName, setDistrictName] = useState<any[]>([]);
@@ -18,54 +20,20 @@ const CreateAddressModal = ({openModal, setOpenModal, addressList, setAddressLis
     const [getAddressLoading, setGetAddressLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        getCity()
+        getCity(setCityName)
     }, [])
 
-    const getCity = async () => {
-        try {
-            const result = await axios.get("https://provinces.open-api.vn/api/p/");
-            setCityName(result.data);
-        } catch(e) {
-            console.log(e);
-            messageService.error("Xảy ra lỗi trong quá trình lấy dữ liệu")
+    useEffect(() => {
+        if (regionObj.cityCode && mode == "create") {
+            getDistrict(regionObj.cityCode, setDistrictName, setRegionObj)
         }
-    }
+    }, [regionObj.cityCode]);
 
     useEffect(() => {
-        if (address.city && mode == "create") {
-            getDistrict(address.city)
+        if (regionObj.districtCode && mode == "create") {
+            getWard(regionObj.districtCode, setWardName, setRegionObj)
         }
-    }, [address.city]);
-
-    const getDistrict = async (cityCode: number): Promise<any> => {
-        try {
-            const result = await axios.get(`https://provinces.open-api.vn/api/p/${cityCode}?depth=2`);
-            setDistrictName(result.data.districts);
-            setAddress(prev => ({...prev, district: null, ward: null}))
-            return result.data.districts;
-        } catch(e) {
-            console.log(e);
-            messageService.error("Xảy ra lỗi trong quá trình lấy dữ liệu")
-        }
-    }
-
-    useEffect(() => {
-        if (address.district && mode == "create") {
-            getWard(address.district)
-        }
-    }, [address.district]);
-
-    const getWard = async (districtCode: number): Promise<any> => {
-        try {
-            const result = await axios.get(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
-            setWardName(result.data.wards);
-            setAddress(prev => ({...prev, ward: null}))
-            return result.data.wards;
-        } catch(e) {
-            console.log(e);
-            messageService.error("Xảy ra lỗi trong quá trình lấy dữ liệu")
-        }
-    }
+    }, [regionObj.districtCode]);
 
     useEffect(() => {
         if (!isNaN(Number(mode))) {
@@ -85,11 +53,12 @@ const CreateAddressModal = ({openModal, setOpenModal, addressList, setAddressLis
                 const detail = rawData.address.split("=")[0];
                 const [ward, district, city] = rawData.address.split("=")[1].split(", ");
                 const cityCode = cityName.find((item) => (item.name == city))?.code;
-                const districtTmp = await getDistrict(cityCode);
+                const districtTmp = await getDistrict(cityCode, setDistrictName, setRegionObj);
                 const districtCode = districtTmp.find((item: any) => (item.name == district))?.code;
-                const wardTmp = await getWard(districtCode);
+                const wardTmp = await getWard(districtCode, setWardName, setRegionObj);
                 const wardCode = wardTmp.find((item: any) => (item.name == ward))?.code;
-                setAddress({name: name, phone: phone, city: cityCode, district: districtCode, ward: wardCode, detail: detail, isDefault: result.data.isDefault})
+                setAddress({name: name, phone: phone, detail: detail, isDefault: result.data.isDefault})
+                setRegionObj({cityCode: cityCode, districtCode: districtCode, wardCode: wardCode})
             } else {
                 setOpenModal(false);
                 messageService.error(result.message);
@@ -111,13 +80,13 @@ const CreateAddressModal = ({openModal, setOpenModal, addressList, setAddressLis
         if (address.phone.length != 10) {
             newArray[1] = true;
         }
-        if (address.city == null) {
+        if (regionObj.cityCode == null) {
             newArray[2] = true;
         }
-        if (address.district == null) {
+        if (regionObj.districtCode == null) {
             newArray[3] = true;
         }
-        if (address.ward == null) {
+        if (regionObj.wardCode == null) {
             newArray[4] = true;
         }
         if (address.detail == "") {
@@ -138,12 +107,13 @@ const CreateAddressModal = ({openModal, setOpenModal, addressList, setAddressLis
             if (!checkValidate()) {
                 setCreateLoading(true);
                 try {
-                    const city = cityName.find((item) => (item.code == address.city))?.name;
-                    const district = districtName.find((item) => (item.code == address.district))?.name;
-                    const ward = wardName.find((item) => (item.code == address.ward))?.name;
+                    const city = cityName.find((item) => (item.code == regionObj.cityCode))?.name;
+                    const district = districtName.find((item) => (item.code == regionObj.districtCode))?.name;
+                    const ward = wardName.find((item) => (item.code == regionObj.wardCode))?.name;
                     const region = [ward, district, city].join(", ");
+                    const {longitude, latitude} = await customerService.getCoordinates(region);
                     const fullAddress = address.detail.trim() + "=" + region;
-                    const result: BackendResponse = await customerService.createAddressApi(user.accountId, address.name, address.phone, fullAddress, address.isDefault);
+                    const result: BackendResponse = await customerService.createAddressApi(user.accountId, address.name, address.phone, fullAddress, address.isDefault, longitude, latitude);
                     if (result.code == 0) {
                         handleCancel();
                         messageService.success(result.message);
@@ -152,7 +122,9 @@ const CreateAddressModal = ({openModal, setOpenModal, addressList, setAddressLis
                             id: newAddress.id,
                             name: newAddress.name,
                             phone: newAddress.phoneNumber,
-                            address: newAddress.address
+                            address: newAddress.address,
+                            longitude: newAddress.longtitude,
+                            latitude: newAddress.latitude
                         }])
                         if (result.data.isDefault) {
                             setAddressDefault(newAddress.id);
@@ -171,12 +143,13 @@ const CreateAddressModal = ({openModal, setOpenModal, addressList, setAddressLis
             if (!checkValidate()) {
                 setCreateLoading(true);
                 try {
-                    const city = cityName.find((item) => (item.code == address.city))?.name;
-                    const district = districtName.find((item) => (item.code == address.district))?.name;
-                    const ward = wardName.find((item) => (item.code == address.ward))?.name;
+                    const city = cityName.find((item) => (item.code == regionObj.cityCode))?.name;
+                    const district = districtName.find((item) => (item.code == regionObj.districtCode))?.name;
+                    const ward = wardName.find((item) => (item.code == regionObj.wardCode))?.name;
                     const region = [ward, district, city].join(", ");
+                    const {longitude, latitude} = await customerService.getCoordinates(region)
                     const fullAddress = address.detail.trim() + "=" + region;
-                    const result: BackendResponse = await customerService.updateAddressApi(Number(mode), user.accountId, address.name, address.phone, fullAddress, address.isDefault);
+                    const result: BackendResponse = await customerService.updateAddressApi(Number(mode), user.accountId, address.name, address.phone, fullAddress, address.isDefault, longitude, latitude);
                     if (result.code == 0) {
                         messageService.success(result.message);
                         setAddressList(addressList.map((item) => (
@@ -184,7 +157,9 @@ const CreateAddressModal = ({openModal, setOpenModal, addressList, setAddressLis
                                 id: Number(mode),
                                 name: address.name,
                                 phone: address.phone,
-                                address: fullAddress
+                                address: fullAddress,
+                                longitude: longitude,
+                                latitude: latitude
                             } : item
                         )))
                         if (address.isDefault) {
@@ -206,7 +181,7 @@ const CreateAddressModal = ({openModal, setOpenModal, addressList, setAddressLis
     const handleCancel = () => {
         setOpenModal(false);
         setHasValidate([false, false, false, false, false, false])
-        setAddress({name: "", phone: "", city: null, district: null, ward: null, detail: "", isDefault: false});
+        setAddress({name: "", phone: "", detail: "", isDefault: false});
         setMode("abcd");
     }
     return(
@@ -270,13 +245,13 @@ const CreateAddressModal = ({openModal, setOpenModal, addressList, setAddressLis
                                 ))
                             }
                             status={`${hasValidate[2] ? "error" : ""}`}
-                            value={address.city}
+                            value={regionObj.cityCode}
                             onChange={(value) => {
-                                setAddress({...address, city: value})
+                                setRegionObj({...regionObj, cityCode: value})
                                 setHasValidate(hasValidate.map((item, index) => (
                                     index == 2 ? false : item
                                 )))
-                                getDistrict(value);
+                                getDistrict(value, setDistrictName, setRegionObj);
                             }}
                         />
                     </Col>
@@ -292,13 +267,13 @@ const CreateAddressModal = ({openModal, setOpenModal, addressList, setAddressLis
                                 ))
                             }
                             status={`${hasValidate[3] ? "error" : ""}`}
-                            value={address.district}
+                            value={regionObj.districtCode}
                             onChange={(value) => {
-                                setAddress({...address, district: value})
+                                setRegionObj({...regionObj, districtCode: value})
                                 setHasValidate(hasValidate.map((item, index) => (
                                     index == 3 ? false : item
                                 )))
-                                getWard(value);
+                                getWard(value, setWardName, setRegionObj);
                             }}
                         />
                     </Col>
@@ -314,9 +289,9 @@ const CreateAddressModal = ({openModal, setOpenModal, addressList, setAddressLis
                                 ))
                             }
                             status={`${hasValidate[4] ? "error" : ""}`}
-                            value={address.ward}
+                            value={regionObj.wardCode}
                             onChange={(value) => {
-                                setAddress({...address, ward: value})
+                                setRegionObj({...regionObj, wardCode: value})
                                 setHasValidate(hasValidate.map((item, index) => (
                                     index == 4 ? false : item
                                 )))
@@ -346,7 +321,10 @@ const CreateAddressModal = ({openModal, setOpenModal, addressList, setAddressLis
             </Modal>
             {
                 (createLoading) && (
-                    <Loading />
+                    <LoadingModal 
+                        open={createLoading}
+                        message="Đang lưu"
+                    />
                 )
             }
         </>

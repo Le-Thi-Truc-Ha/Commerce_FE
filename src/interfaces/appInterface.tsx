@@ -1,6 +1,7 @@
 import type dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 import { motion, type MotionProps } from "framer-motion";
+import type { Dispatch, SetStateAction } from "react";
 
 export interface BackendResponse {
   message: string,
@@ -100,7 +101,8 @@ export interface ProductDetail {
     color: string,
     size: string, 
     price: number, 
-    quantity: number
+    quantity: number,
+    status: number
   }[],
   size: string[],
   color: string[],
@@ -146,6 +148,7 @@ export interface RawProductDetail {
       quantity: number,
       size: string,
       color: string,
+      status: number
     }[],
   },
   rate: {
@@ -166,6 +169,15 @@ export interface RawProductDetail {
     feeedbackDate: Date;
     star: number;
   }[]
+}
+
+export interface ConfirmDeleteModalProps {
+  open: boolean,
+  title: string,
+  okText: string,
+  content: string,
+  handleOk: () => void,
+  handleCancel: () => void
 }
 
 export const MotionDiv = motion.div

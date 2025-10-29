@@ -83,6 +83,12 @@ export const checkUpdateCartApi = (cartId: number): Promise<BackendResponse> => 
     })
 }
 
+export const findProductApi = (findValue: string, productId: number[] | null, currentPage: number): Promise<BackendResponse> => {
+    return axios.post("/find-product", {
+        findValue, productId, currentPage
+    })
+}
+
 export const productDataProcess = (rawData: RawProduction[]): ProductionCardProps[] => {
     let result: ProductionCardProps[] = [];
     const categoriesPath: string[] = ["shirt", "pant", "dress", "skirt"]

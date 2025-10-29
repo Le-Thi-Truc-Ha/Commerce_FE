@@ -99,6 +99,7 @@ export const UserProvider = ({children}: UserProviderProps): JSX.Element => {
                     setUser(userDefault);
                     messageService.success(result.message);
                     localStorage.removeItem("sessionKey");
+                    reloadPage();
                 } else {
                     messageService.error(result.message);
                 }
