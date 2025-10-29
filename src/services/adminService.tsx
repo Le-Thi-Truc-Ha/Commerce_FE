@@ -81,3 +81,51 @@ export const customerApi = {
         return axios.get("/admin/customer-orders", { params: { id, page, limit }});
     }
 };
+
+export const promotionApi = {
+    async getAll(page: number, limit: number, search?: string, fromDate?: string, toDate?: string ) {
+        return axios.get("/admin/promotions", { params: { page, limit, search, fromDate, toDate } });
+    }, 
+    async getProducts(promotionId: number, page: number, limit: number, search?: string ) {
+        return axios.get("/admin/promotion-products", { params: { promotionId, page, limit, search } });
+    },
+    async getById(id: number) {
+        return axios.get("/admin/promotion-id", { params: { id } });
+    },
+    async getProductsByCategory(categoryId: number, search: string) {
+        return axios.get("/admin/promotion-products-category", { params: { categoryId, search }});
+    },
+    async create(formData: FormData) {
+        return axios.post("/admin/create-promotion", formData);
+    },
+    async update(formData: FormData) {
+        return axios.put("/admin/update-promotion", formData);
+    },
+    async delete(id: number) {
+        return axios.delete("/admin/delete-promotion", { params: { id } });
+    }
+};
+
+export const voucherApi = {
+    async getAll(page: number, limit: number, search?: string, fromDate?: string, toDate?: string, type?: number) {
+        return axios.get("/admin/vouchers", { params: { page, limit, search, fromDate, toDate, type } });
+    },
+    async getDetail(id: number, page: number, limit: number) {
+        return axios.get("/admin/voucher-detail", { params: { id, page, limit } });
+    },
+    async getById(id: number) {
+        return axios.get("/admin/voucher-id", { params: { id } });
+    },
+    async getCategories(search: string) {
+        return axios.get("/admin/voucher-categories", { params: { search }});
+    },
+    async create(formData: FormData) {
+        return axios.post("/admin/create-voucher", formData);
+    },
+    async update(formData: FormData) {
+        return axios.put("/admin/update-voucher", formData);
+    },
+    async delete(id: number) {
+        return axios.delete("/admin/delete-voucher", { params: { id } });
+    }
+};

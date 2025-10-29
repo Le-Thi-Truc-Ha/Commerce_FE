@@ -66,6 +66,8 @@ const AppRoute = (): JSX.Element => {
                 <Route path="product/:id" element={<ProductDetail />} />
                 <Route path="order" element={<OrderAdmin />} />
                 <Route path="promotion" element={<CustomerAdmin />} />
+                <Route path="promotion" element={<PromotionAdmin />} />
+                <Route path="voucher" element={<VoucherAdmin />} />
             </Route>
 
             {/* CUSTOMER */}

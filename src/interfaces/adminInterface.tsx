@@ -166,3 +166,61 @@ export interface CustomerDetail {
     id: number;
     addresses: Address[];
 }
+/** Quản lý ưu đãi */
+export interface ProductPromotion {
+    product: {
+        id: number;
+        name: string;
+        category: { id: number, name: string };
+    }
+}
+
+export interface Promotion {
+    id: number;
+    percent: number;
+    startDate: string;
+    endDate: string;
+    status: number
+    productPromotions: ProductPromotion[];
+}
+
+/** Quản lý voucher */
+export interface CategoryVoucher {
+    category: {
+        id: number;
+        name: string;
+    }
+}
+
+export interface Voucher {
+    id: number;
+    code: string;
+    name: string;
+    discountPercent: number;
+    startDate: string;
+    endDate: string;
+    quantity: number;
+    type: number;
+}
+
+export interface VoucherID {
+    id: number;
+    code: string;
+    name: string;
+    discountPercent: number;
+    startDate: string;
+    endDate: string;
+    quantity: number;
+    type: number;
+    condition: number;
+    description: string;
+    voucherCategories: CategoryVoucher[];
+}
+
+export interface VoucherDetail {
+    id: number;
+    type: number;
+    description: string;
+    condition: number;
+    voucherCategories: CategoryVoucher[];
+}
