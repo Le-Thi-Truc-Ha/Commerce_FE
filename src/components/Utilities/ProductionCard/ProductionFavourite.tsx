@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, type JSX } from "react";
+import { useContext, useState, type JSX } from "react";
 import { messageService, type BackendResponse } from "../../../interfaces/appInterface";
 import { Heart, HeartOff, ShoppingCart, Star } from "lucide-react";
 import { Col } from "antd";
@@ -8,12 +8,14 @@ import { addFavouriteApi, deleteFavouriteApi, favouriteDataProcess } from "../..
 import { useNavigate } from "react-router-dom";
 import type { FavouriteListProps, ProductionFavouriteProps, RawFavourite } from "../../../interfaces/customerInterface";
 import LoadingModal from "../../Other/LoadingModal";
+import AddCartModal from "./AddCartModal";
 
 const ProductionFavourite = ({id, productCard, setFavouriteList, type, setTotal, take}: ProductionFavouriteProps): JSX.Element => {
     const navigate = useNavigate();
     const {user, setPathBeforeLogin} = useContext(UserContext);
     const [loading, setLoading] = useState<boolean>(false);
     const [isLikeState, setIsLikeState] = useState<boolean>(productCard.isLike);
+    const [openAddCart, setOpenAddCart] = useState<boolean>(false);
     
     const addFavourite = async () => {
         if (user.isAuthenticated) {
@@ -116,7 +118,17 @@ const ProductionFavourite = ({id, productCard, setFavouriteList, type, setTotal,
                     </div>
                     {
                         productCard.status == 1 && (
-                            <div className="icon-background">
+                            <div 
+                                className="icon-background"
+                                onClick={() => {
+                                    if (user.isAuthenticated) {
+                                        setOpenAddCart(true);
+                                    } else {
+                                        setPathBeforeLogin(location.pathname);
+                                        navigate("/login");
+                                    }
+                                }}
+                            >
                                 <ShoppingCart size={20} strokeWidth={1} color="white" />
                             </div>
                         )
@@ -130,6 +142,19 @@ const ProductionFavourite = ({id, productCard, setFavouriteList, type, setTotal,
                     )
                 }
             </Col>
+            <AddCartModal 
+                openAddCart={openAddCart}
+                setopenAddCart={setOpenAddCart}
+                productId={productCard.productId}
+                variantId={null}
+                quantity={null}
+                cartId={null}
+                cartList={null}
+                setCartList={null}
+                indexOfCart={null}
+                setTotalPrice={null}
+                setQuantityOrderList={null}
+            />
             {
                 loading && (
                     <LoadingModal

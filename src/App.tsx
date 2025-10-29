@@ -58,7 +58,6 @@ function App() {
       const result = await checkUpdateCartApi(cartId[0]);
       if (result.code == 0) {
         if (dayjs(updateAt).isAfter(dayjs(result.data.updateAt))) {
-          console.log()
           const newUpdate = await updateQuantityCartApi(JSON.parse(quantityChange), dayjs().toISOString());
           if (newUpdate.code == 0) {
             localStorage.removeItem("quantityChange");

@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { UserContext } from "../../../configs/globalVariable";
 import { addFavourite, addFavouriteApi, deleteFavourite, deleteFavouriteApi } from "../../../services/customerService";
 import LoadingModal from "../../Other/LoadingModal";
+import AddCartModal from "./AddCartModal";
 
 const ProductionCard = ({productId, url, name, price, star, discount, category, isLike, status, saleFigure}: ProductionCardProps): JSX.Element => {
     const navigate = useNavigate();
@@ -14,6 +15,7 @@ const ProductionCard = ({productId, url, name, price, star, discount, category, 
     const {user, setPathBeforeLogin} = useContext(UserContext);
     const [isLikeState, setIsLikeState] = useState<boolean>(isLike);
     const [loading, setLoading] = useState<boolean>(false);
+    const [openAddCart, setOpenAddCart] = useState<boolean>(false);
 
     const navigateProductionDetail = () => {
         navigate(`/all-production/${category}/${productId}`);
@@ -58,10 +60,33 @@ const ProductionCard = ({productId, url, name, price, star, discount, category, 
                         )
                     }
                 </div>
-                <div className="background-cart">
+                <div 
+                    className="background-cart" 
+                    onClick={() => {
+                        if (user.isAuthenticated) {
+                            setOpenAddCart(true);
+                        } else {
+                            setPathBeforeLogin(location.pathname);
+                            navigate("/login");
+                        }
+                    }}
+                >
                     <ShoppingCart size={20} strokeWidth={1} color="white" />
                 </div>
             </Col>
+            <AddCartModal 
+                openAddCart={openAddCart}
+                setopenAddCart={setOpenAddCart}
+                productId={productId}
+                variantId={null}
+                quantity={null}
+                cartId={null}
+                cartList={null}
+                setCartList={null}
+                indexOfCart={null}
+                setTotalPrice={null}
+                setQuantityOrderList={null}
+            />
             {
                 loading && (
                     <LoadingModal

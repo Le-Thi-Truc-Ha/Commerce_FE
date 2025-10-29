@@ -4,6 +4,7 @@ import type { UserType } from "../configs/globalVariable";
 import { messageService, type BackendResponse } from "../interfaces/appInterface";
 import type { FavouriteListProps, RawFavourite } from "../interfaces/customerInterface";
 import type { NavigateFunction } from "react-router-dom";
+import axiosPackage from "axios";
 
 export const getAccountInformationApi = (accountId: number): Promise<BackendResponse> => {
     return axios.get(`/customer/get-account-information?accountId=${accountId}`)
@@ -21,9 +22,9 @@ export const savePasswordApi = (accountId: number, oldPassword: string, newPassw
     })
 }
 
-export const createAddressApi = (accountId: number, name: string, phone: string, address: string, isDefault: boolean): Promise<BackendResponse> => {
+export const createAddressApi = (accountId: number, name: string, phone: string, address: string, isDefault: boolean, longitude: number, latitude: number): Promise<BackendResponse> => {
     return axios.post("/customer/create-address", {
-        accountId, name, phone, address, isDefault
+        accountId, name, phone, address, isDefault, longitude, latitude
     })
 }
 
@@ -35,9 +36,9 @@ export const getAddressApi = (addressId: number, accountId: number): Promise<Bac
     return axios.get(`/customer/get-address?addressId=${addressId}&accountId=${accountId}`)
 }
 
-export const updateAddressApi = (addressId: number, accountId: number, name: string, phone: string, address: string, isDefault: boolean): Promise<BackendResponse> => {
+export const updateAddressApi = (addressId: number, accountId: number, name: string, phone: string, address: string, isDefault: boolean, longitude: number, latitude: number): Promise<BackendResponse> => {
     return axios.post("/customer/update-address", {
-        addressId, accountId, name, phone, address, isDefault
+        addressId, accountId, name, phone, address, isDefault, longitude, latitude
     })
 }
 
@@ -82,6 +83,36 @@ export const getProductInCartApi = (accountId: number, page: number): Promise<Ba
 export const updateQuantityCartApi = (quantityCart: {cartId: number, quantityUpdate: number}[], now: string): Promise<BackendResponse> => {
     return axios.post("/customer/update-quantity-cart", {
         quantityCart, now
+    })
+}
+
+export const deleteProductInCartApi = (cartId: number[], take: number, now: string): Promise<BackendResponse> => {
+    return axios.post("/customer/delete-product-in-cart", {
+        cartId, take, now
+    })
+}
+
+export const getProductDetailModalApi = (accountId: number, productId: number): Promise<BackendResponse> => {
+    return axios.post("/customer/get-product-detail-modal", {
+        accountId, productId
+    })
+}
+
+export const updateVariantInCartApi = (cartId: number, accountId: number, variantId: number, quantity: number, now: string): Promise<BackendResponse> => {
+    return axios.post("/customer/update-variant-in-cart", {
+        cartId, accountId, variantId, quantity, now
+    })
+}
+
+export const getAddressAndFeeApi = (accountId: number): Promise<BackendResponse> => {
+    return axios.post("/customer/get-address-and-fee", {
+        accountId
+    })
+}
+
+export const getVoucherApi = (accountId: number, productId: number[], totalPrice: number): Promise<BackendResponse> => {
+    return axios.post("/customer/get-voucher", {
+        accountId, productId, totalPrice
     })
 }
 
@@ -196,6 +227,9 @@ export const addCart = async (
                     if (result.data) {
                         setCart(prev => prev + 1)
                     }
+                } else if (result.code == 2) {
+                    messageService.error(result.message);
+                    navigate("/")
                 } else {
                     messageService.error(result.message);
                 }
@@ -209,5 +243,55 @@ export const addCart = async (
     } else {
         setPathBeforeLogin(location.pathname);
         navigate("/login")
+    }
+}
+
+export const getCoordinates = async (address: string) => {
+    const res = await fetch(
+        `https://api.mapbox.com/search/geocode/v6/forward?q=${address}&country=VN&language=vi&limit=1&access_token=${import.meta.env.VITE_MB_API_KEY}`,
+        {
+            method: "GET",
+            headers:{
+                Accept: 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8'
+            }
+        }
+    )
+    const data = await res.json();
+    const [longitude, latitude] = data.features[0].geometry.coordinates;
+    return {longitude, latitude}
+}
+
+export const getCity = async (setCityList: Dispatch<SetStateAction<any[]>>) => {
+    try {
+        const result = await axiosPackage.get("https://provinces.open-api.vn/api/p/");
+        setCityList(result.data);
+        return result.data
+    } catch(e) {
+        console.log(e);
+        messageService.error("Xảy ra lỗi trong quá trình lấy dữ liệu")
+    }
+}
+
+export const getDistrict = async (cityCode: number, setDistrictList: Dispatch<SetStateAction<any[]>>, setRegionObj: Dispatch<SetStateAction<{cityCode: number | null, districtCode: number | null, wardCode: number | null}>>): Promise<any> => {
+    try {
+        const result = await axiosPackage.get(`https://provinces.open-api.vn/api/p/${cityCode}?depth=2`);
+        setDistrictList(result.data.districts);
+        setRegionObj(prev => ({...prev, districtCode: null, wardCode: null}))
+        return result.data.districts;
+    } catch(e) {
+        console.log(e);
+        messageService.error("Xảy ra lỗi trong quá trình lấy dữ liệu")
+    }
+}
+
+export const getWard = async (districtCode: number, setWardList: Dispatch<SetStateAction<any[]>>, setRegionObj: Dispatch<SetStateAction<{cityCode: number | null, districtCode: number | null, wardCode: number | null}>>): Promise<any> => {
+    try {
+        const result = await axiosPackage.get(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
+        setWardList(result.data.wards);
+        setRegionObj(prev => ({...prev, wardCode: null}))
+        return result.data.wards;
+    } catch(e) {
+        console.log(e);
+        messageService.error("Xảy ra lỗi trong quá trình lấy dữ liệu")
     }
 }
