@@ -235,3 +235,18 @@ export interface Category {
     };
     totalProducts: number;
 }
+
+/** Quản lý phản hồi */
+export interface Feedback {
+    id: number;
+    content: string;
+    feedbackDate: string;
+    star: number;
+    status: number;
+    account: { fullName: string };
+    productVariant: {
+        color: string;
+        size: string;
+        product: { name: string };
+    };
+}

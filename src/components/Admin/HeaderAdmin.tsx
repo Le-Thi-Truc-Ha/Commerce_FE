@@ -1,7 +1,7 @@
 import { Col, Divider, Dropdown, Row, type MenuProps } from "antd";
 import { useContext, useEffect, useState, type JSX } from "react";
 import "./HeaderAdmin.scss";
-import { BadgePercent, CircleUserRound, House, List, Package, ReceiptText, TicketPercent, UsersRound } from "lucide-react";
+import { BadgePercent, CircleUserRound, House, List, Package, ReceiptText, TicketPercent, UsersRound, Mail } from "lucide-react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { UserContext } from "../../configs/globalVariable";
 
@@ -11,8 +11,8 @@ const HeaderAdmin = (): JSX.Element => {
     const location = useLocation();
     
     const [indexOfItem, setIndexOfItem] = useState<number>(1);
-    const iconsItem = [House, Package, ReceiptText, UsersRound, BadgePercent, TicketPercent, List]
-    const nameItem = ["Trang chủ", "Sản phẩm", "Đơn hàng", "Khách hàng", "Chương trình ưu đãi", "Mã giảm giá", "Danh mục hàng"]
+    const iconsItem = [House, Package, ReceiptText, UsersRound, BadgePercent, TicketPercent, List, Mail]
+    const nameItem = ["Trang chủ", "Sản phẩm", "Đơn hàng", "Khách hàng", "Chương trình ưu đãi", "Mã giảm giá", "Danh mục hàng", "Phản hồi"]
 
     const accountItem: MenuProps["items"] = [
         {
@@ -45,6 +45,8 @@ const HeaderAdmin = (): JSX.Element => {
             setIndexOfItem(6);
         } else if (path == "") {  // Danh mục hàng
             setIndexOfItem(7);
+        }else if (path == "/admin/feedback") {  // Phản hồi
+            setIndexOfItem(8);
         }
     }, [])
 
@@ -63,6 +65,8 @@ const HeaderAdmin = (): JSX.Element => {
             navigate("/admin/voucher");
         } else if (index == 7) {  // Danh mục hàng
             navigate("/admin/category");
+        } else if (index == 8) {  // Phản hồi
+            navigate("/admin/feedback");
         }
     }
 

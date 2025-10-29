@@ -144,3 +144,9 @@ export const categoryApi = {
         return axios.delete("/admin/delete-category", { params: { id } });
     }
 };
+
+export const feedbackApi = {
+    async getAll(page: number, limit: number, search?: string, star?: number, fromDate?: string, toDate?: string) {
+        return axios.get("/admin/feedbacks", { params: { page, limit, search, star, fromDate, toDate } });
+    },
+};
