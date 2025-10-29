@@ -39,3 +39,21 @@ export const productApi = {
         return axios.delete("/admin/delete-product", { params: { id }});
     },
 };
+
+export const variantApi = {
+    async getAllVariant(id: number, page: number, limit: number) {
+        return axios.get("/admin/product-variants", { params: { id, page, limit }});
+    },
+    async getById(id: number) {
+        return axios.get("/admin/variant-id", { params: { id } });
+    },
+    async create(formData: FormData) {
+        return axios.post("/admin/create-variant", formData);
+    },
+    async update(formData: FormData) {
+        return axios.put("/admin/update-variant", formData);
+    },
+    async delete(id: number) {
+        return axios.delete("/admin/delete-variant", { params: { id } });
+    }
+};
