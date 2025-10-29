@@ -22,6 +22,7 @@ import Pay from "../components/Customer/Pay";
 import ProductList from "../components/Other/AllProduction/ProductionList";
 import ProductionDetail from "../components/Other/ProductionDetail";
 import Dashboard from "../components/Admin/Dashboard";
+import ProductAdmin from "../components/Admin/ProductAdmin";
 
 const HeaderOverall = (): JSX.Element => {
     return(
@@ -58,6 +59,7 @@ const AppRoute = (): JSX.Element => {
                 } 
             >
                 <Route path="" element={<Dashboard />} />
+                <Route path="product" element={<ProductAdmin />} />
             </Route>
 
             {/* CUSTOMER */}

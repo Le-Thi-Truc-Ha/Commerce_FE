@@ -33,7 +33,7 @@ const HeaderAdmin = (): JSX.Element => {
         const path = location.pathname;
         if (path == "/admin") {  // Trang chủ
             setIndexOfItem(1);
-        } else if (path == "") {  // Sản phẩm
+        } else if (path == "/admin/product") {  // Sản phẩm
             setIndexOfItem(2);
         } else if (path == "") {  // Đơn hàng
             setIndexOfItem(3);
@@ -52,7 +52,7 @@ const HeaderAdmin = (): JSX.Element => {
         if (index == 1) {  // Trang chủ
             navigate("");
         } else if (index == 2) {  // Sản phẩm
-            navigate("");
+            navigate("/admin/product");
         } else if (index == 3) {  // Đơn hàng
             navigate("");
         } else if (index == 4) {  // Khách hàng

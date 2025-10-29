@@ -1,43 +1,618 @@
-import type { JSX } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Table, Button, Modal, Form, Input, Select, Upload, Popconfirm } from "antd";
+import { UploadOutlined, PlusOutlined, EditOutlined, DeleteOutlined, VideoCameraOutlined, SearchOutlined } from "@ant-design/icons";
+import { productApi } from "../../services/adminService";
+import type { Product, CategoryProduct } from "../../interfaces/adminInterface";
+import "./ProductAdmin.scss"
+import { messageService } from "../../interfaces/appInterface";
 
-const ProductAdmin = (): JSX.Element => {
-    return(
-        <>
-            <div>
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eveniet ipsam non incidunt reiciendis, libero, excepturi, molestiae doloremque aut quis provident optio ratione sit. Ipsa nesciunt cupiditate, eum beatae laborum fuga?
-                Architecto dolore, earum a molestiae molestias aspernatur vel fugiat odio blanditiis! A eveniet cumque odit molestiae iusto obcaecati expedita laboriosam ipsa quis aliquam cupiditate sapiente ipsum voluptatum, eaque commodi soluta!
-                Possimus odit molestiae, non omnis repellendus aperiam ut assumenda saepe tempore dolores nemo doloribus labore doloremque nostrum quis est dolorum aut? Eveniet architecto possimus labore optio, nulla dolorum sunt vitae.
-                Deleniti, repellat aperiam. Ut quibusdam quo, laboriosam soluta aspernatur ullam? Culpa distinctio rerum autem quia nemo ducimus praesentium tempore, qui, dolore officiis perspiciatis. Quisquam, beatae ipsa adipisci doloremque tempore quia.
-                Hic, sed ad quam, voluptatibus dicta nesciunt praesentium possimus id accusamus ducimus dolor quasi laborum harum cumque, debitis corrupti? Cumque dolorem beatae molestiae labore, modi veniam numquam non odit quisquam.
-                Commodi aspernatur deserunt similique perspiciatis aliquid esse a, ex suscipit eaque dignissimos blanditiis atque quae laboriosam necessitatibus illum excepturi voluptatibus maiores dolorem ab, quibusdam, sint officia adipisci rerum qui. Voluptatibus?
-                Temporibus a veritatis minus! Placeat, hic similique sit quasi doloribus ullam. Atque praesentium saepe maxime ex ratione quisquam, cumque nostrum ea voluptatibus consectetur rem quibusdam deleniti dolore quia ullam dolorum.
-                Quos ullam architecto a beatae quibusdam non minima amet hic ex doloribus explicabo eveniet laudantium excepturi ea, quis, est, eaque nesciunt perspiciatis debitis illum voluptates molestias ad quidem! Aut, ea!
-                Repellendus modi hic illo aperiam deserunt ab! Vel provident similique vitae corrupti, sed quae ipsum labore reiciendis error ex doloremque sit dolorem laudantium recusandae? Laborum aut itaque delectus consequatur enim?
-                Magnam quaerat, sunt, dolor maxime iusto rem inventore saepe, laboriosam sit blanditiis illo porro magni distinctio provident cumque laborum dolorem animi reiciendis veritatis. Quia, quas sequi. Doloribus illum repellat unde!
-                Fuga impedit dignissimos sint sunt voluptates a nihil, blanditiis nulla odit harum, excepturi sequi sapiente libero dolor mollitia. Error inventore eum fuga beatae natus vitae excepturi consequatur distinctio fugiat id?
-                Voluptas velit itaque ad vel eius aliquid unde explicabo error ratione magnam maxime porro natus quam alias ex ipsum exercitationem commodi expedita qui, ut soluta nemo nostrum eum. Impedit, neque!
-                Eos culpa obcaecati modi doloremque suscipit placeat esse! Obcaecati quisquam accusantium ipsum a assumenda laudantium, sint adipisci, commodi explicabo dolorum illo, quaerat non iste labore laboriosam eos. Eius, libero sit.
-                Quidem magni velit placeat odit sapiente soluta unde tempore amet quis numquam nesciunt, quas ipsam quod eos aut consequuntur ad quam sed voluptatibus omnis consectetur? Fugit alias recusandae numquam harum.
-                Distinctio quis consectetur, dolore repellendus corrupti repellat consequatur possimus. Officia dignissimos aperiam enim quod veniam tempore sint ea sed temporibus, odit ratione rerum adipisci itaque quo at amet minima numquam?
-                Mollitia nam dolorem a dolore at numquam, qui laborum unde ab impedit repellat? Assumenda praesentium ratione veritatis corporis, facilis ad repellendus unde aliquam obcaecati pariatur iusto autem reprehenderit, magnam vero!
-                Ipsa nemo nihil rerum voluptatem maiores excepturi temporibus. Similique laborum minus reiciendis error unde esse consectetur. Quis ut sapiente harum eum autem dicta, tempora illo corrupti iste iusto minima tenetur?
-                Sunt at non provident. Inventore ut velit sed consequatur cumque cupiditate temporibus aut libero dolorem labore commodi earum ex saepe vel illo, fugit asperiores totam dolor ullam magnam unde officiis.
-                Rerum quas eligendi maiores temporibus natus excepturi vel, odit magnam nisi unde ea repudiandae accusamus nesciunt officiis doloribus at labore exercitationem praesentium quod et accusantium deleniti neque. Amet, fugit velit.
-                Temporibus expedita distinctio quasi repudiandae vitae dignissimos sapiente cum sed saepe unde impedit eligendi at est nam, ipsum eaque iusto provident esse illum facere. Quas debitis delectus quo fuga dolores.
-                Perferendis laboriosam enim officiis ducimus ab. Ipsum cumque laudantium voluptate doloremque error vitae similique quibusdam impedit, qui magni alias, distinctio sapiente, quisquam placeat quasi molestiae eaque modi fuga saepe id!
-                Culpa consequatur vel cumque facere nemo pariatur natus facilis mollitia perspiciatis nulla voluptatibus tenetur, quod aliquam ratione soluta corrupti! Fugiat consequatur corrupti facilis nulla qui optio error nisi tenetur odio?
-                Enim laudantium obcaecati explicabo! Incidunt tenetur quibusdam repellat expedita magnam assumenda repudiandae nam molestias tempore minima iste, veritatis animi iure officia voluptatem voluptatum pariatur suscipit. Quidem, voluptatem? Error, voluptas quas.
-                Soluta asperiores beatae consequuntur natus cumque, sapiente nulla unde commodi fugit optio iusto impedit doloribus alias ad velit sunt accusamus omnis perspiciatis odit repudiandae ipsum provident facere! Ipsa, nesciunt sequi.
-                Praesentium at eos accusamus. Impedit labore consectetur tempora quos libero nisi placeat distinctio, ipsa facere quibusdam veniam unde et autem iusto reiciendis magni culpa? Magnam quis nihil ullam ut unde?
-                Quia ducimus sequi debitis excepturi nobis nostrum tempore totam quidem reiciendis dolorem sit error non iste recusandae exercitationem, quisquam dolor nemo? Expedita rerum dolor aut accusamus nulla dolorum quis. Nihil.
-                Aspernatur autem eius ex provident. Incidunt reprehenderit consectetur nulla vel id corrupti placeat nostrum distinctio asperiores voluptatibus inventore officia quas, nihil soluta, voluptas tempora ut obcaecati. Iure, quaerat! Ullam, delectus.
-                Fugiat esse, similique rerum vel molestias mollitia itaque praesentium, excepturi commodi ipsum quisquam suscipit. Id itaque blanditiis maxime molestias necessitatibus eligendi, molestiae doloremque quis. Soluta quisquam excepturi animi cumque harum.
-                Eaque ab alias voluptatibus obcaecati quibusdam ipsum accusantium ipsa, esse laboriosam iure. Dicta, aperiam debitis pariatur obcaecati cumque vitae reiciendis in quibusdam error officia laboriosam quia maxime ea consequatur recusandae?
-                Laboriosam cumque nulla, dolor sit et rem dolorem aliquid illo quos consequatur quis, nihil dignissimos accusamus libero tempore ratione quidem? Modi reiciendis mollitia, minima doloribus ut ducimus vel ipsum saepe!
+const { Option } = Select;
+
+const categoryFetures: Record<string, { label: string; key: string, placeholder: string }[]> = {
+    "Áo": [
+        { label: "Dáng cổ", key: "neckline", placeholder: "Cổ tròn, Cổ V, Cổ sơ mi, ..." },
+        { label: "Dáng tay", key: "sleeve", placeholder: "Dài, Ngắn, Phồng, ..." }
+    ],
+    "Quần": [
+        { label: "Chiều dài quần", key: "pantLength", placeholder: "Ngắn, Lửng, dài, ..." },
+        { label: "Dáng quần", key: "pantShape", placeholder: "Suông, Ôm, Culottes, Ống loe, ..." }
+    ],
+    "Đầm": [
+        { label: "Chiều dài đầm", key: "dressLength", placeholder: "mini, midi, maxi, ..." },
+        { label: "Dáng đầm", key: "dressShape", placeholder: "Suông, Ôm, ..." }
+    ],
+    "Váy": [
+        { label: "Chiều dài váy", key: "skirtLength", placeholder: "mini, midi, maxi, ..." },
+        { label: "Dáng váy", key: "skirtShape", placeholder: "Xòe, Bút chì, Chữ A, ..." }
+    ]
+};
+
+const ProductAdmin: React.FC = () => {
+    const navigate = useNavigate();
+    const [products, setProducts] = useState<Product[]>([]);
+    const [categories, setCategories] = useState<CategoryProduct[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+    const [images, setImages] = useState<any[]>([]);
+    const [videos, setVideos] = useState<any[]>([]);
+    const [featureFields, setFeatureFields] = useState<any[]>([]);
+    const [form] = Form.useForm();
+
+    const [search, setSearch] = useState("");
+    const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
+    const [priceFilter, setPriceFilter] = useState<string | undefined>();
+
+    const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0});
+
+    const fetchCategories = async () => {
+        try {
+            const res = await productApi.getCategories();
+            setCategories(res.data);
+        } catch (e) {
+            console.error(e);
+            messageService.error("Lỗi khi tải danh mục!");
+        }
+    };
+
+    const fetchProducts = async (page = 1, limit = 10) => {
+        try {
+            setLoading(true);
+            const res = await productApi.getAll(page, limit, search, categoryFilter, priceFilter);
+            const { products, total } = res.data;
+            setProducts(products);
+            setPagination({ current: page, pageSize: limit, total });
+        } catch (e) {
+            console.error(e);
+            messageService.error("Lỗi khi tải danh sách sản phẩm!");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCategories();
+        fetchProducts(1, pagination.pageSize);
+    }, []);
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            fetchProducts(1, pagination.pageSize);
+        }, 500);
+
+        return () => clearTimeout(timeout);
+    }, [search, categoryFilter, priceFilter]);
+
+    const resetFilter = () => {
+        setSearch("");
+        setCategoryFilter(undefined);
+        setPriceFilter(undefined);
+    };
+
+    const getFeatures = (category: any) => {
+        if (categoryFetures[category.name]) {
+            return categoryFetures[category.name];
+        }
+        
+        if (category.parent && categoryFetures[category.parent.name]) {
+            return categoryFetures[category.parent.name];
+        }
+        return []
+    }
+
+    useEffect(() => {
+        if (selectedCategory) {
+            const cat = categories.find((c) => c.id === selectedCategory); 
+            setFeatureFields(getFeatures(cat));
+        } else {
+            setFeatureFields([]); 
+        }
+    }, [selectedCategory, categories]);
+
+    const handleRemoveImage = (file: any) => {
+        setImages((prev) => prev.filter((f) => f.uid !== file.uid));
+    };
+
+    const handleRemoveVideo = (file: any) => {
+        setVideos((prev) => prev.filter((f) => f.uid !== file.uid));
+    };
+
+    const openModal = async (product?: Product) => {
+        setIsModalOpen(true);
+        if (product) {
+            try {
+                setLoading(true);
+                const res = await productApi.getById(product.id);
+                const productData = res.data;
+                setEditingProduct(productData);
+                form.setFieldsValue({
+                    name: productData.name,
+                    description: productData.description,
+                    categoryId: categories.find(c => c.name === productData.category?.name)?.id,
+                    images: productData.medias
+                        ?.filter((m: any) => m.type === 1)
+                        .map((m: any) => ({
+                            uid: m.url,
+                            name: m.url.split("/").pop(),
+                            url: m.url,
+                        })),
+                    videos: productData.medias
+                        ?.filter((m: any) => m.type === 2)
+                        .map((m: any) => ({
+                            uid: m.url,
+                            name: m.url.split("/").pop(),
+                            url: m.url,
+                    }))
+                });
+            } catch (e) {
+                console.log(e);
+                messageService.error("Không thể tải dữ liệu sản phẩm!");
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            setEditingProduct(null);
+            form.resetFields();
+        }
+    };
+
+    const normFile = (e: any) => (Array.isArray(e) ? e : e?.fileList);
+
+    const handleSave = async () => {
+        try {
+            setSaving(true);
+            const values = await form.validateFields();
+
+            const formData = new FormData();
+            const remainingImages: string[] = [];
+            const remainingVideos: string[] = [];
+
+            formData.append("name", values.name);
+            formData.append("description", values.description);
+            formData.append("price", String(values.price));
+            formData.append("categoryId", String(values.categoryId));
+
+            if (values.variants && values.variants.length > 0) {
+                formData.append("variants", JSON.stringify(values.variants));
+            }
+
+            if (values.fit) formData.append("fit", values.fit);
+            if (values.material) formData.append("material", values.material);
+            if (values.occasion) formData.append("occasion", values.occasion);
+            if (values.season) formData.append("season", values.season);
+            if (values.style) formData.append("style", values.style);
+            if (values.age) formData.append("age", values.age);
+            
+            const featureData: Record<string, string> = {};
+            featureFields.forEach((f) => {
+                if (values[f.key]) {
+                    featureData[f.key] = values[f.key];
+                }
+            });
+            formData.append("features", JSON.stringify(featureData));
+
+            if (values.images) {
+                values.images.forEach((f: any) => {
+                    if (f.originFileObj) {
+                        formData.append("files", f.originFileObj);
+                    } else if (f.url) {
+                        remainingImages.push(f.url);
+                    }
+                });
+            }
+            if (values.videos) {
+                values.videos.forEach((f: any) => {
+                    if (f.originFileObj) {
+                        formData.append("files", f.originFileObj);
+                    } else if (f.url) {
+                        remainingVideos.push(f.url);
+                    }
+                });
+            }
+
+            formData.append("remainingImages", JSON.stringify(remainingImages));
+            formData.append("remainingVideos", JSON.stringify(remainingVideos));
+            
+            if (editingProduct) {
+                formData.append("id", String(editingProduct.id));
+                await productApi.update(formData);
+                messageService.success("Cập nhật sản phẩm thành công!");
+            } else {
+                await productApi.create(formData);
+                messageService.success("Thêm sản phẩm thành công!");
+            }
+            setIsModalOpen(false);
+            fetchProducts(1, pagination.pageSize);
+        } catch (e) {
+            console.error(e);
+            messageService.error("Lỗi khi lưu sản phẩm!");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        try {
+            await productApi.delete(id);
+            messageService.success("Xóa sản phẩm thành công!");
+            fetchProducts(1, pagination.pageSize);
+        } catch (e) {
+            console.error(e);
+            messageService.error("Lỗi khi xóa sản phẩm!");
+        }
+    };
+
+    const columns = [
+        { title: "ID", dataIndex: "id", key: "id", width: 80, align: "center" as const, 
+            showSorterTooltip: false,
+            sorter: (a: Product, b: Product) => a.id - b.id
+        },
+        { title: "Tên sản phẩm", dataIndex: "name", key: "name", align: "center" as const, 
+            showSorterTooltip: false, 
+            sorter: (a: Product, b: Product) => a.name.localeCompare(b.name)
+        },
+        {
+            title: "Danh mục",
+            dataIndex: "categoryName",
+            key: "categoryName",
+            align: "center" as const,
+            showSorterTooltip: false,
+            sorter: (a: Product, b: Product) => a.categoryName.localeCompare(b.categoryName)
+        },
+        {
+            title: "Giá",
+            dataIndex: "price",
+            key: "price",
+            align: "center" as const,
+            showSorterTooltip: false, 
+            sorter: (a: Product, b: Product) => a.price - b.price,
+            render: (v: number) => `${v.toLocaleString()}đ`,
+        },
+        {
+            title: "Số lượng còn",
+            dataIndex: "quantity",
+            key: "quantity",
+            align: "center" as const,
+            showSorterTooltip: false,
+            sorter: (a: Product, b: Product) => (a.quantity ?? 0) - (b.quantity ?? 0), 
+            render: (q: number) => (q ?? 0),
+        },
+        {
+            title: "Chi tiết",
+            key: "details",
+            align: "center" as const,
+            render: (_: unknown, record: Product) => (
+                <Button
+                    type="link"
+                    onClick={() => navigate(`/admin/product/${record.id}`)}
+                >
+                    Xem chi tiết
+                </Button>
+            ),
+        },
+        {
+            title: "Thao tác",
+            key: "action",
+            align: "center" as const,
+            render: (_: unknown, record: Product) => (
+                <>
+                    <Button
+                        icon={<EditOutlined />}
+                        type="link"
+                        onClick={() => openModal(record)}
+                    >
+                        Sửa
+                    </Button>
+                    <Popconfirm
+                        title="Xóa sản phẩm này?"
+                        onConfirm={() => handleDelete((record as any).id)}
+                        okButtonProps={{ className: "btn-pri" }}
+                        cancelButtonProps={{ className: "btn-sec" }}
+                    >
+                        <Button icon={<DeleteOutlined />} type="link" danger>
+                            Xóa
+                        </Button>
+                    </Popconfirm>
+                </>
+            ),
+        },
+    ];
+
+    return (
+        <div className="p-6">
+            <div className="header">
+                <h2>Quản lý sản phẩm</h2>
+                <Button
+                    icon={<PlusOutlined />}
+                    onClick={() => openModal()}
+                    className="m-0 btn-add"
+                >
+                    Thêm sản phẩm
+                </Button>
             </div>
-            <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae alias sint at quas incidunt nihil, dignissimos consectetur, repellat rem, omnis sit maiores! Aut consequatur debitis nulla sint ipsa numquam id!</div>
-        </>
-    )   
-}
+
+            <div className="flex gap-3 mb-5 filter">
+                <Input
+                    placeholder="Tìm theo tên sản phẩm . . . . . . "
+                    className="me-3 input"
+                    prefix={<SearchOutlined />}
+                    value={search}
+                    onChange={(e: any) => setSearch(e.target.value)}
+                    style={{ width: 300 }}
+                />
+                <Select
+                    placeholder="Danh mục"
+                    className="me-3 select"
+                    allowClear
+                    style={{ width: 300 }}
+                    value={categoryFilter}
+                    onChange={(val: any) => setCategoryFilter(val)}
+                >
+                {   
+                    categories.map((cat) => (
+                    <Option key={cat.id} value={cat.name}>
+                        {cat.name}
+                    </Option>
+                ))}
+                </Select>
+                <Select
+                    placeholder="Giá"
+                    className="me-5 select"
+                    allowClear
+                    style={{ width: 200 }}
+                    value={priceFilter}
+                    onChange={(val: any) => setPriceFilter(val)}
+                >
+                    <Option value="low">Dưới 100.000 đ</Option>
+                    <Option value="mid">100.000 - 500.000 đ</Option>
+                    <Option value="high">Trên 500.000 đ</Option>
+                </Select>
+                <Button onClick={resetFilter} className="btn-reset">Đặt lại</Button>
+            </div>
+
+            <Table
+                dataSource={products}
+                columns={columns}
+                rowKey="id"
+                loading={loading}
+                bordered
+                pagination={{
+                    current: pagination.current,
+                    pageSize: pagination.pageSize,
+                    total: pagination.total
+                }}
+                onChange={(newPag: any) => {
+                    fetchProducts(newPag.current, newPag.pageSize);
+                }}
+            />
+
+            <Modal
+                className="my-modal"
+                title={editingProduct ? "Cập nhật sản phẩm" : "Thêm sản phẩm mới"}
+                open={isModalOpen}
+                onCancel={() => setIsModalOpen(false)}
+                onOk={handleSave}
+                okText="Lưu"
+                cancelText="Hủy"
+                width={1200}
+                confirmLoading={saving}
+                okButtonProps={{ className: "btn-pri" }}
+                cancelButtonProps={{ className: "btn-sec" }}
+            >
+                <Form layout="vertical" form={form}>
+                    <div className={`grid ${editingProduct ? "grid-cols-2" : "grid-cols-3"} gap-6`}>
+                        <div className="col-span-1">
+                            <Form.Item
+                                label="Tên sản phẩm"
+                                name="name"
+                                rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm!" }]}
+                            >
+                                <Input className="input" />
+                            </Form.Item>
+                            <Form.Item
+                                label="Mô tả"
+                                name="description"
+                                rules={[{ required: true, message: "Vui lòng nhập mô tả!" }]}
+                            >
+                                <Input.TextArea rows={3} className="input" />
+                            </Form.Item>
+                            <Form.Item
+                                label="Danh mục"
+                                name="categoryId"
+                                rules={[{ required: true, message: "Vui lòng chọn danh mục!" }]}
+                            >
+                                <Select 
+                                    placeholder="Chọn danh mục" 
+                                    className="select"
+                                    onChange={(val: any) => setSelectedCategory(val)}
+                                >
+                                {
+                                    categories.map((cat) => (
+                                    <Option key={cat.id} value={cat.id}>
+                                        {cat.name}
+                                    </Option>
+                                ))}
+                                </Select>
+                            </Form.Item>
+                            {featureFields.map((f) => (
+                                <Form.Item
+                                    key={f.key}
+                                    label={f.label}
+                                    name={f.key}
+                                    rules={[{ required: true, message: `Vui lòng nhập ${f.label.toLowerCase()}!` }]}
+                                >
+                                    <Input placeholder={f.placeholder} className="input" />
+                                </Form.Item>
+                            ))}
+                            <Form.Item
+                                label="Ảnh sản phẩm"
+                                name="images"
+                                valuePropName="fileList"
+                                getValueFromEvent={normFile}
+                            >
+                                <Upload 
+                                    listType="picture-card" 
+                                    multiple 
+                                    beforeUpload={() => false}
+                                    showUploadList={{
+                                        showPreviewIcon: false,
+                                        showRemoveIcon: true
+                                    }}
+                                    fileList={images}
+                                    onChange={(fileList: any) => setImages(fileList)}
+                                    onRemove={handleRemoveImage}
+                                >
+                                <div>
+                                    <UploadOutlined /> Tải lên ảnh
+                                </div>
+                                </Upload>
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Video sản phẩm"
+                                name="videos"
+                                valuePropName="fileList"
+                                getValueFromEvent={normFile}
+                            >
+                                <Upload
+                                    className="upload"
+                                    accept="video/*"
+                                    listType="text"
+                                    multiple
+                                    beforeUpload={() => false}
+                                    fileList={videos}
+                                    onChange={( fileList: any ) => setVideos(fileList)}
+                                    onRemove={handleRemoveVideo}
+                                >
+                                    <Button icon={<VideoCameraOutlined />}>Tải lên Video</Button>
+                                </Upload>
+                            </Form.Item>
+                        </div>
+                        
+                        {!editingProduct && (
+                            <>
+                            <label className="font-semibold mb-2 block"> Đặc trưng</label>
+                            <div className="col-span-1">
+                                <Form.Item
+                                    label="Liền thân"
+                                    name="fit"
+                                    rules={[{ required: true, message: "Vui lòng chọn liền thân!" }]}
+                                >
+                                    <Select 
+                                        className="select"
+                                        placeholder="Chọn liền thân"
+                                        style={{ width: 200 }}
+                                    >
+                                        <Option value="Có">Có</Option>
+                                        <Option value="Không">Không</Option>
+                                    </Select>
+                                </Form.Item>
+                                <Form.Item
+                                    label="Chất liệu"
+                                    name="material"
+                                    rules={[{ required: true, message: "Vui lòng nhập chất liệu!" }]}
+                                >
+                                    <Input className="input" placeholder="Cotton, Jean, Lụa, Da, Nỉ, Len, ..."/>
+                                </Form.Item>
+                                <Form.Item
+                                    label="Mục đích"
+                                    name="occasion"
+                                    rules={[{ required: true, message: "Vui lòng nhập mục đích!" }]}
+                                >
+                                    <Input className="input" placeholder="Công sở, Dạo phố, Dự tiệc, Thể thao, Hàng ngày, ..."/>
+                                </Form.Item>
+                                <Form.Item
+                                    label="Mùa"
+                                    name="season"
+                                    rules={[{ required: true, message: "Vui lòng nhập mùa" }]}
+                                >
+                                    <Input className="input" placeholder="Xuân, Hè, Thu, Đông"/>
+                                </Form.Item>
+                                <Form.Item
+                                    label="Xu hướng"
+                                    name="style"
+                                    rules={[{ required: true, message: "Vui lòng nhập xu hướng!" }]}
+                                >
+                                    <Input className="input" placeholder="Vintage, Basic, Streetwear, Elegant, Sporty, ..."/>
+                                </Form.Item>
+                                <Form.Item
+                                    label="Độ tuổi"
+                                    name="age"
+                                    rules={[{ required: true, message: "Vui lòng nhập độ tuổi!" }]}
+                                >
+                                    <Input className="input" placeholder="Trẻ, Trung niên, Già, ..."/>
+                                </Form.Item>
+                            </div>
+                            <div className="col-span-1 overflow-y-auto max-h-[70vh] pr-2">
+                                <label className="font-semibold mb-2 block">Biến thể sản phẩm</label>
+                                <Form.List name="variants">
+                                    {(fields: any,  add: any, remove: any) => (
+                                        <>
+                                            {fields.map(( key: number, name: string, ...restField: any ) => (
+                                                <div
+                                                    key={key}
+                                                    className="mb-3 p-3 border rounded-lg bg-gray-50 flex flex-col gap-2"
+                                                >
+                                                    <Form.Item
+                                                        {...restField}
+                                                        name={[name, "color"]}
+                                                        rules={[{ required: true, message: "Nhập màu!" }]}
+                                                    >
+                                                        <Input className="input" placeholder="Màu sắc" />
+                                                    </Form.Item>
+                                                    <Form.Item
+                                                        {...restField}
+                                                        name={[name, "size"]}
+                                                        rules={[{ required: true, message: "Nhập kích thước!" }]}
+                                                    >
+                                                        <Input className="input" placeholder="Size (S, M, L...)" />
+                                                    </Form.Item>
+                                                    <Form.Item
+                                                        {...restField}
+                                                        name={[name, "price"]}
+                                                        rules={[{ required: true, message: "Nhập giá biến thể!" }]}
+                                                    >
+                                                        <Input className="input" type="number" min={1000} placeholder="Giá"/>
+                                                    </Form.Item>
+                                                    <Form.Item
+                                                        {...restField}
+                                                        name={[name, "quantity"]}
+                                                        rules={[{ required: true, message: "Nhập số lượng tồn!" }]}
+                                                    >
+                                                        <Input className="input" type="number" min={1} placeholder="Số lượng" />
+                                                    </Form.Item>
+                                                    <Button
+                                                        danger
+                                                        type="link"
+                                                        className="self-end"
+                                                        onClick={() => remove(name)}
+                                                    >
+                                                        Xóa biến thể
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                            <Button
+                                                type="dashed"
+                                                onClick={() => add()}
+                                                block
+                                                icon={<PlusOutlined />}
+                                            >
+                                                Thêm biến thể
+                                            </Button>
+                                        </>
+                                    )}
+                                </Form.List>
+                            </div>
+                            </>
+                        )}
+                    </div>                    
+                </Form>
+            </Modal>
+        </div>
+    );
+};
 
 export default ProductAdmin;

@@ -1,0 +1,207 @@
+%button-primary {
+    background-color: gray;
+    color: #fff;
+    border: none;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: #e0e0e0 !important;
+        color: #000 !important;
+    }
+
+    &:focus,
+    &:active {
+        outline: none;
+        box-shadow: none;
+    }
+}
+
+%button-second {
+    background-color: #fff;
+    color: #000;
+    border: 1px solid #000;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: #e0e0e0 !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+    }
+
+    &:focus,
+    &:active {
+        outline: none;
+        box-shadow: none;
+    }
+}
+
+%border {
+    transition: all 0.3s ease;
+
+    .ant-select-selector {
+        border: 1px solid #d9d9d9;
+        transition: all 0.3s ease;
+
+        &:focus,
+        &.ant-select-focused,
+        &:hover,
+        &:active,
+        &.ant-select-open {
+            border-color: black !important;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1) !important;
+            outline: 0;
+        }
+
+        &.ant-select-selection-search-input:focus {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .ant-select-selection-item {
+            color: #000 !important;
+        }
+    }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 16px;
+    padding: 0;
+    margin-bottom: 2rem;
+
+    h2 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0;
+        padding: 0;
+        flex-shrink: 0;
+    }
+
+    .btn-add {
+        @extend %button-primary;
+    }
+}
+
+.filter {
+    .btn-filter {
+        @extend %button-primary;
+        width: 90px;
+    }
+    .btn-reset {
+        @extend %button-second;
+    }
+    .select {
+        @extend %border
+    }
+    .input {
+        &:hover,
+        &:focus,
+        &:focus-within,
+        &:active {
+            border: 1px solid #000 !important;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1) !important;
+            outline: 0;
+        }
+    }
+}
+
+.my-ant-popconfirm {
+    .ant-btn-primary {
+        @extend %button-primary
+    }
+
+    .ant-btn-default {
+        @extend %button-second
+    }
+}
+
+.my-ant-modal {
+    .ant-modal-footer {
+        .ant-btn-primary {
+            @extend %button-primary
+        }
+
+        .ant-btn-default {
+            @extend %button-second
+        }
+    }
+}
+
+.my-modal {
+    .ant-input:focus,
+    .ant-input-number-focused,
+    .ant-input-number-input:focus,
+    .ant-input-number:hover,
+    .ant-select-focused .ant-select-selector,
+    .ant-picker-focused,
+    .ant-upload {
+        border-color: black !important;
+        box-shadow: none !important;
+    }
+    .upload:hover {
+        color: black !important;
+        border-color: black !important;
+    }
+    .input {
+        &:hover,
+        &:focus,
+        &:focus-within,
+        &:active {
+            border: 1px solid #000 !important;
+            box-shadow: none !important;
+        }
+    }
+    .select {
+        @extend %border
+    }
+
+    .ant-btn-dashed {
+        &:hover,
+        &:focus {
+            background-color: #e0e0e0 !important;
+            border-color: black !important;
+            color: black !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        &:active {
+            background-color: #e0e0e0 !important;
+            box-shadow: none !important;
+        }
+
+        .anticon {
+            margin-right: 6px !important; 
+            font-size: 16px !important;
+        }
+    }
+}
+
+.btn-pri {
+    @extend %button-primary
+}
+
+.btn-sec {
+    @extend %button-second
+}
+
+.my-picker {
+    .ant-picker:hover,
+    .ant-picker-focused {
+        border-color: #000 !important;
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .ant-picker-input > input {
+        color: #000 !important;
+    }
+
+    .ant-picker-suffix {
+        color: #000 !important;
+    }
+}
+
+
