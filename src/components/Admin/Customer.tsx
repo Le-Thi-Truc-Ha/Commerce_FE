@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Input, Button, Modal, Tag } from "antd";
+import { Table, Input, Button, Modal, Tag, Spin } from "antd";
 import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
 import type { Customer, CustomerDetail, OrderCustomer } from "../../interfaces/adminInterface";
 import { customerApi } from "../../services/adminService";
@@ -14,7 +14,7 @@ const CustomerAdmin: React.FC = () => {
     const [orders, setOrders] = useState<OrderCustomer[]>([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(false);
-    const [loadingOrders, setLoadingOrders] = useState(false);
+    const [loadingModal, setLoadingModal] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0});
@@ -37,21 +37,17 @@ const CustomerAdmin: React.FC = () => {
 
     const fetchDetail = async (id: number) => {
         try {
-            setLoading(true);
             const res = await customerApi.getDetail(id);
             const customer = res.data;
             setCustomerDetail(customer);
         } catch (e) {
             console.error(e);
             messageService.error("Lỗi khi tải thông tin khách hàng!");
-        } finally {
-            setLoading(false);
         }
     };
 
     const fetchOrders = async (id: number, page = 1, limit = 10) => {
         try {
-            setLoadingOrders(true);
             const res = await customerApi.getOrders(id, page, limit);
             const { orders, total } = res.data;
             setOrders(orders.orders);
@@ -59,8 +55,6 @@ const CustomerAdmin: React.FC = () => {
         } catch (e) {
             console.error(e);
             messageService.error("Lỗi khi tải danh sách đơn hàng của khách hàng!");
-        } finally {
-            setLoadingOrders(false);
         }
     }
 
@@ -76,10 +70,19 @@ const CustomerAdmin: React.FC = () => {
         return () => clearTimeout(timeout);
     }, [search]);
 
-    const openModal = (record: Customer) => {
+    const openModal = async (record: Customer) => {
         setIsModalOpen(true);
-        fetchDetail(record.id);
-        fetchOrders(record.id, pagination.current, pagination.pageSize);
+        setCustomerDetail(undefined);
+        setOrders([]);
+        setLoadingModal(true);
+        try {
+            await Promise.all([
+                fetchDetail(record.id),
+                fetchOrders(record.id, pagination.current, pagination.pageSize)
+            ]);
+        } finally {
+            setLoadingModal(false);
+        }
     };
 
     const getStatusColor = (statusName: string): string => {
@@ -244,39 +247,43 @@ const CustomerAdmin: React.FC = () => {
                 footer={null}
                 width={1000}
             >
-                {customerDetail && (
+                <Spin spinning={loadingModal} tip="Đang tải dữ liệu khách hàng...">
+                    {customerDetail ? (
                     <div className="customer-detail">
                         <h3 className="mt-4">Địa chỉ</h3>
                         <Table
-                            size="small"
-                            dataSource={customerDetail.addresses.map((addr, index) => ({
-                                ...addr,
-                                isDefault: index === 0,
-                            }))}
-                            loading={loading}
-                            pagination={false}
-                            rowKey="id"
-                            columns={columnsAddress}
+                        size="small"
+                        dataSource={customerDetail.addresses.map((addr, index) => ({
+                            ...addr,
+                            isDefault: index === 0,
+                        }))}
+                        pagination={false}
+                        rowKey="id"
+                        columns={columnsAddress}
                         />
 
                         <h3 className="mt-5">Đơn hàng</h3>
                         <Table
-                            size="small"
-                            dataSource={orders}
-                            columns={columnsOrder}
-                            rowKey="id"
-                            loading={loadingOrders}
-                            pagination={{
-                                current: paginationOrders.current,
-                                pageSize: paginationOrders.pageSize,
-                                total: paginationOrders.total
-                            }}
-                            onChange={(newPag) => {
-                                fetchOrders(customerDetail.id, newPag.current, newPag.pageSize);
-                            }}
+                        size="small"
+                        dataSource={orders}
+                        columns={columnsOrder}
+                        rowKey="id"
+                        pagination={{
+                            current: paginationOrders.current,
+                            pageSize: paginationOrders.pageSize,
+                            total: paginationOrders.total,
+                        }}
+                        onChange={(newPag) => {
+                            fetchOrders(customerDetail.id, newPag.current, newPag.pageSize);
+                        }}
                         />
                     </div>
-                )}
+                    ) : (
+                    <div style={{ textAlign: "center", padding: "40px 0" }}>
+                        <Spin tip="Đang tải dữ liệu..." />
+                    </div>
+                    )}
+                </Spin>
             </Modal>
         </div>
     );
