@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Input, Button, Modal, Tag } from "antd";
+import { Table, Input, Button, Modal, Tag, Spin } from "antd";
 import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
 import type { Customer, CustomerDetail, OrderCustomer } from "../../interfaces/adminInterface";
 import { customerApi } from "../../services/adminService";
@@ -14,6 +14,7 @@ const CustomerAdmin: React.FC = () => {
     const [orders, setOrders] = useState<OrderCustomer[]>([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(false);
+    const [loadingModal, setLoadingModal] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0});
@@ -22,9 +23,9 @@ const CustomerAdmin: React.FC = () => {
     const fetchCustomers = async (page = 1, limit = 10) => {
         try {
             setLoading(true);
-            const res = await customerApi.getAll(page, limit, search);
-            const { customers, total } = res.data;
-            setCustomers(customers);
+            const res = await customerApi.getAll(page, limit);
+            const { result, total } = res.data;
+            setCustomers(result);
             setPagination({ current: page, pageSize: limit, total });
         } catch (e) {
             console.error(e);
@@ -49,7 +50,7 @@ const CustomerAdmin: React.FC = () => {
         try {
             const res = await customerApi.getOrders(id, page, limit);
             const { orders, total } = res.data;
-            setOrders(orders);
+            setOrders(orders.orders);
             setPaginationOrders({ current: page, pageSize: limit, total });
         } catch (e) {
             console.error(e);
@@ -58,24 +59,30 @@ const CustomerAdmin: React.FC = () => {
     }
 
     useEffect(() => {
-        fetchCustomers(1, pagination.pageSize);
-        // setCustomers(mockCustomers);
+        fetchCustomers(pagination.current, pagination.pageSize);
     }, []);
 
     useEffect(() => {
         const timeout = setTimeout(() => {
-            fetchCustomers(1, pagination.pageSize);
+            fetchCustomers(pagination.current, pagination.pageSize);
         }, 500);
 
         return () => clearTimeout(timeout);
     }, [search]);
 
-    const openModal = (record: Customer) => {
-        fetchDetail(record.id);
-        fetchOrders(record.id, 1, pagination.pageSize);
-        // setCustomerDetail(mockDetail[0]);
-        // setOrders(mockOrders);
+    const openModal = async (record: Customer) => {
         setIsModalOpen(true);
+        setCustomerDetail(undefined);
+        setOrders([]);
+        setLoadingModal(true);
+        try {
+            await Promise.all([
+                fetchDetail(record.id),
+                fetchOrders(record.id, pagination.current, pagination.pageSize)
+            ]);
+        } finally {
+            setLoadingModal(false);
+        }
     };
 
     const getStatusColor = (statusName: string): string => {
@@ -95,25 +102,30 @@ const CustomerAdmin: React.FC = () => {
         },
         { title: "Tên khách hàng", dataIndex: "fullName", key: "fullName", align: "center" as const,
             showSorterTooltip: false,
-            sorter: (a: Customer, b: Customer) => a.fullName.localeCompare(b.fullName),
-            render: (_: any, record: Customer) => record.fullName
+            sorter: (a: Customer, b: Customer) => a.fullName.localeCompare(b.fullName)
         },
         { title: "Email", dataIndex: "email", key: "email", align: "center" as const,
             showSorterTooltip: false,
             sorter: (a: Customer, b: Customer) => a.email.localeCompare(b.email)
         },
-        { title: "Giới tính", dataIndex: "gender", key: "gender", align: "center" as const,
+        { title: "Giới tính", key: "gender", align: "center" as const,
             showSorterTooltip: false,
-            sorter: (a: Customer, b: Customer) => a.gender.localeCompare(b.gender) 
+            sorter: (a: Customer, b: Customer) => (a.gender ?? "").localeCompare(b.gender ?? ""),
+            render: (_: any, record: Customer) => (record.gender ?? "")
         },
         { title: "Ngày sinh", dataIndex: "dob", key: "dob", align: "center" as const,
             showSorterTooltip: false,
-            sorter: (a: Customer, b: Customer) => new Date(a.dob).getTime() - new Date(b.dob).getTime(),
-            render: (d: string) => dayjs(d).format("DD/MM/YYYY")
+            sorter: (a: any, b: any) => {
+                const da = a.dob ? new Date(a.dob).getTime() : 0;
+                const db = b.dob ? new Date(b.dob).getTime() : 0;
+                return da - db;
+            },
+            render: (d?: string | null) => (d ? dayjs(d).format("DD/MM/YYYY") : ""),
         },
         { title: "Số điện thoại", dataIndex: "phoneNumber", key: "phoneNumber", align: "center" as const,
             showSorterTooltip: false,
-            sorter: (a: Customer, b: Customer) => a.phoneNumber.localeCompare(b.phoneNumber) 
+            sorter: (a: Customer, b: Customer) => (a.phoneNumber ?? "").localeCompare(b.phoneNumber ?? ""),
+            render: (_: any, record: Customer) => (record.phoneNumber ?? "")
         },
         {
             title: "Trạng thái",
@@ -174,20 +186,11 @@ const CustomerAdmin: React.FC = () => {
     ];
 
     const columnsOrder = [
-        {
-            title: "Mã đơn",
-            dataIndex: "id",
-            align: "center" as const,
+        { title: "Mã đơn", dataIndex: "id", align: "center" as const },
+        {   title: "Ngày đặt", dataIndex: "orderDate", align: "center" as const,
+            render: (d: string) => dayjs(d).format("DD/MM/YYYY HH:mm"),
         },
-        {
-            title: "Ngày đặt",
-            dataIndex: "orderDate",
-            align: "center" as const,
-            render: (v: string) =>
-                dayjs(v).format("DD/MM/YYYY HH:mm"),
-        },
-        {
-            title: "Trạng thái",
+        {   title: "Trạng thái",
             dataIndex: ["orderStatus", "name"],
             align: "center" as const,
             render: (status: string) => (
@@ -201,10 +204,8 @@ const CustomerAdmin: React.FC = () => {
         },
         {
             title: "Tổng tiền",
-            dataIndex: "total",
             align: "center" as const,
-            render: (total: number) =>
-                `${total?.toLocaleString?.() ?? "0"}đ`,
+            render: (_: any, record: any) => `${record?.bills?.[0]?.total?.toLocaleString?.("vi-VN") ?? "0"}đ`,
         }
     ];
 
@@ -246,43 +247,43 @@ const CustomerAdmin: React.FC = () => {
                 footer={null}
                 width={1000}
             >
-                {customerDetail && (
+                <Spin spinning={loadingModal} tip="Đang tải dữ liệu khách hàng...">
+                    {customerDetail ? (
                     <div className="customer-detail">
                         <h3 className="mt-4">Địa chỉ</h3>
                         <Table
-                            size="small"
-                            dataSource={customerDetail.addresses.map((addr, index) => ({
-                                ...addr,
-                                isDefault: index === 0,
-                            }))}
-                            pagination={false}
-                            rowKey="id"
-                            columns={columnsAddress}
+                        size="small"
+                        dataSource={customerDetail.addresses.map((addr, index) => ({
+                            ...addr,
+                            isDefault: index === 0,
+                        }))}
+                        pagination={false}
+                        rowKey="id"
+                        columns={columnsAddress}
                         />
 
                         <h3 className="mt-5">Đơn hàng</h3>
                         <Table
-                            size="small"
-                            dataSource={
-                                (orders.find(o => o.id === customerDetail.id)?.orders || [])
-                                    .map(order => ({
-                                        ...order,
-                                        total: order.bills.total
-                                    }))
-                            }
-                            rowKey="id"
-                            columns={columnsOrder}
-                            pagination={{
-                                current: paginationOrders.current,
-                                pageSize: paginationOrders.pageSize,
-                                total: paginationOrders.total
-                            }}
-                            onChange={(newPag) => {
-                                fetchOrders(customerDetail.id, newPag.current, newPag.pageSize);
-                            }}
-                                    />
-                                </div>
-                            )}
+                        size="small"
+                        dataSource={orders}
+                        columns={columnsOrder}
+                        rowKey="id"
+                        pagination={{
+                            current: paginationOrders.current,
+                            pageSize: paginationOrders.pageSize,
+                            total: paginationOrders.total,
+                        }}
+                        onChange={(newPag) => {
+                            fetchOrders(customerDetail.id, newPag.current, newPag.pageSize);
+                        }}
+                        />
+                    </div>
+                    ) : (
+                    <div style={{ textAlign: "center", padding: "40px 0" }}>
+                        <Spin tip="Đang tải dữ liệu..." />
+                    </div>
+                    )}
+                </Spin>
             </Modal>
         </div>
     );

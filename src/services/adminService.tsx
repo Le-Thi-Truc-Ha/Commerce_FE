@@ -67,11 +67,17 @@ export const orderApi = {
     },
     async getBill(id: number) {
         return axios.get("/admin/bill", { params: { id }});
+    },
+    async getHistories(id: number) {
+        return axios.get("/admin/order-histories", { params: { id }});
+    },
+    async update(id: number, status: number, note?: string) {
+        return axios.get("/admin/order-update-status", { params: { id, status, note }});
     }
 };
 
 export const customerApi = {
-    async getAll(page: number, limit: number, search: string) {
+    async getAll(page: number, limit: number, search?: string) {
         return axios.get("/admin/customers", { params: { page, limit, search }});
     },
     async getDetail(id: number) {
