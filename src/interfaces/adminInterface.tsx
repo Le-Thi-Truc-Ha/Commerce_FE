@@ -134,10 +134,10 @@ export interface Customer {
     id: number;
     fullName: string;
     email: string;
-    gender: string;
-    dob: string;
+    gender?: string;
+    dob?: string;
     status: number;
-    phoneNumber: string;
+    phoneNumber?: string;
 }
 
 export interface Address {

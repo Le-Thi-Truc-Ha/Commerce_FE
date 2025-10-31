@@ -353,10 +353,11 @@ const ProductAdmin: React.FC = () => {
                 >
                 {   
                     categories.map((cat) => (
-                    <Option key={cat.id} value={cat.name}>
-                        {cat.name}
-                    </Option>
-                ))}
+                        <Option key={cat.id} value={cat.name}>
+                            {cat.name}
+                        </Option>
+                    ))
+                }
                 </Select>
                 <Select
                     placeholder="Giá"

@@ -164,7 +164,7 @@ const OrderAdmin: React.FC = () => {
             align: "center" as const,
             showSorterTooltip: false,
             sorter: (a: Order, b: Order) => a.address.address.localeCompare(b.address.address),
-            render: (_: any, record: Order) => record.address.address
+            render: (_: any, record: Order) => record.address.address.replace(/=/g, ", ")
         },
         {
             title: "Thao tác",
@@ -298,10 +298,10 @@ const OrderAdmin: React.FC = () => {
                             {orderBill?.orderStatus.name}
                         </Descriptions.Item>
                         <Descriptions.Item label="Địa chỉ" span={2}>
-                            {orderBill?.address.address}
+                            {orderBill?.address.address.replace(/=/g, ", ")}
                         </Descriptions.Item>
                         <Descriptions.Item label="Phương thức thanh toán" span={2}>
-                            {orderBill?.bills[0].paymentMethod}
+                            {orderBill?.bills[0].paymentMethod == "1" ? "Chuyển khoản" : "Tiền mặt"}
                         </Descriptions.Item>
                         <Descriptions.Item label="Thời gian thanh toán" span={2}>
                             {orderBill?.bills[0].paymentTime
@@ -309,7 +309,9 @@ const OrderAdmin: React.FC = () => {
                                 : "Chưa thanh toán"}
                         </Descriptions.Item>
                         <Descriptions.Item label="Thời gian xuất hóa đơn" span={2}>
-                            {dayjs(orderBill?.bills[0].invoiceTime).format("DD/MM/YYYY HH:mm")}
+                            {dayjs(orderBill?.bills?.[0]?.invoiceTime).isValid()
+                                ? dayjs(orderBill?.bills?.[0]?.invoiceTime).format("DD/MM/YYYY HH:mm")
+                                : ""}
                         </Descriptions.Item>
                     </Descriptions>
 

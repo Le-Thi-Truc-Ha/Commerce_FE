@@ -10,7 +10,7 @@ const PublicRoute = ({children}: PublicRouteProps): JSX.Element => {
     const {user, pathBeforeLogin} = useContext(UserContext);
     if (user.isAuthenticated) {
         if (user.roleId == 1) {
-            return <Navigate to="/admin/product" replace />
+            return <Navigate to="/admin" replace />
         }
         return <Navigate to={pathBeforeLogin} replace />
     }

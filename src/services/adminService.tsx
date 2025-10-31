@@ -71,7 +71,7 @@ export const orderApi = {
 };
 
 export const customerApi = {
-    async getAll(page: number, limit: number, search: string) {
+    async getAll(page: number, limit: number, search?: string) {
         return axios.get("/admin/customers", { params: { page, limit, search }});
     },
     async getDetail(id: number) {
