@@ -204,4 +204,16 @@
     }
 }
 
+.my-textarea {
+    &:hover,
+    &:focus {
+        border-color: black !important;
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2) !important;
+    }
+}
 
+#my-modal {
+  background: white !important;
+  color: #000 !important;
+  font-family: "Arial", sans-serif !important;
+}
