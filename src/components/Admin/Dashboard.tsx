@@ -128,7 +128,7 @@ const Dashboard = (): JSX.Element => {
                                                     dataKey="value"
                                                     nameKey="name"
                                                     outerRadius={90}
-                                                    label={({ name, value }) => `${name} (${value}) triệu đ`}
+                                                    label={({ name, value }) => `${name}: ${value} triệu đ`}
                                                 >
                                                     {categoryData?.map((_, index) => (
                                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
