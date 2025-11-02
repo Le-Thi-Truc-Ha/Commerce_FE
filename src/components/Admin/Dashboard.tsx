@@ -128,14 +128,14 @@ const Dashboard = (): JSX.Element => {
                                                     dataKey="value"
                                                     nameKey="name"
                                                     outerRadius={90}
-                                                    label={({ name, value }) => `${name} (${value}) triệu đ`}
+                                                    label={({ name, value }) => `${name}: ${(value as number).toLocaleString("vi-VN")}đ`}
                                                 >
                                                     {categoryData?.map((_, index) => (
                                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                     ))}
                                                 </Pie>
                                                 <Tooltip 
-                                                    formatter={(value: number) => `${value} triệu đ`}
+                                                    formatter={(value: number) => `${value.toLocaleString("vi-VN")}đ`}
                                                     labelFormatter={(name: string) => `Danh mục: ${name}`}
                                                 />
                                                 <Legend
