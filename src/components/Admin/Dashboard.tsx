@@ -118,34 +118,33 @@ const Dashboard = (): JSX.Element => {
                                 </Card>
                             </div>
 
-                            <div className="col-md-4">
-                                <Card title="Doanh thu theo danh mục / Năm">
-                                    <div style={{ width: "100%", height: 300 }}>
-                                        <ResponsiveContainer>
-                                            <RePieChart>
-                                                <Pie
-                                                    data={categoryData}
-                                                    dataKey="value"
-                                                    nameKey="name"
-                                                    outerRadius={90}
-                                                    label={({ name, value }) => `${name}: ${(value as number).toLocaleString("vi-VN")}đ`}
-                                                >
-                                                    {categoryData?.map((_, index) => (
-                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                    ))}
-                                                </Pie>
-                                                <Tooltip 
-                                                    formatter={(value: number) => `${value.toLocaleString("vi-VN")}đ`}
-                                                    labelFormatter={(name: string) => `Danh mục: ${name}`}
-                                                />
-                                                <Legend
-                                                    verticalAlign="bottom"
-                                                    align="center"
-                                                    iconType="circle"
-                                                    iconSize={10}
-                                                />
-                                            </RePieChart>
+                            <div className="col-md-4" style={{ minWidth: 0, minHeight: 0 }}>
+                                <Card title="Doanh thu theo danh mục">
+                                    <div style={{ width: "100%", height: 300, minWidth: 0, minHeight: 0 }}>
+                                    {categoryData?.length > 0 ? (
+                                        <ResponsiveContainer width="100%" height="100%">
+                                        <RePieChart>
+                                            <Pie
+                                            data={categoryData}
+                                            dataKey="value"
+                                            nameKey="name"
+                                            outerRadius={90}
+                                            label={({ name, value }) => `${name}: ${(value as number).toLocaleString("vi-VN")}đ`}
+                                            >
+                                            {categoryData.map((_, i) => (
+                                                <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                                            ))}
+                                            </Pie>
+                                            <Tooltip
+                                            formatter={(v: number) => `${v.toLocaleString("vi-VN")}đ`}
+                                            labelFormatter={(n: string) => `Danh mục: ${n}`}
+                                            />
+                                            <Legend verticalAlign="bottom" align="center" iconType="circle" iconSize={10} />
+                                        </RePieChart>
                                         </ResponsiveContainer>
+                                    ) : (
+                                        <div style={{ textAlign: "center", paddingTop: 100 }}>Không có dữ liệu</div>
+                                    )}
                                     </div>
                                 </Card>
                             </div>
