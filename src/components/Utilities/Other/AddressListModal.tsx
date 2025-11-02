@@ -80,61 +80,73 @@ const AddressListModal = ({open, setOpen, setName, setPhone, setDetailAddress, s
                 footer={null}
                 centered={true}
                 maskClosable={false}
-                // loading={skeletonLoading}
+                loading={skeletonLoading}
                 width={"800px"}
             >
                 <div style={{position: "relative"}}>
-                    <Row style={{maxHeight: "400px", overflowY: "auto", marginRight: "-24px"}}>
-                        {
-                            addressList.map((item, index) => (
-                                <Col 
-                                    span={12} 
-                                    key={index} 
-                                    style={{
-                                        cursor: "pointer", 
-                                        paddingTop: "10px", 
-                                        paddingBottom: "10px", 
-                                        paddingRight: `${index % 2 == 0 ? "20px" : "20px"}`, 
-                                        paddingLeft: `${index % 2 == 1 ? "20px" : "0px"}`,
-                                        borderTop: `${(index > 1) && "1px solid rgba(0, 0, 0, 0.3)"}`,
-                                        borderRight: `${(index % 2 == 0) && "1px solid rgba(0, 0, 0, 0.3)"}`
-                                    }} 
-                                    onClick={() => {
-                                        changeAddress(index);
-                                        setOpen(false);
-                                    }}
-                                >
-                                    <Row style={{display: "flex", alignItems: "center"}}>
-                                        <Col span={24}>
-                                            <div style={{display: "flex", alignItems: "center"}}>
-                                                <div>{item.name}</div>
-                                                <ConfigProvider
-                                                    theme={{
-                                                        components: {
-                                                            Divider: {
-                                                                colorSplit: "rgba(0, 0, 0, 0.5)",
-                                                            }
+                    {
+                        addressList.length == 0 ? (
+                            <div style={{display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", marginTop: "-50px"}}>
+                                <div style={{width: "80%", height: "400px", overflow: "hidden", opacity: 0.5}}>
+                                    <img style={{width: "100%", height: "100%", objectFit: "contain"}} src="https://res.cloudinary.com/dibigdhgr/image/upload/v1761826838/location-map_pwm3rc.png" />
+                                </div>
+                                <div style={{fontSize: "20px"}}>Chưa có địa chỉ nào được lưu</div>
+                            </div>
+                        ) : (
+                            <Row style={{maxHeight: "400px", overflowY: "auto", marginRight: "-24px"}}>
+                                {
+                                    addressList.map((item, index) => (
+                                        <Col 
+                                            span={12} 
+                                            key={index} 
+                                            style={{
+                                                cursor: "pointer", 
+                                                paddingTop: "10px", 
+                                                paddingBottom: "10px", 
+                                                paddingRight: `${index % 2 == 0 ? "20px" : "20px"}`, 
+                                                paddingLeft: `${index % 2 == 1 ? "20px" : "0px"}`,
+                                                borderTop: `${(index > 1) && "1px solid rgba(0, 0, 0, 0.3)"}`,
+                                                borderRight: `${(index % 2 == 0) && "1px solid rgba(0, 0, 0, 0.3)"}`
+                                            }} 
+                                            onClick={() => {
+                                                changeAddress(index);
+                                                setOpen(false);
+                                            }}
+                                        >
+                                            <Row style={{display: "flex", alignItems: "center"}}>
+                                                <Col span={24}>
+                                                    <div style={{display: "flex", alignItems: "center"}}>
+                                                        <div>{item.name}</div>
+                                                        <ConfigProvider
+                                                            theme={{
+                                                                components: {
+                                                                    Divider: {
+                                                                        colorSplit: "rgba(0, 0, 0, 0.5)",
+                                                                    }
+                                                                }
+                                                            }}
+                                                        >
+                                                        <Divider type="vertical"/>
+                                                        </ConfigProvider>
+                                                        <div style={{paddingRight: "30px"}}>{item.phone}</div>
+                                                        {
+                                                            addressDefault == item.id && (
+                                                                <div style={{color: "var(--color6)", border: "1px solid var(--color6)", padding: "2px 5px"}}>Mặc định</div>
+                                                            )
                                                         }
-                                                    }}
-                                                >
-                                                <Divider type="vertical"/>
-                                                </ConfigProvider>
-                                                <div style={{paddingRight: "30px"}}>{item.phone}</div>
-                                                {
-                                                    addressDefault == item.id && (
-                                                        <div style={{color: "var(--color6)", border: "1px solid var(--color6)", padding: "2px 5px"}}>Mặc định</div>
-                                                    )
-                                                }
-                                            </div>
-                                            <div>{item.address.split("=")[0]}</div>
-                                            <div>{item.address.split("=")[1]}</div>
+                                                    </div>
+                                                    <div>{item.address.split("=")[0]}</div>
+                                                    <div>{item.address.split("=")[1]}</div>
+                                                </Col>
+                                            </Row>
                                         </Col>
-                                    </Row>
-                                </Col>
-                            ))
-                        }
-                    </Row>
-                    <div style={{position: "absolute", top: "-13px", right: "-13px", cursor: "pointer"}} onClick={() => {setOpen(false)}}>
+                                    ))
+                                }
+                            </Row>
+                        )
+                    }
+                    
+                    <div style={{position: "absolute", top: `${addressList.length > 0 ? "-13px" : "40px"}`, right: "-13px", cursor: "pointer"}} onClick={() => {setOpen(false)}}>
                         <X size={30} strokeWidth={1} />
                     </div>
                 </div>

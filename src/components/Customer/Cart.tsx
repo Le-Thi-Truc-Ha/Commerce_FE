@@ -31,6 +31,7 @@ const Cart = (): JSX.Element => {
     const [openAddCart, setOpenAddCart] = useState<boolean>(false);
     const [itemChange, setItemChange] = useState<{productId: number, variantId: number, quantity: number, cartId: number, indexOfCart: number}>({productId: -1, variantId: -1, quantity: -1, cartId: -1, indexOfCart: -1})
     const [originalPrice, setOriginalPrice] = useState<number>(0);
+    const [productIdDelete, setProductIdDelete] = useState<number>(-1);
 
     useEffect(() => {
         getProductInCart()
@@ -125,23 +126,26 @@ const Cart = (): JSX.Element => {
         }
     }
 
-    const deleteCart = async (type: string, cartId: number) => {
+    const deleteCart = async (type: string, cartId: number, productId: number) => {
         setOpenDelete(false);
         setDeleteLoading(true);
         try {
             let cartIdArray: number[] = [];
+            let productIdArray: number[] = [];
             if (type == "only") {
-                cartIdArray = [cartId]
+                cartIdArray = [cartId];
+                productIdArray = [productId];
             } else {
                 for (let i = 0; i < itemSelect.length; i++) {
                     if (itemSelect[i]) {
                         cartIdArray.push(productList[i].cartId)
+                        productIdArray.push(productList[i].productId);
                     }
                 }
             }
 
             const take = productList.length == totalRecord ? -1 : productList.length
-            const result = await deleteProductInCartApi(cartIdArray, take, dayjs().toISOString());
+            const result = await deleteProductInCartApi(cartIdArray, productIdArray, take, dayjs().toISOString());
             if (result.code == 0) {
                 let newProduct = productList.filter((item) => (!cartIdArray.includes(item.cartId)))
                 newProduct = [...newProduct, ...result.data.product]
@@ -277,6 +281,7 @@ const Cart = (): JSX.Element => {
                                                                                 setCartIdDelete(item.cartId);
                                                                                 setTypeDelete("only");
                                                                                 setOpenDelete(true);
+                                                                                setProductIdDelete(item.productId)
                                                                             }}
                                                                         >
                                                                             Xóa
@@ -380,6 +385,7 @@ const Cart = (): JSX.Element => {
                                                     setCartIdDelete(-1);
                                                     setTypeDelete("all");
                                                     setOpenDelete(true);
+                                                    setProductIdDelete(-1);
                                                 }}
                                                 disabled={!itemSelect.find((item) => (item == true))}
                                             >
@@ -430,7 +436,7 @@ const Cart = (): JSX.Element => {
                     content="Bạn chắc chắn muốn xóa sản phẩm khỏi giỏ hàng?"
                     handleOk={() => {
                         setOpenDelete(false);
-                        deleteCart(typeDelete, cartIdDelete);
+                        deleteCart(typeDelete, cartIdDelete, productIdDelete);
                     }}
                     handleCancel={() => {setOpenDelete(false)}}
                 />

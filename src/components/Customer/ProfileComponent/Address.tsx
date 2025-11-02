@@ -6,7 +6,8 @@ import { messageService, type BackendResponse } from "../../../interfaces/appInt
 import Loading from "../../Other/Loading";
 import * as customerService from "../../../services/customerService";
 import type { AddressInformation } from "../../../interfaces/customerInterface";
-import { ArchiveX } from "lucide-react";
+import "./Profile.scss";
+import LoadingModal from "../../Other/LoadingModal";
 
 const Address = (): JSX.Element => {
     const {user} = useContext(UserContext);
@@ -84,20 +85,59 @@ const Address = (): JSX.Element => {
                     <Row gutter={[30, 25]}>
                         {
                             addressList.length > 0 && (
-                                <Col span={24}>
-                                    <Checkbox 
-                                        checked={selectAll} 
-                                        onChange={(event) => {
-                                            setSelectAll(event.target.checked)
-                                            if (event.target.checked) {
-                                                setAddressSelect(Array(addressList.length).fill(true));
-                                            } else {
-                                                setAddressSelect(Array(addressList.length).fill(false));
+                                <Col span={24} style={{display: "flex", alignItems: "center"}}>
+                                    <Row style={{width: "100%"}}>
+                                        <Col span={1}>
+                                            <Checkbox 
+                                                checked={selectAll} 
+                                                onChange={(event) => {
+                                                    setSelectAll(event.target.checked)
+                                                    if (event.target.checked) {
+                                                        setAddressSelect(Array(addressList.length).fill(true));
+                                                    } else {
+                                                        setAddressSelect(Array(addressList.length).fill(false));
+                                                    }
+                                                }} 
+                                            />
+                                        </Col>
+                                        <Col span={23} style={{display: "flex", alignItems: "center"}}>
+                                            <div 
+                                                style={{cursor: "pointer"}} 
+                                                onClick={() => {
+                                                    setSelectAll(prev => !prev);
+                                                    setAddressSelect(Array(addressList.length).fill(!selectAll));
+                                                }}
+                                                className="text-underline"
+                                            >
+                                                Chọn tất cả
+                                            </div>
+                                            <div style={{width: "15px", borderRight: "1px solid rgba(0, 0, 0, 0.6)", height: "100%"}}></div>
+                                            <div style={{width: "15px", height: "100%"}}></div>
+                                            <div
+                                                onClick={() => {
+                                                    setOpenCreateModal(true);
+                                                    setMode("create")
+                                                }}
+                                                className="text-underline"
+                                            >
+                                                Thêm địa chỉ
+                                            </div>
+                                            {
+                                                addressSelect.find((item) => (item == true)) && (
+                                                    <>
+                                                        <div style={{width: "15px", borderRight: "1px solid rgba(0, 0, 0, 0.6)", height: "100%"}}></div>
+                                                        <div style={{width: "15px", height: "100%"}}></div>
+                                                        <div 
+                                                            className="text-delete"
+                                                            onClick={() => {deleteAddress()}}
+                                                        >
+                                                            Xóa
+                                                        </div>
+                                                    </>
+                                                )
                                             }
-                                        }} 
-                                    >
-                                        <div style={{paddingLeft: "22px"}}>Chọn tất cả</div>
-                                    </Checkbox>
+                                        </Col>
+                                    </Row>
                                 </Col>
                             )
                         }
@@ -155,44 +195,29 @@ const Address = (): JSX.Element => {
                         }
                     </Row>
                 </Col>
-                <Col span={24} style={{display: "flex", justifyContent: "center", position: "relative"}}>
-                    {
-                        addressSelect.includes(true) && (
+                {
+                    addressList.length == 0 && (
+                        <Col span={24} style={{display: "flex", justifyContent: "center", position: "relative", paddingTop: "400px"}}>
                             <Button
                                 variant="solid"
-                                color="danger"
+                                color="primary"
                                 size="large"
-                                style={{marginRight: "20px"}}
-                                onClick={() => {deleteAddress()}}
+                                onClick={() => {
+                                    setOpenCreateModal(true);
+                                    setMode("create")
+                                }}
                             >
-                                Xóa
+                                Thêm địa chỉ
                             </Button>
-                        )
-                    }
-                    <Button
-                        style={{zIndex: 2, boxShadow: `${addressList.length == 0 ? "0 0 10px 2px rgba(0, 0, 0, 0.3)" : ""}`}}
-                        variant="solid"
-                        color="primary"
-                        size="large"
-                        disabled={addressList.length >= 10 ? true : false}
-                        onClick={() => {
-                            setOpenCreateModal(true);
-                            setMode("create")
-                        }}
-                    >
-                        Thêm địa chỉ
-                    </Button>
-                    {
-                        addressList.length == 0 && (
-                            <div style={{position: "absolute", top: "0px", zIndex: 1, transform: "translateY(-50%)", display: "flex", flexDirection: "column", alignItems: "center"}}>
+                            <div style={{position: "absolute", top: "210px", zIndex: 1, transform: "translateY(-50%)", display: "flex", flexDirection: "column", alignItems: "center"}}>
                                 <div style={{width: "300px", height: "300px", overflow: "hidden"}}>
-                                    <img style={{width: "100%", height: "100%", objectFit: "cover", opacity: 0.3, filter: "blur(3px)"}} src="https://res.cloudinary.com/dibigdhgr/image/upload/v1760129523/no-data_q4r0yj.png" />
+                                    <img style={{width: "100%", height: "100%", objectFit: "cover", opacity: 0.7, filter: "blur(1px)"}} src="https://res.cloudinary.com/dibigdhgr/image/upload/v1761826838/location-map_pwm3rc.png" />
                                 </div>
-                                <div style={{color: "rgba(0, 0, 0, 0.6)", fontSize: "25px"}}>Không có dữ liệu</div>
+                                <div style={{color: "rgba(0, 0, 0, 0.6)", fontSize: "25px"}}>Chưa có địa chỉ nào được lưu</div>
                             </div>
-                        )
-                    }
-                </Col>
+                        </Col>
+                    )
+                }
             </Row>
             <CreateAddressModal 
                 openModal={openCreateModal}
@@ -203,11 +228,10 @@ const Address = (): JSX.Element => {
                 setMode={setMode}
                 setAddressDefault={setAddressDefault}
             />
-            {
-                (getAllAddressLoading || deleteAddressLoading) && (
-                    <Loading />
-                )
-            }
+            <LoadingModal 
+                open={deleteAddressLoading}
+                message="Đang xóa"
+            />
         </>
     )
 }

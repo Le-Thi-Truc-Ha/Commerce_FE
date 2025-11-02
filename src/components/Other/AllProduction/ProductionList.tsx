@@ -42,7 +42,6 @@ const ProductList = (): JSX.Element => {
                         [...prev, ...productDataProcess(rawData)]
                     ))
                 }
-                
                 setSkeletonLoading(false);
                 setModalLoading(false);
             } else {

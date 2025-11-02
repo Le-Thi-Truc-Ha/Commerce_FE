@@ -2,7 +2,7 @@ import type { Dispatch, SetStateAction } from "react";
 import axios from "../configs/axios";
 import type { UserType } from "../configs/globalVariable";
 import { messageService, type BackendResponse } from "../interfaces/appInterface";
-import type { FavouriteListProps, RawFavourite } from "../interfaces/customerInterface";
+import type { AddressInformation, CartProduct, FavouriteListProps, RawFavourite } from "../interfaces/customerInterface";
 import type { NavigateFunction } from "react-router-dom";
 import axiosPackage from "axios";
 
@@ -68,9 +68,9 @@ export const getHistoryListApi = (accountId: number, currentPage: number): Promi
     return axios.get(`/customer/get-all-history?accountId=${accountId}&page=${currentPage}`)
 }
 
-export const addCartApi = (accountId: number, productVariantId: number, quantity: number, now: string): Promise<BackendResponse> => {
+export const addCartApi = (accountId: number, productId: number[], productVariantId: number[], quantity: number[], now: string): Promise<BackendResponse> => {
     return axios.post("/customer/add-cart", {
-        accountId, productVariantId, quantity, now
+        accountId, productId, productVariantId, quantity, now
     })
 }
 
@@ -86,9 +86,9 @@ export const updateQuantityCartApi = (quantityCart: {cartId: number, quantityUpd
     })
 }
 
-export const deleteProductInCartApi = (cartId: number[], take: number, now: string): Promise<BackendResponse> => {
+export const deleteProductInCartApi = (cartId: number[], productId: number[], take: number, now: string): Promise<BackendResponse> => {
     return axios.post("/customer/delete-product-in-cart", {
-        cartId, take, now
+        cartId, productId, take, now
     })
 }
 
@@ -113,6 +113,44 @@ export const getAddressAndFeeApi = (accountId: number): Promise<BackendResponse>
 export const getVoucherApi = (accountId: number, productId: number[], totalPrice: number): Promise<BackendResponse> => {
     return axios.post("/customer/get-voucher", {
         accountId, productId, totalPrice
+    })
+}
+
+export const orderProductApi = (
+    accountId: number, productOrder: CartProduct[], address: AddressInformation,
+    totalPrice: number, orderDate: string, note: string, 
+    voucherUse: {
+        productVoucher: {voucherId: number, voucherCode: string, productId: number[]} | null,
+        shipVoucher: {voucherId: number, voucherCode: string} | null 
+    }, 
+    shippingFeeId: number, paymentMethod: number, finalPrice: number
+): Promise<BackendResponse> => {
+    return axios.post("/customer/order-product", {
+        accountId, productOrder, address, totalPrice, orderDate, note, voucherUse, shippingFeeId, paymentMethod, finalPrice
+    })
+}
+
+export const getOrderListApi = (accountId: number, status: number[], page: number): Promise<BackendResponse> => {
+    return axios.post("/customer/get-order-list", {
+        accountId, status, page
+    })
+}
+
+export const getOrderDetailApi = (accountId: number, orderId: number): Promise<BackendResponse> => {
+    return axios.post("/customer/get-order-detail", {
+        accountId, orderId
+    })
+}
+
+export const confirmReceiveProductApi = (orderId: number, now: string): Promise<BackendResponse> => {
+    return axios.post("/customer/confirm-receive-product", {
+        orderId, now
+    })
+}
+
+export const returnProductApi = (orderId: number, take: number, now: string, accountId: number, status: number[], reason: string, mode: string, productId: number[], productVariantId: number[], quantity: number[]): Promise<BackendResponse> => {
+    return axios.post("/customer/return-product", {
+        orderId, take, now, accountId, status, reason, mode, productId, productVariantId, quantity
     })
 }
 
@@ -204,28 +242,33 @@ export const deleteFavourite = async (
 
 export const addCart = async (
     user: UserType,
-    sizeSelect: string,
-    colorSelect: string,
-    variantId: number,
-    quantitySelect: number,
+    sizeSelect: string[],
+    colorSelect: string[],
+    variantId: number[],
+    quantitySelect: number[],
+    productId: number[],
     setCart: Dispatch<SetStateAction<number>>,
     setPathBeforeLogin: (value: string) => void,
     navigate: NavigateFunction,
     setModalLoading: Dispatch<SetStateAction<boolean>>,
-    now: string
+    now: string,
+    buyAgain: boolean
 ) => {
     if (user.isAuthenticated) {
-        if (sizeSelect == "" || colorSelect == "") {
+        if (sizeSelect.length > 0 && sizeSelect.find((item) => (item == "")) || colorSelect.length > 0 && colorSelect.find((item) => (item == ""))) {
             messageService.error("Chọn phân loại sản phẩm")
         } else {
             setModalLoading(true);
             try {
-                const result: BackendResponse = await addCartApi(user.accountId, variantId, quantitySelect, now);
+                const result: BackendResponse = await addCartApi(user.accountId, productId, variantId, quantitySelect, now);
                 setModalLoading(false);
                 if (result.code == 0) {
                     messageService.success(result.message);
                     if (result.data) {
-                        setCart(prev => prev + 1)
+                        setCart(prev => prev + variantId.length)
+                    }
+                    if (buyAgain) {
+                        navigate("/customer/cart")
                     }
                 } else if (result.code == 2) {
                     messageService.error(result.message);
