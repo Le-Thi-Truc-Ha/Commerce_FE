@@ -22,7 +22,7 @@ const { TextArea } = Input;
 const OrderAdmin: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [status, setStatus] = useState<Status[]>([]);
-    const [histories, steHistories] = useState<OrderHistory[]>([]);
+    const [histories, setHistories] = useState<OrderHistory[]>([]);
     const [orderBill, setOrderBill] = useState<OrderBill>();
     const [selectedStatus, setSelectedStatus] = useState<number | undefined>();
     const [loading, setLoading] = useState(false);
@@ -82,7 +82,7 @@ const OrderAdmin: React.FC = () => {
         try {
             const res = await orderApi.getHistories(id);
             const histories = res.data;
-            steHistories(histories);
+            setHistories(histories);
         } catch (e) {
             console.error(e);
             messageService.error("Lỗi khi tải lịch sử trạng thái đơn hàng!");
@@ -109,6 +109,8 @@ const OrderAdmin: React.FC = () => {
     };
 
     const handleEdit = (record: Order) => {
+        setNote("");
+        setHistories([]);
         setEditingOrder(record);
         setNewStatus(record.orderStatus.id);
         setIsEditModalVisible(true);
@@ -131,7 +133,9 @@ const OrderAdmin: React.FC = () => {
     const handleSave = async () => {
         try {
             setSaving(true);
-            if (editingOrder && newStatus && currentStatus != newStatus) {
+            if (currentStatus == newStatus){
+                messageService.error("Chưa có thay đổi trạng thái!");
+            } else if (editingOrder && newStatus) {
                 await orderApi.update(editingOrder.id, newStatus, note);
                 await fetchOrders(pagination.current, pagination.pageSize);
                 setIsEditModalVisible(false);
@@ -164,7 +168,7 @@ const OrderAdmin: React.FC = () => {
         if (normalized.includes("đã hủy")) return "red";
         if (normalized.includes("chờ") || normalized.includes("xác nhận")) return "orange";
         if (normalized.includes("đang giao")) return "blue";
-        if (normalized.includes("đã giao")) return "green";
+        if (normalized.includes("đã giao") || normalized.includes("đã nhận")) return "green";
         if (normalized.includes("hoàn")) return "purple";
         return "default";
     };
@@ -179,7 +183,8 @@ const OrderAdmin: React.FC = () => {
         } else if (currentStatus == 3) {
             return [
                 {value: 3, label: "Đang giao hàng"},
-                {value: 4, label: "Đã giao hàng"}
+                {value: 4, label: "Đã giao hàng"},
+                {value: 1, label: "Đã hủy"}
             ];
         }
     };

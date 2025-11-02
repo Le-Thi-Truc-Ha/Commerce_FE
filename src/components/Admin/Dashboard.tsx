@@ -8,7 +8,61 @@ const { Content } = Layout;
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28CFE", "#FF6699", "#33CC99"];
 
-function OrdersTable({ data }: { data: OrderDash[] }) {
+
+const Dashboard = (): JSX.Element => {
+    const [orders, setOrders] = useState<OrderDash[]>([]);
+    const [salesData, setSalesData] = useState<SalesDataDash[]>([]);
+    const [categoryData, setCategoryData] = useState<CategoryDash[]>([]);
+
+    const fetchRecentOrders = async () => {
+        try {
+            const res = await dashboardApi.getRecentOrders();
+            setOrders(res.data);
+        } catch (e) {
+            console.error(e);
+            message.error("Lỗi khi tải danh sách đơn hàng gần đây!");
+        } 
+    };
+
+    const fetchSales = async () => {
+        try {
+            const res = await dashboardApi.getSalesData();
+            setSalesData(res.data);
+        } catch (e) {
+            console.error(e);
+            message.error("Lỗi khi tải doanh thu bán hàng!");
+        }
+    };
+
+    const fetchCategoriesSale = async () => {
+        try {
+            const res = await dashboardApi.getCategoriesSale();
+            setCategoryData(res.data);
+        } catch (e) {
+            console.error(e);
+            message.error("Lỗi khi tải danh sách doanh thu theo danh mục!");
+        }
+    };
+
+    useEffect(() => {
+        fetchSales();
+        fetchCategoriesSale();
+        fetchRecentOrders();
+    }, []);
+
+    const totalRevenue = salesData ? salesData.reduce((s, r) => s + r.revenue, 0) : 0;
+    const totalOrders = salesData ? salesData.reduce((s, r) =>  s + r.orders, 0) : 0;
+
+    const getStatusColor = (statusName: string): string => {
+        const normalized = statusName.trim().toLowerCase();
+        if (normalized.includes("đã hủy")) return "red";
+        if (normalized.includes("chờ") || normalized.includes("xác nhận")) return "orange";
+        if (normalized.includes("đang giao")) return "blue";
+        if (normalized.includes("đã giao") || normalized.includes("đã nhận")) return "green";
+        if (normalized.includes("hoàn")) return "purple";
+        return "default";
+    };
+
     const columns = [
         { title: "ID", dataIndex: "id", key: "id", align: "center" as const,
             sorter: (a: OrderDash, b: OrderDash) => a.id - b.id,
@@ -26,66 +80,9 @@ function OrdersTable({ data }: { data: OrderDash[] }) {
             render: (d: string) => new Date(d).toLocaleDateString("vi-VN")},
         { title: "Trạng thái", dataIndex: "currentStatus", key: "currentStatus", align: "center" as const, showSorterTooltip: false,
             sorter: (a: OrderDash, b: OrderDash) => a.currentStatus - b.currentStatus,
-            render: (s: number) => {
-                const map: Record<number, { color: string; text: string }> = {
-                    0: { color: "red", text: "Đã hủy" },
-                    1: { color: "orange", text: "Đang chờ" },
-                    2: { color: "blue", text: "Đang chuẩn bị" },
-                    3: { color: "green", text: "Đã giao" },
-                    4: { color: "purple", text: "Đã hoàn" },
-                };
-                
-                return <Tag color={map[s]?.color || "default"}>{map[s]?.text || "Unknown"}</Tag>;
-            },
+            render: (s: string) => <Tag color={getStatusColor(s)} style={{ width: 100, textAlign: "center"}}>{s}</Tag>
         },
     ];
-
-    return <Table rowKey="id" columns={columns} dataSource={data} pagination={{ pageSize: 8 }} />;
-}
-
-const Dashboard = (): JSX.Element => {
-    const [orders, setOrders] = useState<OrderDash[]>([]);
-    const [salesData, setSalesData] = useState<SalesDataDash[]>([]);
-    const [categoryData, setCategoryData] = useState<CategoryDash[]>([]);
-
-    const fetchRecentOrders = async () => {
-        try {
-            const res = await dashboardApi.getRecentOrders();
-            setOrders(res.data.data);
-        } catch (e) {
-            console.error(e);
-            message.error("Lỗi khi tải danh sách đơn hàng gần đây!");
-        } 
-    };
-
-    const fetchSales = async () => {
-        try {
-            const res = await dashboardApi.getSalesData();
-            setSalesData(res.data.data);
-        } catch (e) {
-            console.error(e);
-            message.error("Lỗi khi tải doanh thu bán hàng!");
-        }
-    };
-
-    const fetchCategoriesSale = async () => {
-        try {
-            const res = await dashboardApi.getCategoriesSale();
-            setCategoryData(res.data.data);
-        } catch (e) {
-            console.error(e);
-            message.error("Lỗi khi tải danh sách doanh thu theo danh mục!");
-        }
-    };
-
-    useEffect(() => {
-        fetchSales();
-        fetchCategoriesSale();
-        fetchRecentOrders();
-    }, []);
-
-    const totalRevenue = salesData ? salesData.reduce((s, r) => s + r.revenue, 0) : 0;
-    const totalOrders = salesData ? salesData.reduce((s, r) =>  s + r.orders, 0) : 0;
 
     return (
         <Layout style={{ minHeight: "100vh" }}>
@@ -126,12 +123,16 @@ const Dashboard = (): JSX.Element => {
                                     <div style={{ width: "100%", height: 300 }}>
                                         <ResponsiveContainer>
                                             <RePieChart>
-                                                <Pie 
-                                                    data={categoryData} 
-                                                    dataKey="value" 
-                                                    nameKey="name" outerRadius={90} 
-                                                    label={(name: string, value: number) => `${name} (${value}) triệu đ`}>
-                                                    {categoryData?.map((_, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
+                                                <Pie
+                                                    data={categoryData}
+                                                    dataKey="value"
+                                                    nameKey="name"
+                                                    outerRadius={90}
+                                                    label={({ name, value }) => `${name} (${value}) triệu đ`}
+                                                >
+                                                    {categoryData?.map((_, index) => (
+                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                    ))}
                                                 </Pie>
                                                 <Tooltip 
                                                     formatter={(value: number) => `${value} triệu đ`}
@@ -153,7 +154,12 @@ const Dashboard = (): JSX.Element => {
                         <div className="row g-3">
                             <div className="col-12">
                                 <Card title="Đơn hàng gần đây">
-                                    <OrdersTable data={orders} />
+                                    <Table
+                                        rowKey="id" 
+                                        columns={columns} 
+                                        dataSource={orders}
+                                        pagination={false}
+                                    />
                                 </Card>
                             </div>
                         </div>
