@@ -1,12 +1,16 @@
-import { useEffect, useState, type JSX } from "react";
+import { useContext, useEffect, useState, type JSX } from "react";
 import { Button, Col, ConfigProvider, Input, Result, Row } from "antd";
 import { Search, X } from "lucide-react";
 import ProductionCard from "../Utilities/ProductionCard/ProductionCard";
 import { configProvider, messageService, type ProductionCardProps } from "../../interfaces/appInterface";
 import LoadingModal from "./LoadingModal";
 import { findProductApi, productDataProcess } from "../../services/appService";
+import { UserContext } from "../../configs/globalVariable";
+import { getSessionKey } from "../../configs/axios";
+import { setSessionKey } from "./Login";
 
 const SearchProduction = (): JSX.Element => {
+    const {user} = useContext(UserContext);
     const [findValue, setFindValue] = useState<string>("");
     const [hasSearch, setHasSearch] = useState<boolean>(false);
     const [modalLoading, setModalLoading] = useState<boolean>(false);
@@ -28,7 +32,7 @@ const SearchProduction = (): JSX.Element => {
             const productId = rawData ? JSON.parse(rawData).productId : null;
             const find = rawData ? JSON.parse(rawData).findValue : "";
             if (find == findValue) {
-                const result = await findProductApi(findValue, productId, currentPage);
+                const result = await findProductApi(user.isAuthenticated ? user.accountId : -1, findValue, productId, currentPage);
                 setFindResult(findValue)
                 if (result.code == 0) {
                     setHasSearch(true);
@@ -46,7 +50,7 @@ const SearchProduction = (): JSX.Element => {
                 }
             } else {
                 // Xử lý kết quả, lưu productId và findValue vào local storage
-                const result = await findProductApi(findValue, null, 1);
+                const result = await findProductApi(user.isAuthenticated ? user.accountId : -1, findValue, null, 1);
                 setFindResult(findValue)
                 if (result.code == 0) {
                     setCurrentPage(1);
@@ -57,6 +61,13 @@ const SearchProduction = (): JSX.Element => {
                     const payload = {findValue: findValue, productId: productId}
                     localStorage.setItem("findResult", JSON.stringify(payload))
                     setSeeMore(rawProduct.length < productId.length);
+                    console.log(result.data.uuid);
+                    if (!user.isAuthenticated) {
+                        const keyBeforeLogin = getSessionKey();
+                        if (!keyBeforeLogin) {
+                            setSessionKey(result.data.uuid, 30);
+                        }
+                    }
                 } else {
                     setModalLoading(false);
                     messageService.error(result.message)

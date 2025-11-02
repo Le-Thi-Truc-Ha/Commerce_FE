@@ -12,6 +12,7 @@ import LoadingModal from "./LoadingModal";
 import { addCart, addFavourite, deleteFavourite } from "../../services/customerService";
 import { getSessionKey } from "../../configs/axios";
 import { setSessionKey } from "./Login";
+import type { CartProduct } from "../../interfaces/customerInterface";
 
 export const RateValue = ({rate, size}: {rate: number, size: number}): JSX.Element => {
     const rateString = rate.toFixed(1);
@@ -337,7 +338,26 @@ const ProductionDetail = (): JSX.Element => {
             if (sizeSelect == "" || colorSelect == "") {
                 messageService.error("Chọn phân loại sản phẩm")
             } else {
-                
+                const parentCategory = location.pathname.split("/")[2];
+                const price = dataDetail.variant.find((item) => (item.id == variantId))?.price ?? 0
+                const productOrder: CartProduct[] = [{
+                    productId: dataDetail.id,
+                    productVariantId: variantId,
+                    cartId: 0,
+                    parentCategory: parentCategory,
+                    url: dataDetail.image[0],
+                    name: dataDetail.name,
+                    price: price,
+                    discount: dataDetail.percent ? Math.round((price * ((100 - dataDetail.percent) / 100)) / 1000) * 1000 : null,
+                    color: colorSelect,
+                    size: sizeSelect,
+                    quantityOrder: quantitySelect,
+                    quantity: quantityNumber ?? 0,
+                    statusCart: -1,
+                    statusProduct: 1
+                }]
+                localStorage.setItem("productOrder", JSON.stringify(productOrder))
+                navigate("/customer/pay")
             }
         } else {
             setPathBeforeLogin(location.pathname);
@@ -479,7 +499,7 @@ const ProductionDetail = (): JSX.Element => {
                                                                 color="primary"
                                                                 variant="outlined"
                                                                 style={{width: "50%"}}
-                                                                onClick={() => {addCart(user, sizeSelect, colorSelect, variantId, quantitySelect, setCart, setPathBeforeLogin, navigate, setModalLoading, dayjs().toISOString())}}
+                                                                onClick={() => {addCart(user, [sizeSelect], [colorSelect], [variantId], [quantitySelect], [dataDetail.id], setCart, setPathBeforeLogin, navigate, setModalLoading, dayjs().toISOString(), false)}}
                                                             >
                                                                 Thêm vào giỏ hàng
                                                             </Button>

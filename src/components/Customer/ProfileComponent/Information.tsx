@@ -95,10 +95,10 @@ const Information = (): JSX.Element => {
     }
 
     return getInformationLoading ? (
-        <Skeleton active paragraph={{rows: 10}} />
+        <Skeleton active paragraph={{rows: 10}} style={{padding: "80px 100px 0px"}} />
     ) : (
         <>
-            <Row className="information-container" gutter={[30, 40]}>
+            <Row className="information-container" gutter={[30, 40]} style={{paddingTop: "80px"}}>
                 <Col span={24}>
                     <Row gutter={[30, 0]} align="middle" justify="center">
                         <Col span={10} style={{display: "flex", justifyContent: "end"}}>
@@ -191,10 +191,7 @@ const Information = (): JSX.Element => {
                         </Col>
                     </Row>
                 </Col>
-                <Col span={16}>
-                    <div></div>
-                </Col>
-                <Col span={6} style={{display: "flex", justifyContent: "start", gap: "20px"}}>
+                <Col span={24} style={{display: "flex", justifyContent: "center", gap: "20px"}}>
                     {
                         edit && (
                             <Button

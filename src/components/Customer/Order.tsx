@@ -1,17 +1,43 @@
-import { useEffect, useRef, useState, type JSX } from "react";
+import { useContext, useEffect, useRef, useState, type JSX } from "react";
 import "./Order.scss";
-import { Button, Col, Row } from "antd";
+import { Button, Col, Row, Skeleton } from "antd";
 import { Circle } from "lucide-react";
 import FeedbackModal from "../Utilities/Feedback/FeedbackModal";
+import type { OrderData } from "../../interfaces/customerInterface";
+import { messageService } from "../../interfaces/appInterface";
+import { addCart, confirmReceiveProductApi, getOrderListApi } from "../../services/customerService";
+import { UserContext } from "../../configs/globalVariable";
+import { BeatLoader } from "react-spinners";
+import OrderDetailModal from "../Utilities/Order/OrderDetailModal";
+import dayjs from "dayjs";
+import LoadingModal from "../Other/LoadingModal";
+import ReasonModal from "../Utilities/Order/ReasonModal";
+import { useNavigate } from "react-router-dom";
 
 const Order = (): JSX.Element => {
+    const {user, setCart, setPathBeforeLogin} = useContext(UserContext);
+    const navigate = useNavigate();
     const nameItem: string[] = ["Chờ xác nhận", "Đang giao hàng", "Đã giao hàng", "Đã hủy", "Trả hàng"]
+    const statusOrder: number[] = [2, 3, 4, 1, 5];
         
     const refItem = useRef<(HTMLDivElement | null)[]>([]);
     const parentElement = useRef<(HTMLDivElement | null)>(null);
+    const loaderRef = useRef<HTMLDivElement | null>(null);
+
     const [indexOfItem, setIndexOfItem] = useState<number>(1);
     const [position, setPosition] = useState<{xLeft: number | null, width: number | null}>({xLeft: null, width: null})
     const [openFeedback, setOpenFeedback] = useState<boolean>(false);
+    const [page, setPage] = useState<number[]>([1, 1, 1, 1, 1]);
+    const [orderList, setOrderList] = useState<[OrderData[], OrderData[], OrderData[], OrderData[], OrderData[]]>([[], [], [], [], []])
+    const [getDataLoading, setGetDataLoading] = useState<boolean>(false);
+    const [hasGet, setHasGet] = useState<boolean>(false);
+    const [totalRecord, setTotalRecord] = useState<number[]>([0, 0, 0, 0, 0]);
+    const [openOrderDetail, setOpenOrderDetail] = useState<boolean>(false);
+    const [orderSelectId, setOrderSelectId] = useState<number>(0);
+    const [modalLoading, setModalLoading] = useState<boolean>(false);
+    const [orderId, setOrderId] = useState<number>(0);
+    const [openReason, setOpenReason] = useState<boolean>(false);
+    const [mode, setMode] = useState<string>("");
 
     useEffect(() => {
         getPositionItem();
@@ -26,194 +52,134 @@ const Order = (): JSX.Element => {
         })
     }
 
-    const orderList: {status: number, id: number, orderDate: string, url: string[], name: string[], price: string[], size: string[], color: string[], quantity: number[], total: string}[] = [
-        {
-            status: 0,
-            id: 10,
-            orderDate: "11/10/2025",
-            url: [
-                "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031339/pro_trang_2_4c261b702dd74bf58325a21830e364ce_grande_nyfzhr.jpg",
-                "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031343/pro_hoa_01_1_6cb772274f3544d989e5014291f40455_grande_ptdi0v.jpg"
-            ],
-            name: [
-                "Áo kiểu tay ngắn cổ sơ mi phối ren",
-                "Đầm mini 2 dây thêu hoa form suông phối bèo"
-            ],
-            price: [
-                "177,500₫", "556,000₫"
-            ],
-            size: [
-                "L", "L"
-            ],
-            color: [
-                "Trắng", "Đen"
-            ],
-            quantity: [1, 1],
-            total: "733,500₫"
-        },
-        {
-            status: 2,
-            id: 2,
-            orderDate: "07/09/2025",
-            url: [
-                "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031345/pro_luc_01_1_0af140c6cd3c4058b97970c80993d8c7_grande_dfmcdb.jpg"
-            ],
-            name: [
-                "Đầm midi form suông sát nách thắt nơ lưng"
-            ],
-            price: [
-                "476,000₫"
-            ],
-            size: [
-                "L"
-            ],
-            color: [
-                "Xanh"
-            ],
-            quantity: [1, 1],
-            total: "476,000₫"
-        },
-        {
-            status: 2,
-            id: 1,
-            orderDate: "05/09/2025",
-            url: [
-                "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031355/pro_nau_01_4_adef39546c694d7eb19d9eb2ab1ba7db_grande_rgn2y5.jpg",
-                "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034352/pro_trang_4_6188e6cde05c40ce98f7e65c19fc7011_grande_w0byvi.jpg"
-            ],
-            name: [
-                "Áo thun crop tay ngắn cổ V cài nút",
-                "Váy skort cơ bản kẻ sọc"
-            ],
-            price: [
-                "153,000₫", "213,000₫"
-            ],
-            size: [
-                "L", "L"
-            ],
-            color: [
-                "Nâu", "Trắng"
-            ],
-            quantity: [1, 1],
-            total: "366,000₫"
-        },
-        {
-            status: 3,
-            id: 3,
-            orderDate: "05/10/2025",
-            url: [
-                "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034359/pro_den_3_b8bbfb2ca9eb4ec1979f93041d65a3dd_grande_nye8yu.jpg"
-            ],
-            name: [
-                "Quần culotte xếp li hông"
-            ],
-            price: [
-                "364,000₫"
-            ],
-            size: [
-                "L"
-            ],
-            color: [
-                "Trắng"
-            ],
-            quantity: [1, 1],
-            total: "364,000₫"
-        },
-        {
-            status: 1,
-            id: 9,
-            orderDate: "09/10/2025",
-            url: [
-                "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031348/pro_luc_01_1_fc8d49a109c74088ada562dafe6f2341_grande_nsz4lq.jpg"    
-            ],
-            name: [
-                "Quần ống suông lưng cao dây kéo sau"
-            ],
-            price: [
-                "445,500₫"
-            ],
-            size: [
-                "L"
-            ],
-            color: [
-                "Trắng", "Đen"
-            ],
-            quantity: [1],
-            total: "445,500₫"
-        },
-        {
-            status: 4,
-            id: 8,
-            orderDate: "01/10/2025",
-            url: [
-                "https://res.cloudinary.com/dibigdhgr/image/upload/v1760031339/pro_trang_2_4c261b702dd74bf58325a21830e364ce_grande_nyfzhr.jpg"    
-            ],
-            name: [
-                "Áo kiểu tay ngắn cổ sơ mi phối ren"
-            ],
-            price: [
-                "177,500₫"
-            ],
-            size: [
-                "L"
-            ],
-            color: [
-                "Trắng"
-            ],
-            quantity: [1],
-            total: "177,500₫"
-        },
-    ]
-    const orderStatus: {id: number, confirm: string | null, transit: string  | null, receive: string  | null, cancel: string  | null, return: string | null}[] = [
-        {
-            id: 1,
-            confirm: "05/09/2025",
-            transit: "06/09/2025",
-            receive: "09/09/2025",
-            cancel: null,
-            return: null
-        },
-        {
-            id: 2,
-            confirm: "08/09/2025",
-            transit: "08/09/2025",
-            receive: "12/09/2025",
-            cancel: null,
-            return: null
-        },
-        {
-            id: 3,
-            confirm: null,
-            transit: null,
-            receive: null,
-            cancel: "05/10/2025",
-            return: null
-        },
-        {
-            id: 4,
-            confirm: null,
-            transit: null,
-            receive: null,
-            cancel: null,
-            return: null
-        },
-        {
-            id: 9,
-            confirm: "09/10/2025",
-            transit: "10/10/2025",
-            receive: null,
-            cancel: null,
-            return: null
-        },
-        {
-            id: 8,
-            confirm: "02/10/2025",
-            transit: "02/10/2025",
-            receive: "06/10/2025",
-            cancel: null,
-            return: "07/10/2025"
+    const getOrderList = async () => {
+        setGetDataLoading(true);
+        try {
+            const status = [statusOrder[indexOfItem - 1]]
+            if (status[0] == 4) {
+                status.push(6);
+            }
+            const result = await getOrderListApi(user.accountId, status, page[indexOfItem - 1]);
+            if (result.code == 0) {
+                setOrderList((prev) => {
+                    const newList = [...prev];
+                    const changeType = result.data.order.map((item: any) => (
+                        {
+                            ...item, 
+                            statusHistory: (item.statusHistory ?? []).map((itemChild: any) => (
+                                {
+                                    id: itemChild.id,
+                                    status: itemChild.status ?? -1,
+                                    date: dayjs(itemChild.date)
+                                }
+                            ))
+                        }
+                    ))
+                    newList[indexOfItem - 1] = [...newList[indexOfItem - 1], ...changeType];
+                    return newList as [OrderData[], OrderData[], OrderData[], OrderData[], OrderData[]]
+                })
+                if (page[indexOfItem - 1] == 1) {
+                    setTotalRecord((prev) => (
+                        prev.map((item, index) => (index == indexOfItem - 1 ? result.data.count : item))
+                    ))
+                    setPage((prev) => (
+                        prev.map((item, index) => (index == indexOfItem - 1 ? item + 1 : item))
+                    ))
+                }
+            } else {
+                messageService.error(result.message)
+            }
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở server");
+        } finally {
+            setGetDataLoading(false);
         }
-    ]
+    }
+
+    useEffect(() => {
+        if (page[indexOfItem - 1] == 1) {
+            getOrderList()
+        }
+        if (hasGet) {
+            setHasGet(false)
+            if (orderList[indexOfItem - 1].length < totalRecord[indexOfItem - 1]) {
+                getOrderList()
+            }
+            
+        }
+    }, [page[indexOfItem - 1], indexOfItem])
+
+    useEffect(() => {
+        if (getDataLoading) {
+            return
+        }
+
+        const isShortList = document.body.scrollHeight <= window.innerHeight;
+        const observer = new IntersectionObserver(async (entries) => {
+            const shouldLoad = entries[0].isIntersecting || isShortList;
+            if (
+                shouldLoad && 
+                !hasGet && 
+                !getDataLoading && 
+                orderList[indexOfItem - 1].length < totalRecord[indexOfItem - 1] &&
+                orderList[indexOfItem - 1].length > 0
+            ) {
+                setHasGet(true)
+                if (page[indexOfItem - 1] == 2) {
+                    await getOrderList()
+                }
+                setPage((prev) => (
+                    prev.map((item, index) => (index == indexOfItem - 1 ? item + 1 : item))
+                ))
+            }
+        })
+        if (loaderRef.current) {
+            observer.observe(loaderRef.current);
+        }
+        return () => {
+            observer.disconnect()
+        }
+    }, [getDataLoading, indexOfItem, orderList, totalRecord, hasGet])
+
+    const confirmReceiveProduct = async (orderId: number) => {
+        setModalLoading(true)
+        try {
+            const result = await confirmReceiveProductApi(orderId, dayjs().toISOString());
+            if (result.code == 0) {
+                setOrderList((prev) => (
+                    prev.map((item, index) => (
+                        index != indexOfItem - 1 ? item : item.map((itemChild) => (
+                            itemChild.id == orderId ? {...itemChild, status: 6} : itemChild
+                        ))
+                    )) as [OrderData[], OrderData[], OrderData[], OrderData[], OrderData[]]
+                ))
+            } else {
+                messageService.error(result.message);
+            }
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở server");
+        } finally {
+            setModalLoading(false);
+        }
+    }
+
+    const buyAgain = async (orderId: number) => {
+        try {
+            const order = orderList[indexOfItem - 1].find((item) => (item.id == orderId));
+            const sizeSelect = order?.size ?? [];
+            const colorSelect = order?.color ?? [];
+            const productVariantId = order?.productVariantId ?? [];
+            const quantity = order?.quantity ?? [];
+            const productId = order?.productId ?? [];
+            await addCart(user, sizeSelect, colorSelect, productVariantId, quantity, productId, setCart, setPathBeforeLogin, navigate, setModalLoading, dayjs().toISOString(), true)
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở server");
+        }
+    }
+
     return(
         <>
             <Row className="order-container">
@@ -241,197 +207,379 @@ const Order = (): JSX.Element => {
                                 </Col>
                             </div>
                         </Col>
-                        <Col span={24} style={{display: "flex", flexDirection: "column", gap: "20px", position: "relative"}}>
-                            {
-                                orderList.filter((item) => (item.status == indexOfItem - 1)).length > 0 ? orderList.map((parentItem, parentIndex) => parentItem.status == indexOfItem - 1 && (
-                                    <Row key={parentIndex} style={{border: "1px solid rgba(0, 0, 0, 0.3)", padding: "10px 20px", borderRadius: "20px", cursor: "pointer"}}>
-                                        <Col span={24} style={{display: "flex", alignItems: "center", gap: "10px", paddingBottom: "15px"}}>
-                                            <div>Đơn hàng: <span style={{fontWeight: "600"}}>#{parentItem.id}</span></div>
-                                            <Circle size={10} fill="#e9e9e9ff" color="#e9e9e9ff" strokeWidth={1} />
-                                            <div>Ngày đặt hàng: <span style={{fontWeight: "600"}}>{parentItem.orderDate}</span></div>
-                                        </Col>
-                                        <Col span={12} style={{display: "flex", flexDirection: "column", gap: "20px"}}>
-                                            {
-                                                parentItem.url.map((childrenItem, childrenIndex) => (
-                                                    <Row key={childrenIndex}>
-                                                        <Col span={8}>
-                                                            <div style={{width: "100%", height: "200px", overflow: "hidden"}}>
-                                                                <img style={{width: "100%", height: "100%", objectFit: "cover"}} src={childrenItem} />
-                                                            </div>
-                                                        </Col>
-                                                        <Col span={16} style={{display: "flex", flexDirection: "column", justifyContent: "space-between", paddingLeft: "20px"}}>
-                                                            <div>
-                                                                <div>{parentItem.name[childrenIndex]}</div>
-                                                                <div>{parentItem.color[childrenIndex]} / {parentItem.size[childrenIndex]}</div>
-                                                            </div>
-                                                            <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                                <div style={{fontWeight: "600"}}>{parentItem.price[childrenIndex]}</div>
-                                                                <div>x{parentItem.quantity[childrenIndex]}</div>
-                                                            </div>
-                                                        </Col>
-                                                    </Row>
-                                                ))
-                                            }
-                                        </Col>
-                                        <Col span={12} style={{padding: "0px 100px"}}>
-                                            <div style={{textAlign: "center", fontSize: "18px", fontWeight: "600", paddingBottom: "20px"}}>Trạng thái đơn hàng</div>
-                                            {
-                                                parentItem.status == 0 && (
-                                                    <div style={{display: "flex", flexDirection: "column", gap: "15px"}}>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày xác nhận:</div>
-                                                            <div>-</div>
-                                                        </div>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày giao hàng:</div>
-                                                            <div>-</div>
-                                                        </div>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày nhận hàng:</div>
-                                                            <div>-</div>
-                                                        </div>
-                                                        <div>
-                                                            <Button
-                                                                variant="solid"
-                                                                color="primary"
-                                                                size="large"
-                                                                style={{width: "100%"}}
-                                                            >
-                                                                Hủy đơn hàng
-                                                            </Button>
-                                                        </div>
+                        {
+                            (getDataLoading && page[indexOfItem - 1] == 1) ? (
+                                <Skeleton active paragraph={{rows: 10}} />
+                            ) : (
+                                <>
+                                    <Col span={24} style={{display: "flex", flexDirection: "column", gap: "20px", position: "relative"}}>
+                                        {
+                                            orderList[indexOfItem - 1].length > 0 ? orderList[indexOfItem - 1].map((item, index) => (
+                                                <Row 
+                                                    key={index} 
+                                                    style={{border: "1px solid rgba(0, 0, 0, 0.3)", padding: "20px 20px", borderRadius: "20px", cursor: "pointer"}}
+                                                    onClick={() => {
+                                                        setOpenOrderDetail(true);
+                                                        setOrderSelectId(item.id)
+                                                    }}
+                                                >
+                                                    <Col span={12}>
+                                                        <Row>
+                                                            <Col span={24} style={{display: "flex", alignItems: "center", gap: "10px", paddingBottom: "15px"}}>
+                                                                <div>Đơn hàng: <span style={{fontWeight: "600"}}>#{item.id}</span></div>
+                                                                <Circle size={10} fill="#e9e9e9ff" color="#e9e9e9ff" strokeWidth={1} />
+                                                                <div>Ngày đặt hàng: <span style={{fontWeight: "600"}}>{item.orderDate}</span></div>
+                                                            </Col>
+                                                            <Col span={24} style={{display: "flex", flexDirection: "column", gap: "20px"}}>
+                                                                {
+                                                                    item.url.map((childrenItem, childrenIndex) => (
+                                                                        <Row key={childrenIndex}>
+                                                                            <Col span={7}>
+                                                                                <div style={{width: "90%", height: "150px", overflow: "hidden"}}>
+                                                                                    <img style={{width: "100%", height: "100%", objectFit: "cover"}} src={childrenItem} />
+                                                                                </div>
+                                                                            </Col>
+                                                                            <Col span={17} style={{display: "flex", flexDirection: "column", justifyContent: "space-between"}}>
+                                                                                <div>
+                                                                                    <div>{item.name[childrenIndex]}</div>
+                                                                                    <div>{item.color[childrenIndex]} / {item.size[childrenIndex]}</div>
+                                                                                </div>
+                                                                                <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                                    <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
+                                                                                        {
+                                                                                            item.discount[childrenIndex] > 0 && (
+                                                                                                <div style={{fontWeight: "600"}}>{`${item.discount[childrenIndex].toLocaleString("en-US")}đ`}</div>
+                                                                                            )
+                                                                                        }
+                                                                                        <div style={item.discount[childrenIndex] > 0 ? {textDecoration: "line-through", color: "#afb6b5"} : {fontWeight: "600"}}>{`${item.price[childrenIndex].toLocaleString("en-US")}đ`}</div>
+                                                                                    </div>
+                                                                                    <div>x{item.quantity[childrenIndex]}</div>
+                                                                                </div>
+                                                                            </Col>
+                                                                        </Row>
+                                                                    ))
+                                                                }
+                                                            </Col>
+                                                            <Col span={24} style={{paddingTop: "15px", display: "flex", justifyContent: "end"}}>
+                                                                <div style={{fontSize: "20px"}}>Tổng thanh toán: <span style={{fontSize: "20px", fontWeight: "600"}}>{`${item.total.toLocaleString("en-US")}đ`}</span></div>
+                                                            </Col>
+                                                        </Row>
+                                                    </Col>
+                                                    <Col span={12} style={{padding: "0px 100px"}}>
+                                                        <div style={{textAlign: "center", fontSize: "18px", fontWeight: "600", paddingBottom: "20px"}}>Trạng thái đơn hàng</div>
+                                                        {
+                                                            item.status == 2 && (
+                                                                <div style={{display: "flex", flexDirection: "column", gap: "15px"}}>
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày đặt hàng:</div>
+                                                                        <div>{item.statusHistory.find((itemChild) => (itemChild.status == 2))?.date.format("DD/MM/YYYY HH:mm") ?? "-"}</div>
+                                                                    </div>
+                                                                    {
+                                                                        item.paymentMethod == 1 && (
+                                                                            <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                                <div>Ngày thanh toán:</div>
+                                                                                <div>{item.paymentTime ? item.paymentTime : "-"}</div>
+                                                                            </div>
+                                                                        )
+                                                                    }
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày giao hàng:</div>
+                                                                        <div>-</div>
+                                                                    </div>
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày nhận hàng:</div>
+                                                                        <div>-</div>
+                                                                    </div>
+                                                                    {
+                                                                        item.paymentMethod == 2 && (
+                                                                            <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                                <div>Ngày thanh toán:</div>
+                                                                                <div>{item.paymentTime ? item.paymentTime : "-"}</div>
+                                                                            </div>
+                                                                        )
+                                                                    }
+                                                                    <div>
+                                                                        <Button
+                                                                            variant="solid"
+                                                                            color="primary"
+                                                                            size="large"
+                                                                            style={{width: "100%"}}
+                                                                            onClick={(event) => {
+                                                                                event.stopPropagation();
+                                                                                setOrderId(item.id);
+                                                                                setOpenReason(true);
+                                                                                setMode("cancel");
+
+                                                                            }}
+                                                                        >
+                                                                            Hủy đơn hàng
+                                                                        </Button>
+                                                                    </div>
+                                                                </div>
+                                                            )
+                                                        }
+                                                        {
+                                                            item.status == 3 && (
+                                                                <div style={{display: "flex", flexDirection: "column", gap: "15px"}}>
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày đặt hàng:</div>
+                                                                        <div>{item.statusHistory.find((itemChild) => (itemChild.status == 2))?.date.format("DD/MM/YYYY HH:mm") ?? "-"}</div>
+                                                                    </div>
+                                                                    {
+                                                                        item.paymentMethod == 1 && (
+                                                                            <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                                <div>Ngày thanh toán:</div>
+                                                                                <div>{item.paymentTime ? item.paymentTime : "-"}</div>
+                                                                            </div>
+                                                                        )
+                                                                    }
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày giao hàng:</div>
+                                                                        <div>{item.statusHistory.find((itemChild) => (itemChild.status == 3))?.date.format("DD/MM/YYYY HH:mm") ?? "-"}</div>
+                                                                    </div>
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày nhận hàng:</div>
+                                                                        <div>-</div>
+                                                                    </div>
+                                                                    {
+                                                                        item.paymentMethod == 2 && (
+                                                                            <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                                <div>Ngày thanh toán:</div>
+                                                                                <div>{item.paymentTime ? item.paymentTime : "-"}</div>
+                                                                            </div>
+                                                                        )
+                                                                    }
+                                                                </div>
+                                                            )
+                                                        }
+                                                        {
+                                                            (item.status == 4 || item.status == 6) && (
+                                                                <div style={{display: "flex", flexDirection: "column", gap: "15px"}}>
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày đặt hàng:</div>
+                                                                        <div>{item.statusHistory.find((itemChild) => (itemChild.status == 2))?.date.format("DD/MM/YYYY HH:mm") ?? "-"}</div>
+                                                                    </div>
+                                                                    {
+                                                                        item.paymentMethod == 1 && (
+                                                                            <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                                <div>Ngày thanh toán:</div>
+                                                                                <div>{item.paymentTime ? item.paymentTime : "-"}</div>
+                                                                            </div>
+                                                                        )
+                                                                    }
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày giao hàng:</div>
+                                                                        <div>{item.statusHistory.find((itemChild) => (itemChild.status == 3))?.date.format("DD/MM/YYYY HH:mm") ?? "-"}</div>
+                                                                    </div>
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày nhận hàng:</div>
+                                                                        <div>{item.statusHistory.find((itemChild) => (itemChild.status == 4))?.date.format("DD/MM/YYYY HH:mm") ?? "-"}</div>
+                                                                    </div>
+                                                                    {
+                                                                        item.paymentMethod == 2 && (
+                                                                            <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                                <div>Ngày thanh toán:</div>
+                                                                                <div>{item.paymentTime ? item.paymentTime : "-"}</div>
+                                                                            </div>
+                                                                        )
+                                                                    }
+                                                                    {
+                                                                        item.status == 4 ? (
+                                                                            <>
+                                                                                <div style={{display: "flex"}}>
+                                                                                    <Button
+                                                                                        variant="solid"
+                                                                                        color="primary"
+                                                                                        size="large"
+                                                                                        style={{width: "100%"}}
+                                                                                        onClick={(event) => {
+                                                                                            event.stopPropagation();
+                                                                                            confirmReceiveProduct(item.id)
+                                                                                        }}
+                                                                                    >
+                                                                                        Đã nhận hàng
+                                                                                    </Button>
+                                                                                </div>
+                                                                            </>
+                                                                        ) : (
+                                                                            <div style={{display: "flex", gap: "30px"}}>
+                                                                                <Button
+                                                                                    variant="solid"
+                                                                                    color="primary"
+                                                                                    size="large"
+                                                                                    style={{width: "100%"}}
+                                                                                    onClick={(event) => {
+                                                                                        event.stopPropagation();
+                                                                                        setOpenFeedback(true);
+                                                                                    }}
+                                                                                >
+                                                                                    Đánh giá
+                                                                                </Button>
+                                                                                <Button
+                                                                                    variant="solid"
+                                                                                    color="primary"
+                                                                                    size="large"
+                                                                                    style={{width: "100%"}}
+                                                                                    onClick={(event) => {
+                                                                                        event.stopPropagation();
+                                                                                        setOrderId(item.id);
+                                                                                        setOpenReason(true);
+                                                                                        setMode("return")
+                                                                                    }}
+                                                                                >
+                                                                                    Trả hàng
+                                                                                </Button>
+                                                                            </div>
+                                                                        )
+                                                                    }
+                                                                </div>
+                                                            )
+                                                        }
+                                                        {
+                                                            item.status == 1 && (
+                                                                <div style={{display: "flex", flexDirection: "column", gap: "15px"}}>
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày đặt hàng:</div>
+                                                                        <div>{item.statusHistory.find((itemChild) => (itemChild.status == 2))?.date.format("DD/MM/YYYY HH:mm") ?? "-"}</div>
+                                                                    </div>
+                                                                    {
+                                                                        item.paymentMethod == 1 && (
+                                                                            <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                                <div>Ngày thanh toán:</div>
+                                                                                <div>{item.paymentTime ? item.paymentTime : "-"}</div>
+                                                                            </div>
+                                                                        )
+                                                                    }
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày hủy đơn:</div>
+                                                                        <div>{item.statusHistory.find((itemChild) => (itemChild.status == 1))?.date.format("DD/MM/YYYY HH:mm") ?? "-"}</div>
+                                                                    </div>
+                                                                    <div style={{display: "flex", gap: "30px"}}>
+                                                                        <Button
+                                                                            variant="solid"
+                                                                            color="primary"
+                                                                            size="large"
+                                                                            style={{width: "100%"}}
+                                                                            onClick={(event) => {
+                                                                                event.stopPropagation();
+                                                                                buyAgain(item.id);
+                                                                            }}
+                                                                        >
+                                                                            Mua lại
+                                                                        </Button>
+                                                                    </div>
+                                                                </div>
+                                                            )
+                                                        }
+                                                        {
+                                                            item.status == 5 && (
+                                                                <div style={{display: "flex", flexDirection: "column", gap: "15px"}}>
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày đặt hàng:</div>
+                                                                        <div>{item.statusHistory.find((itemChild) => (itemChild.status == 2))?.date.format("DD/MM/YYYY HH:mm") ?? "-"}</div>
+                                                                    </div>
+                                                                    {
+                                                                        item.paymentMethod == 1 && (
+                                                                            <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                                <div>Ngày thanh toán:</div>
+                                                                                <div>{item.paymentTime ? item.paymentTime : "-"}</div>
+                                                                            </div>
+                                                                        )
+                                                                    }
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày giao hàng:</div>
+                                                                        <div>{item.statusHistory.find((itemChild) => (itemChild.status == 3))?.date.format("DD/MM/YYYY HH:mm") ?? "-"}</div>
+                                                                    </div>
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày nhận hàng:</div>
+                                                                        <div>{item.statusHistory.find((itemChild) => (itemChild.status == 4))?.date.format("DD/MM/YYYY HH:mm") ?? "-"}</div>
+                                                                    </div>
+                                                                    {
+                                                                        item.paymentMethod == 2 && (
+                                                                            <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                                <div>Ngày thanh toán:</div>
+                                                                                <div>{item.paymentTime ? item.paymentTime : "-"}</div>
+                                                                            </div>
+                                                                        )
+                                                                    }
+                                                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                                                        <div>Ngày trả hàng:</div>
+                                                                        <div>{item.statusHistory.find((itemChild) => (itemChild.status == 5))?.date.format("DD/MM/YYYY HH:mm") ?? "-"}</div>
+                                                                    </div>
+                                                                    <div style={{display: "flex", gap: "30px"}}>
+                                                                        <Button
+                                                                            variant="solid"
+                                                                            color="primary"
+                                                                            size="large"
+                                                                            style={{width: "100%"}}
+                                                                            onClick={(event) => {
+                                                                                event.stopPropagation();
+                                                                                buyAgain(item.id);
+                                                                            }}
+                                                                        >
+                                                                            Mua lại
+                                                                        </Button>
+                                                                    </div>
+                                                                </div>
+                                                            )
+                                                        }
+                                                    </Col>
+                                                </Row>
+                                            )) : (
+                                                <div style={{display: "flex", flexDirection: "column", alignItems: "center", position: "absolute", right: "50%", top: "50%", transform: "translate(50%, 50%)"}}>
+                                                    <div style={{width: "300px", height: "300px", overflow: "hidden"}}>
+                                                        <img style={{width: "100%", height: "100%", objectFit: "cover", opacity: 0.3, filter: "blur(3px)"}} src="https://res.cloudinary.com/dibigdhgr/image/upload/v1761896035/order_ayqqfl.png" />
                                                     </div>
-                                                )
-                                            }
-                                            {
-                                                parentItem.status == 1 && (
-                                                    <div style={{display: "flex", flexDirection: "column", gap: "15px"}}>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày xác nhận:</div>
-                                                            <div>{orderStatus.find((itemFind) => (itemFind.id == parentItem.id))?.confirm}</div>
-                                                        </div>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày giao hàng:</div>
-                                                            <div>{orderStatus.find((itemFind) => (itemFind.id == parentItem.id))?.transit}</div>
-                                                        </div>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày nhận hàng:</div>
-                                                            <div>-</div>
-                                                        </div>
-                                                    </div>
-                                                )
-                                            }
-                                            {
-                                                parentItem.status == 2 && (
-                                                    <div style={{display: "flex", flexDirection: "column", gap: "15px"}}>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày xác nhận:</div>
-                                                            <div>{orderStatus.find((itemFind) => (itemFind.id == parentItem.id))?.confirm}</div>
-                                                        </div>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày giao hàng:</div>
-                                                            <div>{orderStatus.find((itemFind) => (itemFind.id == parentItem.id))?.transit}</div>
-                                                        </div>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày nhận hàng:</div>
-                                                            <div>{orderStatus.find((itemFind) => (itemFind.id == parentItem.id))?.receive}</div>
-                                                        </div>
-                                                        <div style={{display: "flex", gap: "30px"}}>
-                                                            <Button
-                                                                variant="solid"
-                                                                color="primary"
-                                                                size="large"
-                                                                style={{width: "100%"}}
-                                                                onClick={() => {
-                                                                    setOpenFeedback(true);
-                                                                }}
-                                                            >
-                                                                Đánh giá
-                                                            </Button>
-                                                            <Button
-                                                                variant="solid"
-                                                                color="primary"
-                                                                size="large"
-                                                                style={{width: "100%"}}
-                                                            >
-                                                                Trả hàng
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                )
-                                            }
-                                            {
-                                                parentItem.status == 3 && (
-                                                    <div style={{display: "flex", flexDirection: "column", gap: "15px"}}>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày hủy đơn:</div>
-                                                            <div>{orderStatus.find((itemFind) => (itemFind.id == parentItem.id))?.cancel}</div>
-                                                        </div>
-                                                        <div style={{display: "flex", gap: "30px"}}>
-                                                            <Button
-                                                                variant="solid"
-                                                                color="primary"
-                                                                size="large"
-                                                                style={{width: "100%"}}
-                                                            >
-                                                                Mua lại
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                )
-                                            }
-                                            {
-                                                parentItem.status == 4 && (
-                                                    <div style={{display: "flex", flexDirection: "column", gap: "15px"}}>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày xác nhận:</div>
-                                                            <div>{orderStatus.find((itemFind) => (itemFind.id == parentItem.id))?.confirm}</div>
-                                                        </div>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày giao hàng:</div>
-                                                            <div>{orderStatus.find((itemFind) => (itemFind.id == parentItem.id))?.transit}</div>
-                                                        </div>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày nhận hàng:</div>
-                                                            <div>{orderStatus.find((itemFind) => (itemFind.id == parentItem.id))?.receive}</div>
-                                                        </div>
-                                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                                            <div>Ngày trả hàng:</div>
-                                                            <div>{orderStatus.find((itemFind) => (itemFind.id == parentItem.id))?.return}</div>
-                                                        </div>
-                                                        <div style={{display: "flex", gap: "30px"}}>
-                                                            <Button
-                                                                variant="solid"
-                                                                color="primary"
-                                                                size="large"
-                                                                style={{width: "100%"}}
-                                                            >
-                                                                Mua lại
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                )
-                                            }
-                                        </Col>
-                                        <Col span={12} style={{paddingTop: "15px", display: "flex", justifyContent: "end"}}>
-                                            <div style={{fontSize: "20px"}}>Tổng thanh toán: <span style={{fontSize: "20px", fontWeight: "600"}}>{parentItem.total}</span></div>
-                                        </Col>
-                                    </Row>
-                                )) : (
-                                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", position: "absolute", right: "50%", top: "50%", transform: "translate(50%, 50%)"}}>
-                                        <div style={{width: "300px", height: "300px", overflow: "hidden"}}>
-                                            <img style={{width: "100%", height: "100%", objectFit: "cover", opacity: 0.3, filter: "blur(3px)"}} src="https://res.cloudinary.com/dibigdhgr/image/upload/v1760129523/no-data_q4r0yj.png" />
-                                        </div>
-                                        <div style={{fontSize: "20px", opacity: 0.5}}>Chưa có đơn hàng</div>
-                                    </div>
-                                )
-                            }
-                        </Col>
+                                                    <div style={{fontSize: "20px", opacity: 0.5}}>Chưa có đơn hàng</div>
+                                                </div>
+                                            )
+                                        }
+                                    </Col>
+                                    <Col span={24}>
+                                        <div ref={loaderRef} style={{height: "1px"}}></div>
+                                    </Col>
+                                </>
+                            )
+                        }
+                        
+                        {
+                            (getDataLoading && page[indexOfItem - 1] != 1) && (
+                                <Col span={24} style={{paddingTop: "10px", display: "flex", justifyContent: "center"}}>
+                                    <BeatLoader 
+                                        color="var(--color7)"
+                                        loading={getDataLoading}
+                                        size={10}
+                                    />
+                                </Col>
+                            )
+                        }
                     </Row>
                 </Col>
                 <FeedbackModal
                     openModal={openFeedback}
                     setOpenModal={setOpenFeedback}
+                />
+                <OrderDetailModal 
+                    open={openOrderDetail}
+                    setOpen={setOpenOrderDetail}
+                    orderId={orderSelectId}
+                />
+                <LoadingModal 
+                    open={modalLoading}
+                    message="Đang lưu"
+                />
+                <ReasonModal
+                    open={openReason}
+                    setOpen={setOpenReason}
+                    orderId={orderId}
+                    mode={mode}
+                    indexOfItem={indexOfItem} 
+                    totalRecord={totalRecord}
+                    setTotalRecord={setTotalRecord}
+                    page={page}
+                    setPage={setPage}
+                    orderList={orderList}
+                    setOrderList={setOrderList}
                 />
             </Row>
         </>

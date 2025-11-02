@@ -139,3 +139,63 @@ export interface VoucherModalProps {
   totalPrice: number,
   shippingFee: number
 }
+
+export interface OrderData {
+  status: number,
+  id: number,
+  orderDate: string,
+  productId: number[],
+  productVariantId: number[],
+  url: string[],
+  name: string[],
+  price: number[],
+  discount: number[],
+  size: string[],
+  color: string[],
+  quantity: number[],
+  total: number,
+  paymentTime: string | null,
+  paymentMethod: number,
+  statusHistory: {
+    id: number,
+    status: number,
+    date: Dayjs
+  }[]
+}
+
+export interface OrderDetailModalProps {
+  open: boolean,
+  setOpen: Dispatch<SetStateAction<boolean>>,
+  orderId: number
+}
+
+export interface OrderDetailData {
+  overallData: OrderData,
+  star: (number | null)[],
+  paymentStatus: number,
+  orderNote: string | null,
+  returnReason: string | null,
+  cancelReason: string | null,
+  address: {
+    address: string,
+    name: string,
+    phoneNumber: string
+  },
+  shippingFee: number,
+  shipDiscount: number,
+  productDiscount: number
+}
+
+export interface ReasonModalProps {
+  open: boolean,
+  setOpen: Dispatch<SetStateAction<boolean>>,
+  orderId: number,
+  mode: string,
+  indexOfItem: number, 
+  totalRecord: number[],
+  setTotalRecord: Dispatch<SetStateAction<number[]>>,
+  page: number[],
+  setPage: Dispatch<SetStateAction<number[]>>,
+  orderList: [OrderData[], OrderData[], OrderData[], OrderData[], OrderData[]],
+  setOrderList: Dispatch<SetStateAction<[OrderData[], OrderData[], OrderData[], OrderData[], OrderData[]]>>
+}

@@ -453,7 +453,7 @@ const AddCartModal = ({openAddCart, setopenAddCart, productId, variantId, quanti
                                                         style={{width: "100%"}}
                                                         onClick={() => {
                                                             if (variantId == null) {
-                                                                addCart(user, sizeSelect, colorSelect, variantIdState, quantitySelect, setCart, setPathBeforeLogin, navigate, setModalLoading, dayjs().toISOString())
+                                                                addCart(user, [sizeSelect], [colorSelect], [variantIdState], [quantitySelect], [productId], setCart, setPathBeforeLogin, navigate, setModalLoading, dayjs().toISOString(), false)
                                                             } else {
                                                                 updateVariantInCart();
                                                             }

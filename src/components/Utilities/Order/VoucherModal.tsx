@@ -1,6 +1,7 @@
 import { useEffect, useState, type JSX } from "react";
 import type { VoucherModalProps } from "../../../interfaces/customerInterface";
-import { Button, Col, Modal, Radio, Row } from "antd";
+import { Col, Modal, Radio, Row } from "antd";
+import { X } from "lucide-react";
 
 const VoucherModal = ({open, setOpen, totalPrice, shippingFee, totalPriceProductType3, setShipDiscount, setProductDiscount, shipVoucherList, productVoucherList, setProductVoucherSelect, setShipVoucherSelect, productVoucherSelect, shipVoucherSelect}: VoucherModalProps): JSX.Element => {
     const [productType, setProductType] = useState<number>(0);
@@ -36,10 +37,10 @@ const VoucherModal = ({open, setOpen, totalPrice, shippingFee, totalPriceProduct
                 open={open}
                 width={"600px"}
             >
-                <Row style={{maxHeight: "600px", overflowY: "auto", margin: "0px -24px 0px 0px", paddingBottom: "5px"}}>
+                <Row style={{maxHeight: "600px", overflowY: "auto", margin: "-20px -24px -20px -24px", paddingBottom: "5px"}}>
                     {
                         shipVoucherList.length > 0 && (
-                            <Col span={24} style={{paddingRight: "20px"}}>
+                            <Col span={24} style={{padding: "20px 20px 10px 24px"}}>
                                 <Row>
                                     <Col span={24}>
                                         <div style={{fontSize: "20px", fontFamily: "Prata"}}>Mã giảm giá phí vận chuyển</div>
@@ -93,7 +94,7 @@ const VoucherModal = ({open, setOpen, totalPrice, shippingFee, totalPriceProduct
                     }
                     {
                         productVoucherList.length > 0 && (
-                            <Col span={24} style={{paddingTop: "10px", paddingRight: "20px"}}>
+                            <Col span={24} style={{padding: "20px 20px 20px 24px"}}>
                                 <Row>
                                     <Col span={24}>
                                         <div style={{fontSize: "20px", fontFamily: "Prata"}}>Mã giảm giá sản phẩm</div>
@@ -107,6 +108,7 @@ const VoucherModal = ({open, setOpen, totalPrice, shippingFee, totalPriceProduct
                                                         <div style={{padding: "15px 0px"}}>
                                                             <Row 
                                                                 onClick={() => {
+                                                                    console.log(item.id);
                                                                     setProductVoucherSelect(item.id);
                                                                     setProductType(item.type);
                                                                     setProductPercent(item.discountPercent);
@@ -146,25 +148,20 @@ const VoucherModal = ({open, setOpen, totalPrice, shippingFee, totalPriceProduct
                             </Col>
                         )
                     }
+                    {
+                        productVoucherList.length + shipVoucherList.length == 0 && (
+                            <Col span={24} style={{padding: "20px 0px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center"}}>
+                                <div style={{width: "80%", height: "300px", overflow: "hidden"}}>
+                                    <img style={{width: "100%", height: "100%", objectFit: "contain", opacity: 0.6}} src="https://res.cloudinary.com/dibigdhgr/image/upload/v1761894483/coupon_zd1kgi.png" />
+                                </div>
+                                <div style={{fontSize: "20px"}}>Không có voucher</div>
+                            </Col>
+                        )
+                    }
                 </Row>
-                <Row style={{paddingTop: "10px"}}>
+                <Row style={{position: "absolute", top: "5px", right: "10px"}}>
                     <Col span={24} style={{display: "flex", justifyContent: "end", gap: "10px", paddingRight: "10px"}}>
-                        <Button
-                            variant="outlined"
-                            color="primary"
-                            size="large"
-                            onClick={() => {setOpen(false)}}
-                        >
-                            Hủy
-                        </Button>
-                        <Button
-                            variant="solid"
-                            color="primary"
-                            size="large"
-                            onClick={() => {calculateDiscount()}}
-                        >
-                            Lưu
-                        </Button>
+                        <X size={30} strokeWidth={1} onClick={() => {calculateDiscount()}} style={{cursor: "pointer"}} />
                     </Col>
                 </Row>
             </Modal>

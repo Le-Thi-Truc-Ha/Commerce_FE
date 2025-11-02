@@ -5,6 +5,7 @@ import { messageService, type BackendResponse } from "../../../interfaces/appInt
 import Loading from "../../Other/Loading";
 import * as customerService from "../../../services/customerService";
 import { UserContext } from "../../../configs/globalVariable";
+import LoadingModal from "../../Other/LoadingModal";
 
 const ChangePassword = (): JSX.Element => {
     const {user} = useContext(UserContext);
@@ -22,7 +23,7 @@ const ChangePassword = (): JSX.Element => {
             }
         })
         setHasValidate(newArray);
-        for (let i = 0; i < newArray.length; i++) {
+        for (let i = 1; i < newArray.length; i++) {
             if (newArray[i]) {
                 messageService.error("Nhập đầy đủ thông tin và mật khẩu phải có tối thiểu 8 kí tự")
                 return true;
@@ -43,6 +44,8 @@ const ChangePassword = (): JSX.Element => {
                     messageService.success(result.message);
                     setPassword(["", "", ""]);
                     setShow([false, false, false]);
+                } else {
+                    messageService.error(result.message);
                 }
             } catch(e) {
                 console.log(e);
@@ -55,7 +58,7 @@ const ChangePassword = (): JSX.Element => {
 
     return(
         <>
-            <Row className="change-password-container" align="middle" justify="center" gutter={[0, 30]}>
+            <Row className="change-password-container" align="middle" justify="center" gutter={[0, 30]} style={{paddingTop: "160px"}}>
                 {
                     password.map((item, index) => (
                         <Col span={24} key={index} style={{display: "flex", justifyContent: "center"}}>
@@ -65,14 +68,10 @@ const ChangePassword = (): JSX.Element => {
                                     className="input-ant"
                                     style={{width: "400px", paddingRight: "45px"}}
                                     type={`${show[index] ? "text" : "password"}`}
-                                    status={`${hasValidate[index] ? "error" : ""}`}
                                     value={item}
                                     onChange={(event) => {
                                         setPassword(password.map((itemNew, indexNew) => (
                                             indexNew == index ? event.target.value : itemNew
-                                        )))
-                                        setHasValidate(hasValidate.map((itemNew, indexNew) => (
-                                            indexNew == index ? false : itemNew
                                         )))
                                     }}
                                 />
@@ -114,11 +113,10 @@ const ChangePassword = (): JSX.Element => {
                     </Button>
                 </Col>
             </Row>
-            {
-                savePasswordLoading && (
-                    <Loading />
-                )
-            }
+            <LoadingModal 
+                open={savePasswordLoading}
+                message="Đang lưu"
+            />
         </>
     )
 }

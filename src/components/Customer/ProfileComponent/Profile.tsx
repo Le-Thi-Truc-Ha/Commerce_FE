@@ -30,44 +30,49 @@ const Profile = (): JSX.Element => {
         <>
             <Row className="profile-container">
                 <Col span={24}>
-                    <div>
-                        <Col span={24} style={{display: "flex", justifyContent: "center", gap: "35px"}} ref={parentElement}>
+                    <Row>
+                        <Col span={24}>
+                            <div>
+                                <Col span={24} style={{display: "flex", justifyContent: "center", gap: "35px"}} ref={parentElement}>
+                                    {
+                                        nameItem.map((item, index) => (
+                                            <div 
+                                                key={index} 
+                                                style={{fontSize: "20px", cursor: "pointer"}}
+                                                ref={(element) => {refItem.current[index] = element}}
+                                                onClick={() => {setIndexOfItem(index + 1)}}
+                                            >
+                                                {item}
+                                            </div>
+                                        ))
+                                    }
+                                </Col>
+                                <Col span={24} style={{paddingTop: "8px", position: "relative"}}>
+                                    <div style={{width: "100%", height: "1px", backgroundColor: "rgba(0, 0, 0, 0.2)"}}></div>
+                                    <div className="item-underline" style={{width: `${position.width}px`, left: `${position.xLeft}px`}}></div>
+                                </Col>
+                            </div>
+                        </Col>
+                        <Col span={24} style={{paddingTop: "30px"}}>
                             {
-                                nameItem.map((item, index) => (
-                                    <div 
-                                        key={index} 
-                                        style={{fontSize: "20px", cursor: "pointer"}}
-                                        ref={(element) => {refItem.current[index] = element}}
-                                        onClick={() => {setIndexOfItem(index + 1)}}
-                                    >
-                                        {item}
-                                    </div>
-                                ))
+                                indexOfItem == 1 && (
+                                    <Information />
+                                )
+                            }
+                            {
+                                indexOfItem == 2 && (
+                                    <ChangePassword />
+                                )
+                            }
+                            {
+                                indexOfItem == 3 && (
+                                    <Address />
+                                )
                             }
                         </Col>
-                        <Col span={24} style={{paddingTop: "8px", position: "relative"}}>
-                            <div style={{width: "100%", height: "1px", backgroundColor: "rgba(0, 0, 0, 0.2)"}}></div>
-                            <div className="item-underline" style={{width: `${position.width}px`, left: `${position.xLeft}px`}}></div>
-                        </Col>
-                    </div>
+                    </Row>
                 </Col>
-                <Col span={24}>
-                    {
-                        indexOfItem == 1 && (
-                            <Information />
-                        )
-                    }
-                    {
-                        indexOfItem == 2 && (
-                            <ChangePassword />
-                        )
-                    }
-                    {
-                        indexOfItem == 3 && (
-                            <Address />
-                        )
-                    }
-                </Col>
+                
             </Row>
         </>
     )

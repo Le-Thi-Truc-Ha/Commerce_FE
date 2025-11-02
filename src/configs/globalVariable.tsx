@@ -102,6 +102,7 @@ export const UserProvider = ({children}: UserProviderProps): JSX.Element => {
                     reloadPage();
                 } else {
                     messageService.error(result.message);
+                    localStorage.removeItem("sessionKey");
                 }
             } catch(e) {
                 console.log(e);

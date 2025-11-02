@@ -83,9 +83,9 @@ export const checkUpdateCartApi = (cartId: number): Promise<BackendResponse> => 
     })
 }
 
-export const findProductApi = (findValue: string, productId: number[] | null, currentPage: number): Promise<BackendResponse> => {
+export const findProductApi = (accountId: number, findValue: string, productId: number[] | null, currentPage: number): Promise<BackendResponse> => {
     return axios.post("/find-product", {
-        findValue, productId, currentPage
+        accountId, findValue, productId, currentPage
     })
 }
 
