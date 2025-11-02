@@ -133,7 +133,9 @@ const OrderAdmin: React.FC = () => {
     const handleSave = async () => {
         try {
             setSaving(true);
-            if (editingOrder && newStatus && currentStatus != newStatus) {
+            if (currentStatus == newStatus){
+                messageService.error("Chưa có thay đổi trạng thái!");
+            } else if (editingOrder && newStatus) {
                 await orderApi.update(editingOrder.id, newStatus, note);
                 await fetchOrders(pagination.current, pagination.pageSize);
                 setIsEditModalVisible(false);
