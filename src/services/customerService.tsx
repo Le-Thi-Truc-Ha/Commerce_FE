@@ -349,7 +349,7 @@ export const getDistrict = async (cityCode: number, setDistrictList: Dispatch<Se
 
 export const getWard = async (districtCode: number, setWardList: Dispatch<SetStateAction<any[]>>, setRegionObj: Dispatch<SetStateAction<{cityCode: number | null, districtCode: number | null, wardCode: number | null}>>): Promise<any> => {
     try {
-        const result = await axiosPackage.get(`https://tinhthanhpho.com/api/v1/districts/${districtCode}/wards`);
+        const result = await axiosPackage.get(`https://tinhthanhpho.com/api/v1/districts/${districtCode}/wards?limit=63`);
         setWardList(result.data.data);
         setRegionObj(prev => ({...prev, wardCode: null}))
         return result.data.data;
