@@ -105,11 +105,12 @@ const Pay = (): JSX.Element => {
                     const regionArray = addressArray[1].split(", ")
                     setRegionArray(regionArray);
                     const cityList: any[] = await getCity(setCityList);
-                    const cityCode = cityList.find((item) => (item.name == regionArray[2])).code
+                    console.log(cityList);
+                    const cityCode = cityList.find((item) => (`${item.type} ${item.name}` == regionArray[2])).code
                     const districtList: any[] = await getDistrict(cityCode, setDistrictList, setRegionObj);
-                    const districtCode = districtList.find((item) => (item.name == regionArray[1])).code
+                    const districtCode = districtList.find((item) => (`${item.type} ${item.name}` == regionArray[1])).code
                     const wardList: any[] = await getWard(districtCode, setWardList, setRegionObj);
-                    const wardCode = wardList.find((item) => (item.name == regionArray[0])).code
+                    const wardCode = wardList.find((item) => (`${item.type} ${item.name}` == regionArray[0])).code
                     setRegionObj({cityCode: cityCode, districtCode: districtCode, wardCode: wardCode})
                 } else {
                     getCity(setCityList);
@@ -363,10 +364,8 @@ const Pay = (): JSX.Element => {
                     productVoucher: {voucherId: number, voucherCode: string, productId: number[]} | null,
                     shipVoucher: {voucherId: number, voucherCode: string} | null 
                 } = {productVoucher: null, shipVoucher: null}
-                console.log(productVoucherSelect);
                 if (productVoucherSelect != -1) {
                     const voucher = productVoucherList.find((item) => (item.id == productVoucherSelect));
-                    console.log(voucher);
                     voucherUse = {...voucherUse, productVoucher: {
                         voucherId: productVoucherSelect,
                         voucherCode: voucher?.code ?? "",
@@ -557,10 +556,10 @@ const Pay = (): JSX.Element => {
                                                                                                         onClick={(event) => {
                                                                                                             event.stopPropagation();
                                                                                                             setRegionObj((prev) => ({...prev, cityCode: item.code}))
-                                                                                                            setRegionArray(["", "", item.name])
+                                                                                                            setRegionArray(["", "", `${item.type} ${item.name}`])
                                                                                                         }}
                                                                                                     >
-                                                                                                        {item.name}
+                                                                                                        {`${item.type} ${item.name}`}
                                                                                                     </div>
                                                                                                 ))
                                                                                             }
@@ -580,12 +579,12 @@ const Pay = (): JSX.Element => {
                                                                                                             setRegionObj((prev) => ({...prev, districtCode: item.code}))
                                                                                                             setRegionArray((prev) => (
                                                                                                                 prev.map((itemChild, indexChild) => (
-                                                                                                                    indexChild == 0 ? "" : (indexChild == 1 ? item.name : itemChild)
+                                                                                                                    indexChild == 0 ? "" : (indexChild == 1 ? `${item.type} ${item.name}` : itemChild)
                                                                                                                 ))
                                                                                                             ))
                                                                                                         }}
                                                                                                     >
-                                                                                                        {item.name}
+                                                                                                        {`${item.type} ${item.name}`}
                                                                                                     </div>
                                                                                                 ))
                                                                                             }
@@ -605,12 +604,12 @@ const Pay = (): JSX.Element => {
                                                                                                             setRegionObj((prev) => ({...prev, wardCode: item.code}))
                                                                                                             setRegionArray((prev) => (
                                                                                                                 prev.map((itemChild, indexChild) => (
-                                                                                                                    indexChild == 0 ? item.name : itemChild
+                                                                                                                    indexChild == 0 ? `${item.type} ${item.name}` : itemChild
                                                                                                                 ))
                                                                                                             ))
                                                                                                         }}
                                                                                                     >
-                                                                                                        {item.name}
+                                                                                                        {`${item.type} ${item.name}`}
                                                                                                     </div>
                                                                                                 ))
                                                                                             }

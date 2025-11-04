@@ -152,7 +152,6 @@ const FeedbackModal = ({openModal, setOpenModal, name, size, color, url, product
     }
     const checkUpdate = (): {isUpdate: boolean, currentMediaId: number[]} => {
         const currentMediaId: number[] = [];
-        console.log(media);
         for (const item of media) {
             for (const m of item.media) {
                 currentMediaId.push(m.id)
@@ -197,7 +196,6 @@ const FeedbackModal = ({openModal, setOpenModal, name, size, color, url, product
                 } else {
                     messageService.error(result.message)
                 }
-                console.log(result.data)
             } catch(e) {
                 console.log(e);
                 messageService.error("Xảy ra lỗi ở server");
@@ -224,7 +222,6 @@ const FeedbackModal = ({openModal, setOpenModal, name, size, color, url, product
                     }
                     const currentMediaId = update.currentMediaId;
                     const removeMedia: number[] = firstMediaId.filter((item) => (!currentMediaId.includes(item)));
-                    console.log(removeMedia);
                     formData.append("accountId", user.accountId.toString());
                     formData.append("productId", JSON.stringify(productId));
                     formData.append("productVariantId", JSON.stringify(productVariantId));
@@ -235,7 +232,6 @@ const FeedbackModal = ({openModal, setOpenModal, name, size, color, url, product
                     formData.append("removeMedia", JSON.stringify(removeMedia));
                     formData.append("feedbackId", JSON.stringify(feedbackId));
                     formData.append("firstRate", JSON.stringify(firstRate));
-                    console.log([...formData.entries()]);
                     const result = await updateFeedbackApi(formData);
                     if (result.code == 0) {
                         messageService.success(result.message);
@@ -243,7 +239,6 @@ const FeedbackModal = ({openModal, setOpenModal, name, size, color, url, product
                     } else {
                         messageService.error(result.message)
                     }
-                    console.log(result.data)
                 } catch(e) {
                     console.log(e);
                     messageService.error("Xảy ra lỗi ở server");

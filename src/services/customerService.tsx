@@ -326,9 +326,9 @@ export const getCoordinates = async (address: string) => {
 
 export const getCity = async (setCityList: Dispatch<SetStateAction<any[]>>) => {
     try {
-        const result = await axiosPackage.get("http://provinces.open-api.vn/api/p/");
-        setCityList(result.data);
-        return result.data
+        const result = await axiosPackage.get("https://tinhthanhpho.com/api/v1/provinces?limit=63");
+        setCityList(result.data.data);
+        return result.data.data
     } catch(e) {
         console.log(e);
         messageService.error("Xảy ra lỗi trong quá trình lấy dữ liệu")
@@ -337,10 +337,10 @@ export const getCity = async (setCityList: Dispatch<SetStateAction<any[]>>) => {
 
 export const getDistrict = async (cityCode: number, setDistrictList: Dispatch<SetStateAction<any[]>>, setRegionObj: Dispatch<SetStateAction<{cityCode: number | null, districtCode: number | null, wardCode: number | null}>>): Promise<any> => {
     try {
-        const result = await axiosPackage.get(`http://provinces.open-api.vn/api/p/${cityCode}?depth=2`);
-        setDistrictList(result.data.districts);
+        const result = await axiosPackage.get(`https://tinhthanhpho.com/api/v1/provinces/${cityCode}/districts?limit=63`);
+        setDistrictList(result.data.data);
         setRegionObj(prev => ({...prev, districtCode: null, wardCode: null}))
-        return result.data.districts;
+        return result.data.data;
     } catch(e) {
         console.log(e);
         messageService.error("Xảy ra lỗi trong quá trình lấy dữ liệu")
@@ -349,10 +349,10 @@ export const getDistrict = async (cityCode: number, setDistrictList: Dispatch<Se
 
 export const getWard = async (districtCode: number, setWardList: Dispatch<SetStateAction<any[]>>, setRegionObj: Dispatch<SetStateAction<{cityCode: number | null, districtCode: number | null, wardCode: number | null}>>): Promise<any> => {
     try {
-        const result = await axiosPackage.get(`http://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
-        setWardList(result.data.wards);
+        const result = await axiosPackage.get(`https://tinhthanhpho.com/api/v1/districts/${districtCode}/wards`);
+        setWardList(result.data.data);
         setRegionObj(prev => ({...prev, wardCode: null}))
-        return result.data.wards;
+        return result.data.data;
     } catch(e) {
         console.log(e);
         messageService.error("Xảy ra lỗi trong quá trình lấy dữ liệu")
