@@ -135,7 +135,7 @@ const Login = (): JSX.Element => {
                                             style={{fontSize: "25px", fontWeight: "600", cursor: "pointer"}}
                                             onClick={() => {navigate("/")}}
                                         >
-                                            E - COMMERCE
+                                            COMMERCE
                                         </div>
                                     </Col>
                                     <Col span={24}>

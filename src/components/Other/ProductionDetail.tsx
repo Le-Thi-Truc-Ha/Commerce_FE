@@ -1,11 +1,11 @@
-import { Button, Col, ConfigProvider, Row, Skeleton } from "antd";
+import { Button, Col, ConfigProvider, Pagination, Row, Skeleton } from "antd";
 import { ChevronDown, ChevronUp, Heart, HeartOff, Minus, PencilLine, Plus, Star } from "lucide-react";
-import { useContext, useEffect, useState, type JSX } from "react";
+import { useContext, useEffect, useRef, useState, type JSX } from "react";
 import "./ProductionDetail.scss";
 import { AnimatePresence } from "framer-motion";
-import { configProvider, divConfig, messageService, MotionDiv, type ProductDetail, type RawProductDetail } from "../../interfaces/appInterface";
+import { configProvider, divConfig, messageService, MotionDiv, type ProductDetail, type RateData, type RawProductDetail } from "../../interfaces/appInterface";
 import { UserContext } from "../../configs/globalVariable";
-import { getProductDetailApi, saveHistoryApi } from "../../services/appService";
+import { getProductDetailApi, getRateApi, saveHistoryApi } from "../../services/appService";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import LoadingModal from "./LoadingModal";
@@ -13,6 +13,7 @@ import { addCart, addFavourite, deleteFavourite } from "../../services/customerS
 import { getSessionKey } from "../../configs/axios";
 import { setSessionKey } from "./Login";
 import type { CartProduct } from "../../interfaces/customerInterface";
+import { PhotoProvider, PhotoView } from "react-photo-view";
 
 export const RateValue = ({rate, size}: {rate: number, size: number}): JSX.Element => {
     const rateString = rate.toFixed(1);
@@ -46,7 +47,8 @@ const ProductionDetail = (): JSX.Element => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const optionFiler: string[] = ["Tất cả", "5 sao", "4 sao", "3 sao", "2 sao", "1 sao"]
+    const optionFilter: string[] = ["Tất cả", "5 sao", "4 sao", "3 sao", "2 sao", "1 sao"]
+    const filterOrder: number[] = [0, 5, 4, 3, 2, 1];
     const defaultDetail: ProductDetail = {
         id: -1,
         name: "",
@@ -58,15 +60,17 @@ const ProductionDetail = (): JSX.Element => {
         image: [],
         description: "",
         totalRate: 0,
-        averageStar: 0,
-        rate: []
+        averageStar: 0
     }
     const sizeOrder = ["xs", "s", "m", "l", "xl", "xxl"];
     const preservation = `- Giặt tay để tránh bay màu hoặc xù lông, ủi nhiệt độ bình thường.
                        - Không vắt hoặc xoắn mạnh vì điều này có thể gây ra các nếp nhăn và ảnh hưởng đến độ bền, cấu trúc của vải.
                        - Phơi, ủi mặt trái sản phẩm.`
+
+    const firstRender = useRef<boolean>(true);
     const [dataDetail, setDataDetail] = useState<ProductDetail>(defaultDetail);
     const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false);
+    const [rateList, setRateList] = useState<RateData[]>([]);
     const [pageRate, setPageRate] = useState<number>(1);
     const [imageSelect, setImageSelect] = useState<number>(0);
     const [startIndex, setStartIndex] = useState<number>(0);
@@ -83,6 +87,33 @@ const ProductionDetail = (): JSX.Element => {
     const [showSelectQuantity, setShowSelectQuantity] = useState<boolean>(true);
     const [colorDisable, setColorDisable] = useState<string[]>([]);
     const [sizeDisable, setSizeDisable] = useState<string[]>([]);
+    const [isExpand, setIsExpand] = useState<boolean>(false);
+    const [filterSelect, setFilterSelect] = useState<number>(0);
+    const [getRateLoading, setGetRateLoading] = useState<boolean>(false);
+    const [totalRateRecord, setTotalRateRecord] = useState<number>(0);
+    
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            const fullscreenEl =
+                document.fullscreenElement ||
+                (document as any).webkitFullscreenElement ||
+                (document as any).mozFullScreenElement ||
+                (document as any).msFullscreenElement;
+            setIsExpand(!!fullscreenEl);
+        };
+
+        document.addEventListener("fullscreenchange", handleFullscreenChange);
+        document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+        document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+        document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+
+        return () => {
+            document.removeEventListener("fullscreenchange", handleFullscreenChange);
+            document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+            document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
+            document.removeEventListener("MSFullscreenChange", handleFullscreenChange);
+        };
+    }, []);
     
     useEffect(() => {
         window.scrollTo({
@@ -115,7 +146,7 @@ const ProductionDetail = (): JSX.Element => {
         }
     }
     
-    const processData = (rawData: RawProductDetail): ProductDetail => {
+    const processData = (rawData: RawProductDetail): {productInformation: ProductDetail, rateList: RateData[]} => {
         const product = rawData.product;
         const rate = rawData.rate.filter((item) => (item != null));
         let rawVariant: {id: number, color: string, size: string, price: number, quantity: number, status: number}[] = [];
@@ -133,7 +164,7 @@ const ProductionDetail = (): JSX.Element => {
             rawColor = [...rawColor, item.color];
             rawSize = [...rawSize, item.size];
         })
-        const result: ProductDetail = {
+        const productInformation: ProductDetail = {
             id: product.id,
             name: product.name,
             percent: product.productPromotions.find((promotionItem) => (promotionItem.promotion != null))?.promotion?.percent ?? null,
@@ -144,23 +175,24 @@ const ProductionDetail = (): JSX.Element => {
             image: product.medias.map((item) => (item.url)),
             description: product.description,
             totalRate: rawData.count,
-            averageStar: product.rateStar ?? 0,
-            rate: rate.map((item) => (
-                {
-                    id: item.id,
-                    createAt: dayjs(item.feeedbackDate),
-                    accountId: item.account?.id ?? -1,
-                    name: item.account?.email ?? "",
-                    star: item.star,
-                    content: item.content,
-                    url: item.medias.map((item) => (item.url)),
-                    size: item.productVariant?.size ?? "",
-                    color: item.productVariant?.color ?? ""
-                }
-            ))
+            averageStar: product.rateStar ?? 0
         }
+        const rateList: RateData[] = rate.map((item) => (
+            {
+                id: item.id,
+                createAt: dayjs(item.feeedbackDate),
+                accountId: item.account?.id ?? -1,
+                name: item.account?.email ?? "",
+                star: item.star,
+                content: item.content,
+                url: item.medias.map((i) => ({url: i.url, type: i.type})).sort((a, b) => (b.type - a.type)),
+                size: item.productVariant?.size ?? "",
+                color: item.productVariant?.color ?? ""
+            }
+        ))
+        setTotalRateRecord(rawData.count);
         setIsLikeState(product.favourites.length > 0 ? true : false)
-        return result
+        return {productInformation, rateList}
     }
     const getData = async () => {
         if (!isNaN(Number(id))) {
@@ -168,7 +200,9 @@ const ProductionDetail = (): JSX.Element => {
             try {
                 const result = await getProductDetailApi(user.isAuthenticated ? user.accountId : -1, Number(id), pageRate);
                 if (result.code == 0) {
-                    setDataDetail(processData(result.data));
+                    const process = processData(result.data);
+                    setDataDetail(process.productInformation);
+                    setRateList(process.rateList);
                 } else if (result.code == 2) {
                     messageService.error(result.message);
                     navigate("/")
@@ -364,24 +398,47 @@ const ProductionDetail = (): JSX.Element => {
             navigate("/login")
         }
     }
-    
-    const feedbackList: {name: string, rate: number, content: string}[] = [
-        {
-            name: "n2*****3",
-            rate: 4,
-            content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Animi explicabo nam voluptatem sed, ipsum pariatur aliquid laboriosam, aspernatur consequuntur tenetur, delectus eum! Voluptas maiores, cumque perferendis laborum quasi commodi ipsum."
-        },
-        {
-            name: "di*****6",
-            rate: 5,
-            content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Animi explicabo nam voluptatem sed, ipsum pariatur aliquid laboriosam, aspernatur consequuntur tenetur, delectus eum! Voluptas maiores, cumque perferendis laborum quasi commodi ipsum."
-        },
-        {
-            name: "le******6",
-            rate: 4,
-            content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Animi explicabo nam voluptatem sed, ipsum pariatur aliquid laboriosam, aspernatur consequuntur tenetur, delectus eum! Voluptas maiores, cumque perferendis laborum quasi commodi ipsum."
+
+    useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            return;
         }
-    ]
+        getRate()
+    }, [filterSelect, pageRate])
+
+    const getRate = async () => {
+        setGetRateLoading(true);
+        try {
+            const result = await getRateApi(dataDetail.id, filterOrder[filterSelect], pageRate);
+            if (result.code == 0) {
+                const rateList: RateData[] = result.data.rate.map((item: any) => (
+                    {
+                        id: item.id,
+                        createAt: dayjs(item.feeedbackDate),
+                        accountId: item.account?.id ?? -1,
+                        name: item.account?.email ?? "",
+                        star: item.star,
+                        content: item.content,
+                        url: item.medias.map((i: any) => ({url: i.url, type: i.type})).sort((a: any, b: any) => (b.type - a.type)),
+                        size: item.productVariant?.size ?? "",
+                        color: item.productVariant?.color ?? ""
+                    }
+                ))
+                setRateList(rateList);
+                if (pageRate == 1) {
+                    setTotalRateRecord(result.data.count);
+                }
+            } else {
+                messageService.error(result.message);
+            }
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở server");
+        } finally {
+            setGetRateLoading(false);
+        }
+    }
 
     return(
         <>
@@ -537,8 +594,6 @@ const ProductionDetail = (): JSX.Element => {
                                 </>
                             )
                         }
-                        
-                        
                     </Col>
                     <Col span={12} style={{paddingTop: "30px", paddingRight: "15px"}}>
                         <Row style={{backgroundColor: "white", padding: "20px", boxShadow: "0 0 20px 2px rgba(0, 0, 0, 0.3)"}}>
@@ -573,9 +628,9 @@ const ProductionDetail = (): JSX.Element => {
                                             <div style={{fontSize: "25px", fontWeight: "600", paddingBottom: "10px"}}>Đánh giá</div>
                                         </Col>
                                         <Col span={24} style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-                                            <div style={{fontSize: "50px", fontWeight: "600"}}>4.3</div>
-                                            <RateValue rate={4.3} size={30} />
-                                            <div style={{fontSize: "20px"}}>3 đánh giá</div>
+                                            <div style={{fontSize: "50px", fontWeight: "600"}}>{dataDetail.averageStar}</div>
+                                            <RateValue rate={dataDetail.averageStar} size={30} />
+                                            <div style={{fontSize: "20px"}}>{`${dataDetail.totalRate} đánh giá`}</div>
                                         </Col>
                                         <Col span={24} style={{paddingTop: "20px"}}>
                                             <Row align={"middle"}>
@@ -585,9 +640,16 @@ const ProductionDetail = (): JSX.Element => {
                                                 <Col span={17} style={{paddingLeft: "20px"}}>
                                                     <Row gutter={[20, 10]}>
                                                         {
-                                                            optionFiler.map((item, index) => (
-                                                                <Col span={8} key={index}>
-                                                                    <div className={`item-option ${index == 0 ? "option-active" : ""}`} style={{textAlign: "center", padding: "5px 10px", border: "1px solid var(--color7)", borderRadius: "20px"}}>{item}</div>
+                                                            optionFilter.map((item, index) => (
+                                                                <Col 
+                                                                    span={8} 
+                                                                    key={index} 
+                                                                    onClick={() => {
+                                                                        setFilterSelect(index); 
+                                                                        setPageRate(1)
+                                                                    }}
+                                                                >
+                                                                    <div className={`item-option ${index == filterSelect ? "option-active" : ""}`} style={{textAlign: "center", padding: "5px 10px", border: "1px solid var(--color7)", borderRadius: "20px"}}>{item}</div>
                                                                 </Col>
                                                             ))
                                                         }
@@ -595,49 +657,93 @@ const ProductionDetail = (): JSX.Element => {
                                                 </Col>
                                             </Row>
                                         </Col>
-                                        <Col span={24}>
-                                            {
-                                                feedbackList.map((item, index) => (
-                                                    <div key={index} style={{padding: "20px 0px", borderTop: `${index == 0 ? "" : "1px solid rgba(0, 0, 0, 0.2)"}`}}>
-                                                        <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: "10px"}}>
-                                                            <div style={{display: "flex", alignItems: "center"}}>
-                                                                <div style={{paddingRight: "10px", borderRight: "1px solid rgba(0, 0, 0, 0.3)"}}>
-                                                                    <div>{item.name}</div>
-                                                                </div>
-                                                                <div style={{paddingLeft: "10px"}}>
-                                                                    <RateValue size={20} rate={item.rate} />
-                                                                </div>
-                                                            </div>
-                                                            {
-                                                                index == 0 && (
-                                                                    <div>
-                                                                        <PencilLine size={20} strokeWidth={1} />
+                                        {
+                                            totalRateRecord > 0 ? (
+                                                <>
+                                                    
+                                                    <Col span={24}>
+                                                        {
+                                                            rateList.map((item, index) => (
+                                                                <div key={index} style={{padding: "20px 0px", borderTop: `${index == 0 ? "" : "1px solid rgba(0, 0, 0, 0.2)"}`}}>
+                                                                    <div style={{display: "flex", flexDirection: "column", paddingBottom: "10px"}}>
+                                                                        <div style={{display: "flex", alignItems: "center", paddingBottom: "5px"}}>
+                                                                            <div style={{paddingRight: "10px", borderRight: "1px solid rgba(0, 0, 0, 0.3)"}}>
+                                                                                <div>{`${item.name.slice(0, 2)}${Array(10).fill("*").join("")}${item.name.slice(item.name.length - 2, item.name.length)}`}</div>
+                                                                            </div>
+                                                                            <div style={{paddingLeft: "10px"}}>
+                                                                                <RateValue size={20} rate={item.star} />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div style={{display: "flex", alignItems: "center"}}>
+                                                                            <div style={{fontSize: "14px", color: "#949494ff", paddingRight: "10px", borderRight: "1px solid rgba(0, 0, 0, 0.3)"}}>
+                                                                                {item.createAt.format("DD/MM/YYYY HH:mm")}
+                                                                            </div>
+                                                                            <div style={{fontSize: "14px", color: "#949494ff", paddingLeft: "10px"}}>
+                                                                                {item.color}/{item.size}
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
-                                                                )
-                                                            }
+                                                                    <PhotoProvider>
+                                                                        <Row style={{display: "flex", gap: "20px", paddingBottom: `${item.url.length > 0 ? "10px" : "0px"}`}}>
+                                                                            {
+                                                                                item.url.map((i, idx) => (
+                                                                                    <Col span={4} key={idx} style={{width: "20%", height: "80px", overflow: "hidden"}}>
+                                                                                        {
+                                                                                            i.type == 1 ? (
+                                                                                                <PhotoView src={i.url}>
+                                                                                                    <img style={{width: "100%", height: "100%", objectFit: "cover"}} src={i.url} />
+                                                                                                </PhotoView>
+                                                                                            ) : (
+                                                                                                <video style={{width: "100%", height: "100%", objectFit: `${isExpand ? "contain" : "cover"}`}} controls={true}>
+                                                                                                    <source src={i.url} />
+                                                                                                </video>
+                                                                                            )
+                                                                                        }
+                                                                                    </Col>
+                                                                                ))
+                                                                            }
+                                                                        </Row>
+                                                                    </PhotoProvider>
+                                                                    <div style={{textAlign: "justify"}}>{item.content}</div>
+                                                                </div>
+                                                            ))
+                                                        }
+                                                    </Col>
+                                                    <Col span={24}>
+                                                        <Pagination
+                                                            current={pageRate}
+                                                            pageSize={3}
+                                                            total={totalRateRecord}
+                                                            align="center"
+                                                            showSizeChanger={false}
+                                                            onChange={(page) => {
+                                                                setPageRate(page);
+                                                            }}
+                                                        />
+                                                    </Col>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Col span={24} style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", opacity: 0.7, paddingTop: "10px"}}>
+                                                        <div style={{width: "90%", height: "300px", overflow: "hidden"}}>
+                                                            <img style={{width: "100%", height: "100%", objectFit: "contain"}} src="https://res.cloudinary.com/dibigdhgr/image/upload/v1762242307/marketing_kcan6u.png" />
                                                         </div>
-                                                        <div style={{textAlign: "justify"}}>{item.content}</div>
-                                                    </div>
-                                                ))
-                                            }
-                                        </Col>
+                                                        <div style={{fontSize: "20px"}}>{`Chưa có đánh giá ${filterSelect == 0 ? "" : `${filterOrder[filterSelect]} sao`}`}</div>
+                                                    </Col>
+                                                </>
+                                            )
+                                        }
                                     </>
                                 )
                             }
-                            
-                            
                         </Row>
                     </Col>
                 </Row>
             </ConfigProvider>
-            {
-                modalLoading && (
-                    <LoadingModal 
-                        open={modalLoading}
-                        message="Đang lưu"
-                    />
-                )
-            }
+            <LoadingModal 
+                open={modalLoading || getRateLoading}
+                message={`${getRateLoading ? "Đang lấy dữ liệu" : "Đang lưu"}`}
+            />
         </>
     )
 }

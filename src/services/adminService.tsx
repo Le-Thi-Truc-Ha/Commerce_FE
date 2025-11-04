@@ -1,4 +1,5 @@
 import axios from "../configs/axios";
+import type { BackendResponse } from "../interfaces/appInterface";
 
 export const dashboardApi = {
     async getRecentOrders() {
@@ -156,3 +157,9 @@ export const feedbackApi = {
         return axios.get("/admin/feedbacks", { params: { page, limit, search, star, fromDate, toDate } });
     },
 };
+
+export const savePasswordApi = (accountId: number, oldPassword: string, newPassword: string): Promise<BackendResponse> => {
+    return axios.post("/admin/save-password", {
+        accountId, oldPassword, newPassword
+    })
+}

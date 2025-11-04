@@ -4,21 +4,23 @@ import "./HeaderAdmin.scss";
 import { BadgePercent, CircleUserRound, House, List, Package, ReceiptText, TicketPercent, UsersRound, Mail } from "lucide-react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { UserContext } from "../../configs/globalVariable";
+import ChangePasswordModal from "../Utilities/Other/ChangePasswordModal";
 
 const HeaderAdmin = (): JSX.Element => {
     const navigate = useNavigate();
-    const {logoutContext} = useContext(UserContext);
+    const {logoutContext, user} = useContext(UserContext);
     const location = useLocation();
     
     const [indexOfItem, setIndexOfItem] = useState<number>(1);
     const iconsItem = [House, Package, ReceiptText, UsersRound, BadgePercent, TicketPercent, List, Mail]
     const nameItem = ["Trang chủ", "Sản phẩm", "Đơn hàng", "Khách hàng", "Chương trình ưu đãi", "Mã giảm giá", "Danh mục hàng", "Phản hồi"]
+    const [openChangePassword, setOpenChangePassword] = useState<boolean>(false);
 
     const accountItem: MenuProps["items"] = [
         {
             key: "1",
             label: (
-                <div>Đổi mật khẩu</div>
+                <div onClick={() => {setOpenChangePassword(true)}}>Đổi mật khẩu</div>
             )
         },
         {
@@ -118,6 +120,11 @@ const HeaderAdmin = (): JSX.Element => {
                     <div className="outlet page-container">{<Outlet />}</div>
                 </Col>
             </Row>
+            <ChangePasswordModal
+                open={openChangePassword}
+                setOpen={setOpenChangePassword}
+                accountId={user.accountId}
+            />
         </>
     )
 }

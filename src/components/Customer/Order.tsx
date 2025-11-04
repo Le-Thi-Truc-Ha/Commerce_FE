@@ -1,11 +1,11 @@
 import { useContext, useEffect, useRef, useState, type JSX } from "react";
 import "./Order.scss";
-import { Button, Col, Row, Skeleton } from "antd";
+import { Button, Col, Dropdown, Row, Skeleton, type MenuProps } from "antd";
 import { Circle } from "lucide-react";
 import FeedbackModal from "../Utilities/Feedback/FeedbackModal";
 import type { OrderData } from "../../interfaces/customerInterface";
 import { messageService } from "../../interfaces/appInterface";
-import { addCart, confirmReceiveProductApi, getOrderListApi } from "../../services/customerService";
+import { addCart, confirmReceiveProductApi, deleteFeedbackApi, getOrderListApi } from "../../services/customerService";
 import { UserContext } from "../../configs/globalVariable";
 import { BeatLoader } from "react-spinners";
 import OrderDetailModal from "../Utilities/Order/OrderDetailModal";
@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 import LoadingModal from "../Other/LoadingModal";
 import ReasonModal from "../Utilities/Order/ReasonModal";
 import { useNavigate } from "react-router-dom";
+import ConfirmDeleteModal from "../Utilities/Other/ConfirmDeleteModal";
 
 const Order = (): JSX.Element => {
     const {user, setCart, setPathBeforeLogin} = useContext(UserContext);
@@ -38,6 +39,51 @@ const Order = (): JSX.Element => {
     const [orderId, setOrderId] = useState<number>(0);
     const [openReason, setOpenReason] = useState<boolean>(false);
     const [mode, setMode] = useState<string>("");
+    const [feedbackOrderId, setFeedbackOrderId] = useState<number[]>([]);
+    const [openDropdown, setOpenDropdown] = useState<{orderId: number, open: boolean}[]>([]);
+    const [openDeleteConfirm, setOpenDeleteConfirm] = useState<boolean>(false);
+    const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
+
+    const feedbackFeature = (orderId: number): MenuProps["items"] => ([
+        {
+            key: "1",
+            label: (
+                <div 
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        setOpenFeedback(true);
+                        setOrderId(orderId)
+                        setMode(feedbackOrderId.includes(orderId) ? "update" : "create")
+                    }}
+                >
+                    Xem đánh giá
+                </div>
+            )
+        },
+        {
+            key: "2",
+            label: (
+                <div
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        setOpenDropdown((prev) => (prev.map((item) => (item.orderId == orderId ? {...item, open: false} : item))))
+                        setOpenDeleteConfirm(true);
+                        setOrderId(orderId);
+                    }}
+                >
+                    Xóa đánh giá
+                </div>
+            )
+        }
+    ])
+
+    useEffect(() => {
+        if (openFeedback) {
+            setOpenDropdown((prev) => (
+                prev.map((item) => ({...item, open: false}))
+            ))
+        }
+    }, [openFeedback])
 
     useEffect(() => {
         getPositionItem();
@@ -61,23 +107,44 @@ const Order = (): JSX.Element => {
             }
             const result = await getOrderListApi(user.accountId, status, page[indexOfItem - 1]);
             if (result.code == 0) {
+                const changeType = result.data.order.map((item: any) => (
+                    {
+                        ...item, 
+                        statusHistory: (item.statusHistory ?? []).map((itemChild: any) => (
+                            {
+                                id: itemChild.id,
+                                status: itemChild.status ?? -1,
+                                date: dayjs(itemChild.date)
+                            }
+                        ))
+                    }
+                ))
                 setOrderList((prev) => {
                     const newList = [...prev];
-                    const changeType = result.data.order.map((item: any) => (
-                        {
-                            ...item, 
-                            statusHistory: (item.statusHistory ?? []).map((itemChild: any) => (
-                                {
-                                    id: itemChild.id,
-                                    status: itemChild.status ?? -1,
-                                    date: dayjs(itemChild.date)
-                                }
-                            ))
-                        }
-                    ))
                     newList[indexOfItem - 1] = [...newList[indexOfItem - 1], ...changeType];
                     return newList as [OrderData[], OrderData[], OrderData[], OrderData[], OrderData[]]
                 })
+
+                setFeedbackOrderId((prev) => (
+                    [
+                        ...prev, 
+                        ...changeType.map((item: OrderData) => (
+                            item.feedback ? item.id : null
+                        )).filter(Boolean)
+                    ]
+                ))
+
+                if (indexOfItem == 3) {
+                    setOpenDropdown((prev) => (
+                        [
+                            ...prev,
+                            ...changeType.map((item: OrderData) => (
+                                {orderId: item.id, openDropdown: false}
+                            ))
+                        ]
+                    ))
+                }
+
                 if (page[indexOfItem - 1] == 1) {
                     setTotalRecord((prev) => (
                         prev.map((item, index) => (index == indexOfItem - 1 ? result.data.count : item))
@@ -180,6 +247,28 @@ const Order = (): JSX.Element => {
         }
     }
 
+    const deleteFeedback = async () => {
+        setDeleteLoading(true);
+        try {
+            console.log(orderId)
+            const productIds = orderList[indexOfItem - 1].find((item) => (item.id == orderId))?.productId
+            console.log(productIds)
+            const result = await deleteFeedbackApi(orderId, productIds ?? []);
+            if (result.code == 0) {
+                setFeedbackOrderId((prev) => (prev.filter((item) => (item != orderId))));
+                setOpenDeleteConfirm(false)
+                messageService.success(result.message);
+            } else {
+                messageService.error(result.message);
+            }
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở server");
+        } finally {
+            setDeleteLoading(false)
+        }
+    }
+
     return(
         <>
             <Row className="order-container">
@@ -194,7 +283,13 @@ const Order = (): JSX.Element => {
                                                 key={index} 
                                                 style={{fontSize: "20px", cursor: "pointer"}}
                                                 ref={(element) => {refItem.current[index] = element}}
-                                                onClick={() => {setIndexOfItem(index + 1)}}
+                                                onClick={() => {
+                                                    setIndexOfItem(index + 1);
+                                                    setPage([1, 1, 1, 1, 1])
+                                                    setOrderList([[], [], [], [], []])
+                                                    setTotalRecord([0, 0, 0, 0, 0])
+                                                    setFeedbackOrderId([])
+                                                }}
                                             >
                                                 {item}
                                             </div>
@@ -260,8 +355,20 @@ const Order = (): JSX.Element => {
                                                                     ))
                                                                 }
                                                             </Col>
-                                                            <Col span={24} style={{paddingTop: "15px", display: "flex", justifyContent: "end"}}>
-                                                                <div style={{fontSize: "20px"}}>Tổng thanh toán: <span style={{fontSize: "20px", fontWeight: "600"}}>{`${item.total.toLocaleString("en-US")}đ`}</span></div>
+                                                            <Col span={24} style={{paddingTop: "15px"}}>
+                                                                <Row style={{width: "100%"}}>
+                                                                    {
+                                                                        indexOfItem == 3 && (
+                                                                            <Col span={12}>
+                                                                                <div style={{fontSize: "14px", color: "#8d8d8dff"}}>{`Trả hàng trước ${item.statusHistory.find((i) => (i.status == 4))?.date.add(7, "day").format("DD/MM/YYYY")}`}</div>
+                                                                                <div style={{fontSize: "14px", color: "#8d8d8dff"}}>{`Đánh giá trước ${item.statusHistory.find((i) => (i.status == 4))?.date.add(30, "day").format("DD/MM/YYYY")}`}</div>
+                                                                            </Col>
+                                                                        )
+                                                                    }
+                                                                    <Col span={indexOfItem == 3 ? 12 : 24} style={{display: "flex", justifyContent: "end"}}>
+                                                                        <div style={{fontSize: "20px"}}>Tổng thanh toán: <span style={{fontSize: "20px", fontWeight: "600"}}>{`${item.total.toLocaleString("en-US")}đ`}</span></div>
+                                                                    </Col>
+                                                                </Row>
                                                             </Col>
                                                         </Row>
                                                     </Col>
@@ -403,32 +510,54 @@ const Order = (): JSX.Element => {
                                                                             </>
                                                                         ) : (
                                                                             <div style={{display: "flex", gap: "30px"}}>
-                                                                                <Button
-                                                                                    variant="solid"
-                                                                                    color="primary"
-                                                                                    size="large"
-                                                                                    style={{width: "100%"}}
-                                                                                    onClick={(event) => {
-                                                                                        event.stopPropagation();
-                                                                                        setOpenFeedback(true);
-                                                                                    }}
-                                                                                >
-                                                                                    Đánh giá
-                                                                                </Button>
-                                                                                <Button
-                                                                                    variant="solid"
-                                                                                    color="primary"
-                                                                                    size="large"
-                                                                                    style={{width: "100%"}}
-                                                                                    onClick={(event) => {
-                                                                                        event.stopPropagation();
-                                                                                        setOrderId(item.id);
-                                                                                        setOpenReason(true);
-                                                                                        setMode("return")
-                                                                                    }}
-                                                                                >
-                                                                                    Trả hàng
-                                                                                </Button>
+                                                                                {
+                                                                                    dayjs().isSameOrBefore(item.statusHistory.find((i) => (i.status == 4))?.date.add(30, "day")) && (
+                                                                                        <Dropdown
+                                                                                            menu={{items: feedbackFeature(item.id), style: {width: "100%", display: "flex", alignItems: "center", justifyContent: "center"}}}
+                                                                                            placement="bottom"
+                                                                                            arrow
+                                                                                            open={!feedbackOrderId.includes(item.id) ? false : openDropdown.find((i) => (i.orderId == item.id))?.open}
+                                                                                            onOpenChange={(flag) => setOpenDropdown((prev) => (prev.map((i) => (i.orderId == item.id ? {...i, open: flag} : i))))}
+                                                                                        >
+                                                                                            <Button
+                                                                                                variant="solid"
+                                                                                                color="primary"
+                                                                                                size="large"
+                                                                                                style={{width: "100%"}}
+                                                                                                onClick={(event) => {
+                                                                                                    event.stopPropagation();
+                                                                                                    if (feedbackOrderId.includes(item.id)) {
+                                                                                                        setOpenDropdown((prev) => (prev.map((i) => (i.orderId == item.id ? {...i, open: true} : i))));
+                                                                                                    } else {
+                                                                                                        setOpenFeedback(true);
+                                                                                                        setOrderId(item.id)
+                                                                                                        setMode("create")
+                                                                                                    }
+                                                                                                }}
+                                                                                            >
+                                                                                                Đánh giá
+                                                                                            </Button>
+                                                                                        </Dropdown>
+                                                                                    )
+                                                                                }
+                                                                                {
+                                                                                    dayjs().isSameOrBefore(item.statusHistory.find((i) => (i.status == 4))?.date.add(7, "day")) && (
+                                                                                        <Button
+                                                                                            variant="solid"
+                                                                                            color="primary"
+                                                                                            size="large"
+                                                                                            style={{width: "100%"}}
+                                                                                            onClick={(event) => {
+                                                                                                event.stopPropagation();
+                                                                                                setOrderId(item.id);
+                                                                                                setOpenReason(true);
+                                                                                                setMode("return")
+                                                                                            }}
+                                                                                        >
+                                                                                            Trả hàng
+                                                                                        </Button>
+                                                                                    )
+                                                                                }
                                                                             </div>
                                                                         )
                                                                     }
@@ -558,6 +687,15 @@ const Order = (): JSX.Element => {
                 <FeedbackModal
                     openModal={openFeedback}
                     setOpenModal={setOpenFeedback}
+                    size={orderList[indexOfItem - 1].find((item) => (item.id == orderId))?.size ?? []}
+                    color={orderList[indexOfItem - 1].find((item) => (item.id == orderId))?.color ?? []}
+                    name={orderList[indexOfItem - 1].find((item) => (item.id == orderId))?.name ?? []}
+                    productVariantId={orderList[indexOfItem - 1].find((item) => (item.id == orderId))?.productVariantId ?? []}
+                    url={orderList[indexOfItem - 1].find((item) => (item.id == orderId))?.url ?? []}
+                    productId={orderList[indexOfItem - 1].find((item) => (item.id == orderId))?.productId ?? []}
+                    orderId={orderId}
+                    setFeedbackOrderId={setFeedbackOrderId}
+                    mode={mode}
                 />
                 <OrderDetailModal 
                     open={openOrderDetail}
@@ -565,8 +703,8 @@ const Order = (): JSX.Element => {
                     orderId={orderSelectId}
                 />
                 <LoadingModal 
-                    open={modalLoading}
-                    message="Đang lưu"
+                    open={modalLoading || deleteLoading}
+                    message={`${modalLoading ? "Đang lưu" : "Đang xóa"}`}
                 />
                 <ReasonModal
                     open={openReason}
@@ -580,6 +718,14 @@ const Order = (): JSX.Element => {
                     setPage={setPage}
                     orderList={orderList}
                     setOrderList={setOrderList}
+                />
+                <ConfirmDeleteModal
+                    open={openDeleteConfirm}
+                    title="Xác nhận xóa đánh giá"
+                    okText="Xóa"
+                    content="Bạn chắc chắn muốn xóa đánh giá của đơn hàng này?"
+                    handleCancel={() => {setOpenDeleteConfirm(false)}}
+                    handleOk={deleteFeedback}
                 />
             </Row>
         </>
