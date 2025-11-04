@@ -108,7 +108,6 @@ const VoucherModal = ({open, setOpen, totalPrice, shippingFee, totalPriceProduct
                                                         <div style={{padding: "15px 0px"}}>
                                                             <Row 
                                                                 onClick={() => {
-                                                                    console.log(item.id);
                                                                     setProductVoucherSelect(item.id);
                                                                     setProductType(item.type);
                                                                     setProductPercent(item.discountPercent);

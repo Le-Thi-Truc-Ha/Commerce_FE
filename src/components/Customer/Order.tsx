@@ -250,9 +250,7 @@ const Order = (): JSX.Element => {
     const deleteFeedback = async () => {
         setDeleteLoading(true);
         try {
-            console.log(orderId)
             const productIds = orderList[indexOfItem - 1].find((item) => (item.id == orderId))?.productId
-            console.log(productIds)
             const result = await deleteFeedbackApi(orderId, productIds ?? []);
             if (result.code == 0) {
                 setFeedbackOrderId((prev) => (prev.filter((item) => (item != orderId))));

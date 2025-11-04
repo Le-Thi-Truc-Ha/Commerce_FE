@@ -61,7 +61,6 @@ const SearchProduction = (): JSX.Element => {
                     const payload = {findValue: findValue, productId: productId}
                     localStorage.setItem("findResult", JSON.stringify(payload))
                     setSeeMore(rawProduct.length < productId.length);
-                    console.log(result.data.uuid);
                     if (!user.isAuthenticated) {
                         const keyBeforeLogin = getSessionKey();
                         if (!keyBeforeLogin) {
