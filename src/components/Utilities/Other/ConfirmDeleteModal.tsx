@@ -23,7 +23,6 @@ const ConfirmDeleteModal = ({open, title, okText, content, handleOk, handleCance
                         <div>{content}</div>
                     </Col>
                 </Row>
-                
             </Modal>
         </>
     )

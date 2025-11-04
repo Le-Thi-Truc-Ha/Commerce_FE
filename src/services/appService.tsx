@@ -89,6 +89,12 @@ export const findProductApi = (accountId: number, findValue: string, productId: 
     })
 }
 
+export const getRateApi = (productId: number, filter: number, page: number): Promise<BackendResponse> => {
+    return axios.post("/get-rate", {
+        productId, filter, page
+    })
+}
+
 export const productDataProcess = (rawData: RawProduction[]): ProductionCardProps[] => {
     let result: ProductionCardProps[] = [];
     const categoriesPath: string[] = ["shirt", "pant", "dress", "skirt"]

@@ -30,7 +30,16 @@ export interface CreateAddressModalProps {
 
 export interface FeedbackModalProps {
   openModal: boolean,
-  setOpenModal: (value: boolean) => void
+  setOpenModal: (value: boolean) => void,
+  name: string[],
+  size: string[],
+  color: string[],
+  productId: number[],
+  productVariantId: number[],
+  url: string[],
+  orderId: number,
+  setFeedbackOrderId: Dispatch<SetStateAction<number[]>>,
+  mode: string
 }
 
 export interface FavouriteListProps {
@@ -156,6 +165,7 @@ export interface OrderData {
   total: number,
   paymentTime: string | null,
   paymentMethod: number,
+  feedback: boolean,
   statusHistory: {
     id: number,
     status: number,

@@ -1,7 +1,5 @@
-import type dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 import { motion, type MotionProps } from "framer-motion";
-import type { Dispatch, SetStateAction } from "react";
 
 export interface BackendResponse {
   message: string,
@@ -111,17 +109,18 @@ export interface ProductDetail {
   description: string,
   totalRate: number,
   averageStar: number,
-  rate: {
-    id: number,
-    createAt: Dayjs,
-    accountId: number,
-    name: string,
-    star: number,
-    content: string,
-    url: string[]
-    size: string,
-    color: string
-  }[]
+}
+
+export interface RateData {
+  id: number,
+  createAt: Dayjs,
+  accountId: number,
+  name: string,
+  star: number,
+  content: string,
+  url: {url: string, type: number}[],
+  size: string,
+  color: string
 }
 
 export interface RawProductDetail {
@@ -135,7 +134,7 @@ export interface RawProductDetail {
       id: number,
     }[],
     medias: {
-      url: string,
+      url: string
     }[],
     productPromotions: {
       promotion: {
@@ -152,22 +151,23 @@ export interface RawProductDetail {
     }[],
   },
   rate: {
-    id: number;
+    id: number,
     medias: {
-      url: string;
-    }[];
+      url: string,
+      type: number
+    }[],
     productVariant: {
-      id: number;
-      size: string;
-      color: string;
-    };
+      id: number,
+      size: string,
+      color: string,
+    },
     account: {
-      id: number;
-      email: string;
-      };
-    content: string;
-    feeedbackDate: Date;
-    star: number;
+      id: number,
+      email: string,
+    },
+    content: string,
+    feeedbackDate: Date,
+    star: number
   }[]
 }
 
@@ -235,5 +235,15 @@ export const configProvider = {
     colorPrimary: "var(--color6)",
     colorPrimaryHover: "var(--color5)",
     colorPrimaryBorder: "var(--color8)"
+  },
+  Dropdown: {
+    controlItemBgHover: "var(--color1)"
+  },
+  Pagination: {
+      colorPrimary: "var(--color7)",
+      colorPrimaryBorder: "var(--color5)",
+      colorPrimaryHover: "var(--color6)",
+      colorBgTextHover: "var(--color2)",
+      colorBgTextActive: "var(--color3)"
   }
 }

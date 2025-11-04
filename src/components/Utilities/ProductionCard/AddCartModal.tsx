@@ -28,7 +28,6 @@ const AddCartModal = ({openAddCart, setopenAddCart, productId, variantId, quanti
         description: "",
         totalRate: 0,
         averageStar: 0,
-        rate: []
     }
     const sizeOrder = ["xs", "s", "m", "l", "xl", "xxl"];
     const [dataDetail, setDataDetail] = useState<ProductDetail>(defaultDetail);
@@ -82,8 +81,7 @@ const AddCartModal = ({openAddCart, setopenAddCart, productId, variantId, quanti
             image: product.medias.map((item) => (item.url)),
             description: product.description,
             totalRate: rawData.count,
-            averageStar: product.rateStar ?? 0,
-            rate: []
+            averageStar: product.rateStar ?? 0
         }
         if (variantId) {
             const color = result.variant.find((item) => (item.id == variantId))?.color

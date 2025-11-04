@@ -154,6 +154,26 @@ export const returnProductApi = (orderId: number, take: number, now: string, acc
     })
 }
 
+export const sendFeedbackApi = (formData: FormData): Promise<BackendResponse> => {
+    return axios.post("/customer/send-feedback", formData)
+}
+
+export const getFeedbackOrderApi = (orderId: number, accountId: number): Promise<BackendResponse> => {
+    return axios.post("/customer/get-feedback-order", {
+        orderId, accountId
+    })
+}
+
+export const updateFeedbackApi = (formData: FormData): Promise<BackendResponse> => {
+    return axios.post("/customer/update-feedback", formData)
+}
+
+export const deleteFeedbackApi = (orderId: number, productIds: number[]): Promise<BackendResponse> => {
+    return axios.post("/customer/delete-feedback", {
+        orderId, productIds
+    })
+}
+
 export const favouriteDataProcess = (rawData: RawFavourite[]): FavouriteListProps[] => {
     let result: FavouriteListProps[] = [];
     const categoriesPath: string[] = ["shirt", "pant", "dress", "skirt"]
@@ -306,7 +326,7 @@ export const getCoordinates = async (address: string) => {
 
 export const getCity = async (setCityList: Dispatch<SetStateAction<any[]>>) => {
     try {
-        const result = await axiosPackage.get("https://provinces.open-api.vn/api/p/");
+        const result = await axiosPackage.get("http://provinces.open-api.vn/api/p/");
         setCityList(result.data);
         return result.data
     } catch(e) {
@@ -317,7 +337,7 @@ export const getCity = async (setCityList: Dispatch<SetStateAction<any[]>>) => {
 
 export const getDistrict = async (cityCode: number, setDistrictList: Dispatch<SetStateAction<any[]>>, setRegionObj: Dispatch<SetStateAction<{cityCode: number | null, districtCode: number | null, wardCode: number | null}>>): Promise<any> => {
     try {
-        const result = await axiosPackage.get(`https://provinces.open-api.vn/api/p/${cityCode}?depth=2`);
+        const result = await axiosPackage.get(`http://provinces.open-api.vn/api/p/${cityCode}?depth=2`);
         setDistrictList(result.data.districts);
         setRegionObj(prev => ({...prev, districtCode: null, wardCode: null}))
         return result.data.districts;
@@ -329,7 +349,7 @@ export const getDistrict = async (cityCode: number, setDistrictList: Dispatch<Se
 
 export const getWard = async (districtCode: number, setWardList: Dispatch<SetStateAction<any[]>>, setRegionObj: Dispatch<SetStateAction<{cityCode: number | null, districtCode: number | null, wardCode: number | null}>>): Promise<any> => {
     try {
-        const result = await axiosPackage.get(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
+        const result = await axiosPackage.get(`http://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
         setWardList(result.data.wards);
         setRegionObj(prev => ({...prev, wardCode: null}))
         return result.data.wards;
