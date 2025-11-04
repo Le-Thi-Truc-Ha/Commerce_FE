@@ -221,58 +221,70 @@ const Home = (): JSX.Element => {
                     </ConfigProvider>
                 </Col>
                 <Col span={24} style={{display: "flex", justifyContent: "center"}}>
-                    <div style={{width: "94%"}}>
-                        <Row gutter={[0, 50]}>
-                            {
-                                nameRecommend.map((item, index) => (
-                                    <ProductionCard 
-                                        key={index} 
-                                        productId={index} 
-                                        url={imageRecommend[index]} 
-                                        name={item} 
-                                        price={100000} 
-                                        star={starProduction[index]}
-                                        discount={null}
-                                        category={"shirt"}
-                                        isLike={false}
-                                        status={1}
-                                        saleFigure={1}
-                                    />
-                                ))
-                            }
-                        </Row>
+                    <div style={{width: "94%", display: "flex", justifyContent: "center"}}>
+                        {
+                            false && (
+                                <Row gutter={[0, 50]}>
+                                    {
+                                        nameRecommend.map((item, index) => (
+                                            <ProductionCard 
+                                                key={index} 
+                                                productId={index} 
+                                                url={imageRecommend[index]} 
+                                                name={item} 
+                                                price={100000} 
+                                                star={starProduction[index]}
+                                                discount={null}
+                                                category={"shirt"}
+                                                isLike={false}
+                                                status={1}
+                                                saleFigure={1}
+                                            />
+                                        ))
+                                    }
+                                </Row>
+                            )
+                        }
+                        <div style={{fontSize: "25px"}}>
+                            Chưa hoàn thiện
+                        </div>
                     </div>
                 </Col>
-                <Col span={24} style={{display: "flex", justifyContent: "center", padding: "40px 0px 0px"}}>
-                    <ConfigProvider
-                        theme={{
-                            components: {
-                                Button: {
-                                    defaultActiveBorderColor: "var(--color7)",
-                                    defaultActiveColor: "var(--color7)",
-                                    defaultHoverBorderColor: "var(--color6)",
-                                    defaultHoverColor: "var(--color6)",
-                                    defaultShadow: "0 0 0 black",
+                {
+                    false && (
+                        <Col span={24} style={{display: "flex", justifyContent: "center", padding: "40px 0px 0px"}}>
+                            <ConfigProvider
+                                theme={{
+                                    components: {
+                                        Button: {
+                                            defaultActiveBorderColor: "var(--color7)",
+                                            defaultActiveColor: "var(--color7)",
+                                            defaultHoverBorderColor: "var(--color6)",
+                                            defaultHoverColor: "var(--color6)",
+                                            defaultShadow: "0 0 0 black",
 
-                                    colorPrimary: "var(--color5)",
-                                    colorPrimaryActive: "var(--color6)",
-                                    colorPrimaryHover: "var(--color4)",
-                                    primaryShadow: "0 0 0 black",
-                                    colorPrimaryTextHover: "var(--color4)",
-                                    colorPrimaryTextActive: "var(--color6)"
-                                }
-                            }
-                        }}
-                    >
-                        <Button
-                            variant="solid"
-                            color="primary"
-                            size="large"
-                        >
-                            Xem thêm
-                        </Button>
-                    </ConfigProvider>
-                </Col>
+                                            colorPrimary: "var(--color5)",
+                                            colorPrimaryActive: "var(--color6)",
+                                            colorPrimaryHover: "var(--color4)",
+                                            primaryShadow: "0 0 0 black",
+                                            colorPrimaryTextHover: "var(--color4)",
+                                            colorPrimaryTextActive: "var(--color6)"
+                                        }
+                                    }
+                                }}
+                            >
+                                <Button
+                                    variant="solid"
+                                    color="primary"
+                                    size="large"
+                                >
+                                    Xem thêm
+                                </Button>
+                            </ConfigProvider>
+                        </Col>
+                    )
+                }
+                
             </Row>
             {
                 bestSellerLoading && (
