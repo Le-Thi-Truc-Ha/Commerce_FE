@@ -172,7 +172,10 @@ const ProductionDetail = (): JSX.Element => {
             color: [...new Set(rawColor)],
             size: [...new Set(rawSize)].sort((a, b) => (sizeOrder.indexOf(a.toLowerCase()) - sizeOrder.indexOf(b.toLowerCase()))), 
             isLike: product.favourites.length > 0 ? true : false,
-            image: product.medias.map((item) => (item.url)),
+            image: [
+                ...product.medias.filter((item) => (item.url.includes("/video/upload"))).map((item) => (item.url)), 
+                ...product.medias.filter((item) => (item.url.includes("/image/upload"))).map((item) => (item.url))
+            ],
             description: product.description,
             totalRate: rawData.count,
             averageStar: product.rateStar ?? 0
@@ -458,7 +461,7 @@ const ProductionDetail = (): JSX.Element => {
                                                         <ChevronUp size={24} strokeWidth={1} color={`${startIndex == 0 ? "white" : "black"}`} style={{cursor: `${startIndex == 0 ? "default" : "pointer"}`}} onClick={() => {moveDown()}} />
                                                     </div>
                                                     <div
-                                                        style={{position: "relative", height: "460px", overflow: "hidden"}}
+                                                        style={{position: "relative", height: "460px", maxWidth: "80px", overflow: "hidden"}}
                                                     >
                                                         <MotionDiv
                                                             animate={{y: -startIndex * 120}}
@@ -473,7 +476,15 @@ const ProductionDetail = (): JSX.Element => {
                                                                         onClick={() => setImageSelect(index)}
                                                                         style={{width: "100%", height: "100px", overflow: "hidden", borderRadius: "10px"}}
                                                                     >
-                                                                        <img loading="eager" src={item} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }} />
+                                                                        {
+                                                                            item.includes("/image/upload") ? (
+                                                                                <img loading="eager" src={item} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }} />
+                                                                            ) : (
+                                                                                <video style={{width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px"}} controls={false} autoPlay={false} muted preload="metadata">
+                                                                                    <source src={item} />
+                                                                                </video>
+                                                                            )
+                                                                        }
                                                                     </div>
                                                                 ))
                                                             }
@@ -486,7 +497,15 @@ const ProductionDetail = (): JSX.Element => {
                                                 <Col span={16} style={{paddingLeft: "20px"}}>
                                                     <AnimatePresence mode="wait">
                                                         <MotionDiv key={imageSelect} {...divConfig} style={{width: "100%", height: "500px", overflow: "hidden"}}>
-                                                            <img style={{width: "100%", height: "100%", objectFit: "cover"}} src={dataDetail.image[imageSelect]} />
+                                                            {
+                                                                dataDetail.image?.[imageSelect]?.includes("/image/upload") ? (
+                                                                    <img style={{width: "100%", height: "100%", objectFit: "cover"}} src={dataDetail.image[imageSelect]} />
+                                                                ) : (
+                                                                    <video style={{width: "100%", height: "100%", objectFit: "contain"}} controls={true}>
+                                                                        <source src={dataDetail.image[imageSelect]} />
+                                                                    </video>
+                                                                )
+                                                            }
                                                         </MotionDiv>
                                                     </AnimatePresence>
                                                 </Col>

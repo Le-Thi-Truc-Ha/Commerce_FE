@@ -245,8 +245,18 @@ const Home = (): JSX.Element => {
                                 </Row>
                             )
                         }
-                        <div style={{fontSize: "25px"}}>
+                        {/* <div style={{fontSize: "25px"}}>
                             Chưa hoàn thiện
+                        </div> */}
+                        <div>
+                            <Button
+                                variant="solid"
+                                color="primary"
+                                onClick={() => {
+                                }}
+                            >
+                                Test
+                            </Button>
                         </div>
                     </div>
                 </Col>
