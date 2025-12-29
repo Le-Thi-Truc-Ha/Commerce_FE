@@ -584,9 +584,9 @@ const ProductAdmin: React.FC = () => {
                             <div className="col-span-1 overflow-y-auto max-h-[70vh] pr-2">
                                 <label className="font-semibold mb-2 block">Biến thể sản phẩm</label>
                                 <Form.List name="variants">
-                                    {(fields: any,  add: any, remove: any) => (
+                                    {(fields, { add, remove }) => (
                                         <>
-                                            {fields.map(( key: number, name: string, ...restField: any ) => (
+                                            {fields.map(({ key, name, ...restField }: any) => (
                                                 <div
                                                     key={key}
                                                     className="mb-3 p-3 border rounded-lg bg-gray-50 flex flex-col gap-2"
@@ -610,7 +610,7 @@ const ProductAdmin: React.FC = () => {
                                                         name={[name, "price"]}
                                                         rules={[{ required: true, message: "Nhập giá biến thể!" }]}
                                                     >
-                                                        <Input className="input" type="number" min={1000} placeholder="Giá"/>
+                                                        <Input className="input" type="number" min={1000} placeholder="Giá" />
                                                     </Form.Item>
                                                     <Form.Item
                                                         {...restField}
