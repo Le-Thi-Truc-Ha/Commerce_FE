@@ -99,6 +99,7 @@ export const productDataProcess = (rawData: RawProduction[]): ProductionCardProp
     let result: ProductionCardProps[] = [];
     const categoriesPath: string[] = ["shirt", "pant", "dress", "skirt"]
 
+    console.log(rawData);
     result = rawData.map((item) => {
         const percent = item.productPromotions.find((promotionItem) => (promotionItem.promotion != null))?.promotion?.percent ?? null;
         return({

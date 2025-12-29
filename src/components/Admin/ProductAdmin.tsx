@@ -38,6 +38,7 @@ const ProductAdmin: React.FC = () => {
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
     const [images, setImages] = useState<any[]>([]);
+    const [designImage, setDesignImage] = useState<any[]>([]);
     const [videos, setVideos] = useState<any[]>([]);
     const [featureFields, setFeatureFields] = useState<any[]>([]);
     const [form] = Form.useForm();
@@ -211,6 +212,15 @@ const ProductAdmin: React.FC = () => {
                         remainingVideos.push(f.url);
                     }
                 });
+            }
+
+            if (values.designImage && values.designImage.length > 0) {
+                const file = values.designImage[0];
+                if (file.originFileObj) {
+                    formData.append("designImage", file.originFileObj);
+                } else if (file.url) {
+                    formData.append("existingDesignImage", file.url);
+                }
             }
 
             formData.append("remainingImages", JSON.stringify(remainingImages));
@@ -545,6 +555,30 @@ const ProductAdmin: React.FC = () => {
                                     rules={[{ required: true, message: "Vui lòng nhập độ tuổi!" }]}
                                 >
                                     <Input className="input" placeholder="Trẻ, Trung niên, Già, ..."/>
+                                </Form.Item>
+                                <Form.Item
+                                    label="Ảnh thiết kế gốc"
+                                    name="designImage"
+                                    valuePropName="fileList"
+                                    getValueFromEvent={normFile}
+                                    rules={[{ required: true, message: "Vui lòng tải lên ảnh thiết kế gốc!" }]}
+                                >
+                                    <Upload 
+                                        listType="picture-card" 
+                                        beforeUpload={() => false}
+                                        maxCount={1}
+                                        showUploadList={{
+                                            showPreviewIcon: false,
+                                            showRemoveIcon: true
+                                        }}
+                                        fileList={designImage}
+                                        onChange={(fileList: any) => {setDesignImage(fileList)}}
+                                        onRemove={() => setDesignImage([])}
+                                    >
+                                        <div>
+                                            <UploadOutlined /> Tải lên ảnh
+                                        </div>
+                                    </Upload>
                                 </Form.Item>
                             </div>
                             <div className="col-span-1 overflow-y-auto max-h-[70vh] pr-2">
