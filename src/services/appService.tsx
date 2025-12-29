@@ -95,6 +95,10 @@ export const getRateApi = (productId: number, filter: number, page: number): Pro
     })
 }
 
+export const trainLightFMApi = (): Promise<BackendResponse> => {
+    return axios.get("/train-lightfm")
+}
+
 export const productDataProcess = (rawData: RawProduction[]): ProductionCardProps[] => {
     let result: ProductionCardProps[] = [];
     const categoriesPath: string[] = ["shirt", "pant", "dress", "skirt"]

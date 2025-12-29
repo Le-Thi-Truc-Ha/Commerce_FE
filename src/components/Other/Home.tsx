@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import ProductionCard from "../Utilities/ProductionCard/ProductionCard";
 import { useNavigate } from "react-router-dom";
 import { messageService, type BackendResponse, type ProductionCardProps, type RawProduction } from "../../interfaces/appInterface";
-import { getBestSellerApi, productDataProcess } from "../../services/appService";
+import { getBestSellerApi, productDataProcess, trainLightFMApi } from "../../services/appService";
 import Loading from "./Loading";
 import { UserContext } from "../../configs/globalVariable";
 
@@ -98,6 +98,16 @@ const Home = (): JSX.Element => {
         "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034361/pro_nau_02_2_7d4060a2227a4752b0b63c3085115cbd_grande_fhjfrz.jpg",
         "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034364/pro_xanh_la_02_2_1f6d681e5b90406297ad49dc9ad4e850_grande_gbmcbx.jpg"
     ]
+
+    const callLightFM = async () => {
+        try {
+            const result = await trainLightFMApi();
+            console.log(result);
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở server");
+        }
+    }
     
     return(
         <>
@@ -253,6 +263,7 @@ const Home = (): JSX.Element => {
                                 variant="solid"
                                 color="primary"
                                 onClick={() => {
+                                    callLightFM()
                                 }}
                             >
                                 Test
