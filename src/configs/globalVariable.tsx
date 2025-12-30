@@ -1,8 +1,9 @@
 import { createContext, useEffect, useState, type Dispatch, type JSX, type ReactNode, type SetStateAction } from "react";
 import { useNavigate } from "react-router-dom";
 import * as appService from "../services/appService";
-import { messageService, type BackendResponse } from "../interfaces/appInterface";
+import { messageService, type BackendResponse, type ProductionCardProps, type RawProduction } from "../interfaces/appInterface";
 import { setSessionKey } from "../components/Other/Login";
+import { productDataProcess } from "../services/appService";
 
 export interface UserType {
     isAuthenticated: boolean,
@@ -22,7 +23,7 @@ interface UserContextType {
     cart: number,
     setCart: Dispatch<SetStateAction<number>>,
     quantityOrder: {cartId: number, quantityUpdate: number}[],
-    setQuantityOrder: Dispatch<SetStateAction<{cartId: number, quantityUpdate: number}[]>>
+    setQuantityOrder: Dispatch<SetStateAction<{cartId: number, quantityUpdate: number}[]>>,
 }
 
 export const UserContext = createContext<UserContextType>({
@@ -49,7 +50,7 @@ export const UserProvider = ({children}: UserProviderProps): JSX.Element => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [pathBeforeLogin, setPathBeforeLogin] = useState<string>("/");
     const [cart, setCart] = useState<number>(0);
-    const [quantityOrder, setQuantityOrder] = useState<{cartId: number, quantityUpdate: number}[]>([])
+    const [quantityOrder, setQuantityOrder] = useState<{cartId: number, quantityUpdate: number}[]>([]);
     const navigate = useNavigate();
 
     useEffect(() => {

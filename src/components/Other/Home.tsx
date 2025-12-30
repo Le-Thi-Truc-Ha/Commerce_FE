@@ -5,9 +5,10 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import ProductionCard from "../Utilities/ProductionCard/ProductionCard";
 import { useNavigate } from "react-router-dom";
 import { messageService, type BackendResponse, type ProductionCardProps, type RawProduction } from "../../interfaces/appInterface";
-import { getBestSellerApi, productDataProcess, trainLightFMApi } from "../../services/appService";
+import { getBestSellerApi, getMoreRecommendApi, getRecommendApi, productDataProcess, trainLightFMApi } from "../../services/appService";
 import Loading from "./Loading";
 import { UserContext } from "../../configs/globalVariable";
+import LoadingModal from "./LoadingModal";
 
 const Home = (): JSX.Element => {
     const navigate = useNavigate();
@@ -15,6 +16,9 @@ const Home = (): JSX.Element => {
     const [bannerActive, setBannerActive] = useState<number>(0);
     const [bestSellerLoading, setBestSellerLoading] = useState<boolean>(false);
     const [bestSeller, setBestSeller] = useState<ProductionCardProps[]>([]);
+    const [openLoading, setOpenLoading] = useState<boolean>(false);
+    const [productLength, setProductLength] = useState<number>(0);
+    const [recommendProduct, setRecommendProduct] = useState<ProductionCardProps[]>([]);
 
     const urlBanners = [
         "https://res.cloudinary.com/dibigdhgr/image/upload/v1759039590/Beige_Aesthetic_New_Arrival_Fashion_Banner_Landscape_vqsazn.png",
@@ -29,7 +33,8 @@ const Home = (): JSX.Element => {
         {name: "Áo", path: "shirt",  url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751103/tshirt_enlypz.png"},
         {name: "Quần", path: "pant", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/pants_yfrgrx.png"},
         {name: "Đầm", path: "dress", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751847/dress_tvwba9.png"},
-        {name: "Váy", path: "skirt", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/skirt_tbxhg5.png"}    ]
+        {name: "Váy", path: "skirt", url: "https://res.cloudinary.com/dibigdhgr/image/upload/v1759751848/skirt_tbxhg5.png"}    
+    ]
 
     const controlSlider = (nameButton: string) => {
         if (nameButton == "left") {
@@ -49,6 +54,7 @@ const Home = (): JSX.Element => {
 
     useEffect(() => {
         getBestSeller();
+        getRecommend();
     }, [])
 
     const getBestSeller = async () => {
@@ -64,48 +70,59 @@ const Home = (): JSX.Element => {
         } catch(e) {
             console.log(e);
             messageService.error("Xảy ra lỗi ở server");
+        }
+    }
+
+    const getRecommend = async () => {
+        try {
+            let productRecent: number[] = [];
+            const now = new Date();
+            const today3am = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 3, 0, 0).getTime();
+            const value = localStorage.getItem("productRecent");
+
+            if (value) {
+                const item: {createAt: number, productRecent: number[]} = JSON.parse(value);
+                if (item.createAt < today3am) {
+                    localStorage.removeItem("productRecent");
+                } else {
+                    productRecent = item.productRecent;
+                }
+            } 
+            const result = await getRecommendApi(user.accountId, productRecent);
+            if (result.code == 0) {
+                const rawData: RawProduction[] = result.data.productInfomation;
+                setRecommendProduct(productDataProcess(rawData));
+                localStorage.setItem("recommend", JSON.stringify(result.data.productId));
+                setProductLength(result.data.productId.length);
+            }
+        } catch(e) {
+            console.log(e);
+            messageService.error("Xảy ra lỗi ở service");
         } finally {
             setBestSellerLoading(false);
         }
     }
 
-    const starProduction: number[] =[
-        5, 5,
-        5, 5,
-        5, 5,
-        5, 5
-    ]
-
-    const nameRecommend: string[] = [
-        "Áo tơ thêu sát nách cổ tròn phối ren đính nút gỗ", "Áo thun hoa trễ vai tay dài viền ren đính nơ",
-        "Váy skort cơ bản kẻ sọc", "Áo gile kẻ sọc thắt nơ thân trước",
-        "Áo decoup tay phồng cổ tròn viền ren", "Quần culotte xếp li hông",
-        "Áo blazer form cơ bản tay dài 2 túi", "Áo thun 4 chiều form basic tay ngắn"
-    ]
-    const priceRecommend: string[] = [
-        "364,000₫", "265,500₫",
-        "213,000₫", "213,000₫",
-        "355,000₫", "364,000₫",
-        "556,000₫", "204,000₫"
-    ]
-    const imageRecommend: string[] = [
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034348/pro_hong_01_2_91fa9ebd5e7448e3a11f151f19b9e8ef_grande_h86y3i.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034350/pro_den_1_fd131a81abbf42c1b1e7868ad99fef17_grande_r5txmz.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034352/pro_trang_4_6188e6cde05c40ce98f7e65c19fc7011_grande_w0byvi.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034357/pro_den_3_b5e52ae3d9e54b65bdf58a64be1dcf19_grande_fbf0qy.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034355/pro_nau_02_2_69885c0c4ae549f784aa67539a1bd84b_grande_adl8g3.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034359/pro_den_3_b8bbfb2ca9eb4ec1979f93041d65a3dd_grande_nye8yu.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034361/pro_nau_02_2_7d4060a2227a4752b0b63c3085115cbd_grande_fhjfrz.jpg",
-        "https://res.cloudinary.com/dibigdhgr/image/upload/v1760034364/pro_xanh_la_02_2_1f6d681e5b90406297ad49dc9ad4e850_grande_gbmcbx.jpg"
-    ]
-
-    const callLightFM = async () => {
+    const getMoreRecommend = async () => {
+        setOpenLoading(true);
         try {
-            const result = await trainLightFMApi();
-            console.log(result);
+            const productIdString = localStorage.getItem("recommend");
+            const productIdList: number[] = productIdString ? JSON.parse(productIdString) : [];
+
+            const result = await getMoreRecommendApi(productLength > 0 ? productIdList.slice(recommendProduct.length, recommendProduct.length + 8) : [], user.accountId);
+            if (result.code == 0) {
+                const rawData: RawProduction[] = result.data;
+                setRecommendProduct((prev) => (
+                    [...prev, ...productDataProcess(rawData)]
+                ));
+            } else {
+                messageService.error(result.message);
+            }
         } catch(e) {
             console.log(e);
-            messageService.error("Xảy ra lỗi ở server");
+            messageService.error("Xảy ra lỗi ở service");
+        } finally {
+            setOpenLoading(false);
         }
     }
     
@@ -232,33 +249,26 @@ const Home = (): JSX.Element => {
                 </Col>
                 <Col span={24} style={{display: "flex", justifyContent: "center"}}>
                     <div style={{width: "94%", display: "flex", justifyContent: "center"}}>
-                        {
-                            false && (
-                                <Row gutter={[0, 50]}>
-                                    {
-                                        nameRecommend.map((item, index) => (
-                                            <ProductionCard 
-                                                key={index} 
-                                                productId={index} 
-                                                url={imageRecommend[index]} 
-                                                name={item} 
-                                                price={100000} 
-                                                star={starProduction[index]}
-                                                discount={null}
-                                                category={"shirt"}
-                                                isLike={false}
-                                                status={1}
-                                                saleFigure={1}
-                                            />
-                                        ))
-                                    }
-                                </Row>
-                            )
-                        }
-                        {/* <div style={{fontSize: "25px"}}>
-                            Chưa hoàn thiện
-                        </div> */}
-                        <div>
+                        <Row gutter={[0, 50]}>
+                            {
+                                recommendProduct.map((item, index) => (
+                                    <ProductionCard 
+                                        key={index} 
+                                        productId={item.productId} 
+                                        url={item.url} 
+                                        name={item.name} 
+                                        price={item.price} 
+                                        star={item.star} 
+                                        discount={item.discount}
+                                        category={item.category}
+                                        isLike={item.isLike}
+                                        status={item.status}
+                                        saleFigure={item.saleFigure}
+                                    />
+                                ))
+                            }
+                        </Row>
+                        {/* <div>
                             <Button
                                 variant="solid"
                                 color="primary"
@@ -268,11 +278,11 @@ const Home = (): JSX.Element => {
                             >
                                 Test
                             </Button>
-                        </div>
+                        </div> */}
                     </div>
                 </Col>
                 {
-                    false && (
+                    recommendProduct.length < productLength && (
                         <Col span={24} style={{display: "flex", justifyContent: "center", padding: "40px 0px 0px"}}>
                             <ConfigProvider
                                 theme={{
@@ -298,6 +308,9 @@ const Home = (): JSX.Element => {
                                     variant="solid"
                                     color="primary"
                                     size="large"
+                                    onClick={() => {
+                                        getMoreRecommend()
+                                    }}
                                 >
                                     Xem thêm
                                 </Button>
@@ -305,8 +318,11 @@ const Home = (): JSX.Element => {
                         </Col>
                     )
                 }
-                
             </Row>
+            <LoadingModal 
+                open={openLoading}
+                message="Đang lấy dữ liệu"
+            />
             {
                 bestSellerLoading && (
                     <Loading />

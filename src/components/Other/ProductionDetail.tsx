@@ -5,7 +5,7 @@ import "./ProductionDetail.scss";
 import { AnimatePresence } from "framer-motion";
 import { configProvider, divConfig, messageService, MotionDiv, type ProductDetail, type RateData, type RawProductDetail } from "../../interfaces/appInterface";
 import { UserContext } from "../../configs/globalVariable";
-import { getProductDetailApi, getRateApi, saveHistoryApi } from "../../services/appService";
+import { addProductRecent, getProductDetailApi, getRateApi, saveHistoryApi } from "../../services/appService";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import LoadingModal from "./LoadingModal";
@@ -126,6 +126,7 @@ const ProductionDetail = (): JSX.Element => {
     
     const saveHistory = async () => {
         if (!isNaN(Number(id))) {
+            addProductRecent(Number(id));
             setSkeletonLoading(true)
             try {
                 const result = await saveHistoryApi(user.isAuthenticated ? user.accountId : -1, Number(id), dayjs().toISOString());
