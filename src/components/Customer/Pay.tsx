@@ -13,6 +13,7 @@ import VoucherModal from "../Utilities/Order/VoucherModal";
 import lodash from "lodash";
 import { useNavigate } from "react-router-dom";
 import LoadingModal from "../Other/LoadingModal";
+import { addProductRecent } from "../../services/appService";
 
 const {TextArea} = Input;
 
@@ -378,6 +379,9 @@ const Pay = (): JSX.Element => {
                         voucherId: shipVoucherSelect,
                         voucherCode: voucher?.code ?? ""
                     }}
+                }
+                for (const item of productOrder) {
+                    addProductRecent(item.productId);
                 }
                 const result = await orderProductApi(user.accountId, productOrder, addressOrder, totalPrice, dayjs().toISOString(), note, voucherUse, shippingFeeId, payMethod, finalPrice);
                 setOrderProductLoading(false);

@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import type { FavouriteListProps, ProductionFavouriteProps, RawFavourite } from "../../../interfaces/customerInterface";
 import LoadingModal from "../../Other/LoadingModal";
 import AddCartModal from "./AddCartModal";
+import { addProductRecent } from "../../../services/appService";
 
 const ProductionFavourite = ({id, productCard, setFavouriteList, type, setTotal, take}: ProductionFavouriteProps): JSX.Element => {
     const navigate = useNavigate();
@@ -20,6 +21,7 @@ const ProductionFavourite = ({id, productCard, setFavouriteList, type, setTotal,
     const addFavourite = async () => {
         if (user.isAuthenticated) {
             setLoading(true)
+            addProductRecent(productCard.productId);
             try {
                 const result: BackendResponse = await addFavouriteApi(user.accountId, productCard.productId)
                 setLoading(false);

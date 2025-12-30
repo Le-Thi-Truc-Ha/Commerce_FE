@@ -5,6 +5,7 @@ import { messageService, type BackendResponse } from "../interfaces/appInterface
 import type { AddressInformation, CartProduct, FavouriteListProps, RawFavourite } from "../interfaces/customerInterface";
 import type { NavigateFunction } from "react-router-dom";
 import axiosPackage from "axios";
+import { addProductRecent } from "./appService";
 
 export const getAccountInformationApi = (accountId: number): Promise<BackendResponse> => {
     return axios.get(`/customer/get-account-information?accountId=${accountId}`)
@@ -210,6 +211,7 @@ export const addFavourite = async (
 ) => {
     if (user.isAuthenticated) {
         setLoading(true)
+        addProductRecent(productId);
         try {
             const result: BackendResponse = await addFavouriteApi(user.accountId, productId)
             setLoading(false);
@@ -278,6 +280,9 @@ export const addCart = async (
         if (sizeSelect.length > 0 && sizeSelect.find((item) => (item == "")) || colorSelect.length > 0 && colorSelect.find((item) => (item == ""))) {
             messageService.error("Chọn phân loại sản phẩm")
         } else {
+            for (const item of productId) {
+                addProductRecent(item);
+            }
             setModalLoading(true);
             try {
                 const result: BackendResponse = await addCartApi(user.accountId, productId, variantId, quantitySelect, now);

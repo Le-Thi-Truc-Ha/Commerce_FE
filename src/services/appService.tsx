@@ -95,6 +95,18 @@ export const getRateApi = (productId: number, filter: number, page: number): Pro
     })
 }
 
+export const getRecommendApi = (accountId: number, productRecent: number[]): Promise<BackendResponse> => {
+    return axios.post("/get-recommend", {
+        accountId, productRecent
+    })
+}
+
+export const getMoreRecommendApi = (productId: number[], accountId: number): Promise<BackendResponse> => {
+    return axios.post("/get-more-recommend", {
+        productId, accountId
+    })
+}
+
 export const trainLightFMApi = (): Promise<BackendResponse> => {
     return axios.get("/train-lightfm")
 }
@@ -102,8 +114,6 @@ export const trainLightFMApi = (): Promise<BackendResponse> => {
 export const productDataProcess = (rawData: RawProduction[]): ProductionCardProps[] => {
     let result: ProductionCardProps[] = [];
     const categoriesPath: string[] = ["shirt", "pant", "dress", "skirt"]
-
-    console.log(rawData);
     result = rawData.map((item) => {
         const percent = item.productPromotions.find((promotionItem) => (promotionItem.promotion != null))?.promotion?.percent ?? null;
         return({
@@ -120,4 +130,37 @@ export const productDataProcess = (rawData: RawProduction[]): ProductionCardProp
         })
     })
     return result;
+}
+
+export const addProductRecent = (productId: number) => {
+    const now = new Date();
+    const today3am = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 3, 0, 0).getTime();
+    const value = localStorage.getItem("productRecent");
+
+    if (!value) {
+        const productRecent = [productId];
+        localStorage.setItem("productRecent", JSON.stringify({
+            createAt: Date.now(),
+            productRecent: productRecent
+        }))
+    } else {
+        const item: {createAt: number, productRecent: number[]} = JSON.parse(value);
+
+        if (item.createAt < today3am) {
+            const productRecent = [productId];
+            localStorage.setItem("productRecent", JSON.stringify({
+                createAt: Date.now(),
+                productRecent: productRecent
+            }))
+        } else {
+            let productRecent: number[] = item.productRecent;
+            if (!productRecent.includes(productId)) {
+                productRecent.unshift(productId);
+            }
+            localStorage.setItem("productRecent", JSON.stringify({
+                createAt: item.createAt,
+                productRecent: productRecent
+            }))
+        }
+    }
 }

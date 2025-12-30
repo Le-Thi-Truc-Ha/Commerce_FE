@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import { getFeedbackOrderApi, sendFeedbackApi, updateFeedbackApi } from "../../../services/customerService";
 import LoadingModal from "../../Other/LoadingModal";
 import lodash from "lodash";
+import { addProductRecent } from "../../../services/appService";
 
 const FeedbackModal = ({openModal, setOpenModal, name, size, color, url, productVariantId, productId, orderId, mode, setFeedbackOrderId}: FeedbackModalProps): JSX.Element => {
     const {TextArea} = Input;
@@ -188,6 +189,11 @@ const FeedbackModal = ({openModal, setOpenModal, name, size, color, url, product
                 formData.append("star", JSON.stringify(rateValue));
                 formData.append("content", JSON.stringify(content));
                 formData.append("orderId", orderId.toString());
+                for (let i = 0; i < productId.length; i++) {
+                    if (rateValue[i] >= 4) {
+                        addProductRecent(productId[i])
+                    }
+                }
                 const result = await sendFeedbackApi(formData);
                 if (result.code == 0) {
                     messageService.success(result.message);
@@ -232,6 +238,11 @@ const FeedbackModal = ({openModal, setOpenModal, name, size, color, url, product
                     formData.append("removeMedia", JSON.stringify(removeMedia));
                     formData.append("feedbackId", JSON.stringify(feedbackId));
                     formData.append("firstRate", JSON.stringify(firstRate));
+                    for (let i = 0; i < productId.length; i++) {
+                        if (rateValue[i] >= 4) {
+                            addProductRecent(productId[i])
+                        }
+                    }
                     const result = await updateFeedbackApi(formData);
                     if (result.code == 0) {
                         messageService.success(result.message);

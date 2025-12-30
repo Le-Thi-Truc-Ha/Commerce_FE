@@ -4,7 +4,7 @@ import { Search, X } from "lucide-react";
 import ProductionCard from "../Utilities/ProductionCard/ProductionCard";
 import { configProvider, messageService, type ProductionCardProps } from "../../interfaces/appInterface";
 import LoadingModal from "./LoadingModal";
-import { findProductApi, productDataProcess } from "../../services/appService";
+import { addProductRecent, findProductApi, productDataProcess } from "../../services/appService";
 import { UserContext } from "../../configs/globalVariable";
 import { getSessionKey } from "../../configs/axios";
 import { setSessionKey } from "./Login";
@@ -56,6 +56,9 @@ const SearchProduction = (): JSX.Element => {
                     setCurrentPage(1);
                     setHasSearch(true);
                     const productId = result.data.productId;
+                    for (const item of productId) {
+                        addProductRecent(item);
+                    }
                     const rawProduct = result.data.product;
                     setProductList(productDataProcess(rawProduct));
                     const payload = {findValue: findValue, productId: productId}
