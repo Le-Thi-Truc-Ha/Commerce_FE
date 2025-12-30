@@ -9,25 +9,6 @@ import { messageService } from "../../interfaces/appInterface";
 
 const { Option } = Select;
 
-const categoryFetures: Record<string, { label: string; key: string, placeholder: string }[]> = {
-    "Áo": [
-        { label: "Dáng cổ", key: "neckline", placeholder: "Cổ tròn, Cổ V, Cổ sơ mi, ..." },
-        { label: "Dáng tay", key: "sleeve", placeholder: "Dài, Ngắn, Phồng, ..." }
-    ],
-    "Quần": [
-        { label: "Chiều dài quần", key: "pantLength", placeholder: "Ngắn, Lửng, dài, ..." },
-        { label: "Dáng quần", key: "pantShape", placeholder: "Suông, Ôm, Culottes, Ống loe, ..." }
-    ],
-    "Đầm": [
-        { label: "Chiều dài đầm", key: "dressLength", placeholder: "mini, midi, maxi, ..." },
-        { label: "Dáng đầm", key: "dressShape", placeholder: "Suông, Ôm, ..." }
-    ],
-    "Váy": [
-        { label: "Chiều dài váy", key: "skirtLength", placeholder: "mini, midi, maxi, ..." },
-        { label: "Dáng váy", key: "skirtShape", placeholder: "Xòe, Bút chì, Chữ A, ..." }
-    ]
-};
-
 const ProductAdmin: React.FC = () => {
     const navigate = useNavigate();
     const [products, setProducts] = useState<Product[]>([]);
@@ -40,7 +21,6 @@ const ProductAdmin: React.FC = () => {
     const [images, setImages] = useState<any[]>([]);
     const [designImage, setDesignImage] = useState<any[]>([]);
     const [videos, setVideos] = useState<any[]>([]);
-    const [featureFields, setFeatureFields] = useState<any[]>([]);
     const [form] = Form.useForm();
 
     const [search, setSearch] = useState("");
@@ -92,26 +72,6 @@ const ProductAdmin: React.FC = () => {
         setCategoryFilter(undefined);
         setPriceFilter(undefined);
     };
-
-    const getFeatures = (category: any) => {
-        if (categoryFetures[category.name]) {
-            return categoryFetures[category.name];
-        }
-        
-        if (category.parent && categoryFetures[category.parent.name]) {
-            return categoryFetures[category.parent.name];
-        }
-        return []
-    }
-
-    useEffect(() => {
-        if (selectedCategory) {
-            const cat = categories.find((c) => c.id === selectedCategory); 
-            setFeatureFields(getFeatures(cat));
-        } else {
-            setFeatureFields([]); 
-        }
-    }, [selectedCategory, categories]);
 
     const handleRemoveImage = (file: any) => {
         setImages((prev) => prev.filter((f) => f.uid !== file.uid));
@@ -186,14 +146,6 @@ const ProductAdmin: React.FC = () => {
             if (values.season) formData.append("season", values.season);
             if (values.style) formData.append("style", values.style);
             if (values.age) formData.append("age", values.age);
-            
-            const featureData: Record<string, string> = {};
-            featureFields.forEach((f) => {
-                if (values[f.key]) {
-                    featureData[f.key] = values[f.key];
-                }
-            });
-            formData.append("features", JSON.stringify(featureData));
 
             if (values.images) {
                 values.images.forEach((f: any) => {
@@ -448,16 +400,6 @@ const ProductAdmin: React.FC = () => {
                                 ))}
                                 </Select>
                             </Form.Item>
-                            {featureFields.map((f) => (
-                                <Form.Item
-                                    key={f.key}
-                                    label={f.label}
-                                    name={f.key}
-                                    rules={[{ required: true, message: `Vui lòng nhập ${f.label.toLowerCase()}!` }]}
-                                >
-                                    <Input placeholder={f.placeholder} className="input" />
-                                </Form.Item>
-                            ))}
                             <Form.Item
                                 label="Ảnh sản phẩm"
                                 name="images"
